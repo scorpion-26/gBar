@@ -14,6 +14,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 
 ## Building and installation
 1. Configure with meson
+    
     *All optional dependencies enabled*
     ```
     meson build --buildtype=release
@@ -43,9 +44,33 @@ gBar audio [monitor]
 
 ## Gallery
 ![The bar with default css](/assets/bar.png)
+
 *Bar with default css*
+
 ![The audio flyin with default css](/assets/audioflyin.png)
+
 *Audio widget with default css*
+
+## Features / Widgets
+Bar: 
+- Workspaces (Hyprland only)
+- Time
+- Bluetooth (BlueZ only)
+- Audio control
+- Power control
+   - Shutdown
+   - Restart
+   - Suspend
+   - Lock (Requires manual setup, see FAQ)
+   - Exit/Logout (Hyprland only)
+- CPU stats: Utilisation, temperature (Temperature requires manual setup, see FAQ)
+- RAM: Utilisation
+- GPU stats (Nvidia only): Utilisation, temperature, VRAM
+- Disk: Free/Total
+
+Audio Flyin: 
+- Audio control
+
 
 ## FAQ
 ### There are already many GTK bars out there, why not use them?
@@ -64,6 +89,7 @@ The colors are from the Dracula theme: https://draculatheme.com
 
 ### I want to customize the colors
 If you have SASS installed: Edit ~/.config/gBar/style.scss and regenerate style.css with it
+
 Else: Edit ~/.config/gBar/style.css directly!
 
 ### I want to modify the widgets behaviour/Add my own widgets
@@ -75,7 +101,9 @@ This happens, when you kill the widget before it closes automatically after a fe
 
 ### CPU Temperature is wrong/Lock doesn't work
 *This is caused by the way my system and/or Linux is setup.*
+
 Temperature: Edit the variable ```tempFilePath``` in ```src/System.cpp``` to the correct thermal zone file and recompile. The one for my system is *very* likely wrong.
+
 Lock: There is no generic way to lock a system. So please, implement it to suit your needs (Replace XXX by a shell command in ```src/System.cpp```)
 
 ### The icons are not showing!
