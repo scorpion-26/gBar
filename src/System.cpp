@@ -294,7 +294,11 @@ namespace System
 
     void ExitWM()
     {
+#ifdef HAS_HYPRLAND
         system("killall Hyprland");
+#else
+        system("Implement me!");
+#endif
     }
 
     void Lock()
