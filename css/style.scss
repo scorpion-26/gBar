@@ -1,0 +1,207 @@
+// colorscheme(dracula)
+// See https://github.com/dracula/dracula-theme/blob/master/LICENSE or dracula/LICENSE for the license
+$bg: #282a36;
+$fg: #f8f8f2;
+$inactive: #44475a;
+$darkblue: #6272a4;
+$cyan: #8be9fd;
+$green: #50fa7b;
+$orange: #ffb86c;
+$pink: #ff79c6;
+$purple: #bd93f9;
+$red: #ff5555;
+$yellow: #f1fa8c;
+
+
+$btblue: #1793D1;
+
+$textsize: 16px;
+
+*{
+    all: unset;
+    font-family: "CaskaydiaCove Nerd Font";
+}
+
+// debug
+.cpu-box{
+    //background-color: #00cc00
+}
+
+.bar {
+    background-color: $bg;
+    border-radius: 16px;
+}
+
+.right {
+    margin-right: 10px;
+    border-radius: 16px;
+}
+
+.time-text {
+    font-size: $textsize;
+}
+
+.reboot-button {
+    font-size: 28px;
+    //margin: -6px 6px -6px 0px;
+    margin-right: 6px;
+    
+    color: $darkblue;
+}
+.sleep-button {
+    font-size: 28px;
+    //margin: -6px 0px -6px 0px;
+
+    color: $darkblue;
+}
+.exit-button {
+    font-size: 28px;
+    //margin: -6px 0px -6px 0px;
+
+    color: $darkblue;
+}
+
+.power-button {
+    font-size: 28px;
+    //margin: -16px -24px -16px 0px;
+
+    color: $red;
+}
+
+.power-box {
+}
+
+.power-box-expand {
+    margin-right: 6px;
+}
+
+.audio-icon {
+    font-size: 24px;
+    color: $orange;
+    margin-right: 12px;
+}
+
+.bt-num {
+    font-size: $textsize;
+    color: $btblue;
+    margin-left: -6px;
+}
+.bt-label-on {
+    font-size: 20px;
+    color: $btblue;
+    margin-right: 6px;
+}
+.bt-label-off {
+    font-size: 24px;
+    color: $btblue;
+    margin-right: 6px;
+}
+.bt-label-connected {
+    font-size: 28px;
+    color: $btblue;
+    margin-right: 6px;
+}
+
+.disk-util-progress {
+    color: $purple;
+    background-color: $inactive;
+    font-size: $textsize;
+}
+.disk-data-text {
+    color: $purple;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
+.vram-util-progress {
+    color: $orange;
+    background-color: $inactive;
+}
+.vram-data-text {
+    color: $orange;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
+.ram-util-progress {
+    color: $yellow;
+    background-color: $inactive;
+}
+.ram-data-text {
+    color: $yellow;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
+.gpu-util-progress {
+    color: $cyan;
+    background-color: $inactive;
+}
+.gpu-data-text {
+    color: $cyan;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
+.cpu-util-progress {
+    color: $green;
+    background-color: $inactive;
+    font-size: $textsize;
+}
+.cpu-data-text {
+    color: $green;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
+.ws-dead {
+    color: $inactive;
+    font-size: $textsize;
+}
+.ws-inactive {
+    color: $darkblue;
+    font-size: $textsize;
+}
+.ws-visible {
+    color: $cyan;
+    font-size: $textsize;
+}
+.ws-current {
+    color: $yellow;
+    font-size: $textsize;
+}
+.ws-active {
+    color: $green;
+    font-size: $textsize;
+}
+
+// Sliders
+trough {
+    border-radius: 3px;
+    border-width: 1px;
+	border-style: none;
+    background-color: $inactive;
+    margin-top: 2px;
+	min-width: 4px;
+	min-height: 4px;
+}
+
+slider {
+    // Controls the size of the control area (set border-style to solid to see)
+	border-radius: 0%;
+    border-width: 1px;
+	border-style: none;
+	margin: -9px -9px -9px -9px;
+	min-width: 16px;
+	min-height: 16px;
+	background-color: transparent;
+}
+
+highlight {
+	border-radius: 3px;
+    border-width: 1px;
+	border-style: none;
+    min-height: 6px;
+	background-color: $orange;
+}
+

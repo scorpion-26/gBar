@@ -1,0 +1,36 @@
+BasedOnStyle: Microsoft
+
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
+AlignEscapedNewlines: Left
+AlignOperands: Align
+PenaltyBreakAssignment: 100
+PenaltyBreakBeforeFirstCallParameter: 20
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+SpaceAfterTemplateKeyword: false
+Cpp11BracedListStyle: true
+IncludeBlocks: Preserve
+SortIncludes: false
+IndentAccessModifiers: false
+AccessModifierOffset: -4 # Stop indenting my access modifiers wierdly! I want them the same level as the class god damn!
+NamespaceIndentation: All
+FixNamespaceComments: false
+PointerAlignment: Left
+ColumnLimit: 150
+KeepEmptyLinesAtTheStartOfBlocks: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterClass: true
+    AfterCaseLabel: true
+    AfterControlStatement: Always
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: true
+    BeforeLambdaBody: true

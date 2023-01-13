@@ -1,0 +1,185 @@
+* {
+  all: unset;
+  font-family: "CaskaydiaCove Nerd Font";
+}
+
+.bar {
+  background-color: #282a36;
+  border-radius: 16px;
+}
+
+.right {
+  margin-right: 10px;
+  border-radius: 16px;
+}
+
+.time-text {
+  font-size: 16px;
+}
+
+.reboot-button {
+  font-size: 28px;
+  margin-right: 6px;
+  color: #6272a4;
+}
+
+.sleep-button {
+  font-size: 28px;
+  color: #6272a4;
+}
+
+.exit-button {
+  font-size: 28px;
+  color: #6272a4;
+}
+
+.power-button {
+  font-size: 28px;
+  color: #ff5555;
+}
+
+.power-box-expand {
+  margin-right: 6px;
+}
+
+.audio-icon {
+  font-size: 24px;
+  color: #ffb86c;
+  margin-right: 12px;
+}
+
+.bt-num {
+  font-size: 16px;
+  color: #1793D1;
+  margin-left: -6px;
+}
+
+.bt-label-on {
+  font-size: 20px;
+  color: #1793D1;
+  margin-right: 6px;
+}
+
+.bt-label-off {
+  font-size: 24px;
+  color: #1793D1;
+  margin-right: 6px;
+}
+
+.bt-label-connected {
+  font-size: 28px;
+  color: #1793D1;
+  margin-right: 6px;
+}
+
+.disk-util-progress {
+  color: #bd93f9;
+  background-color: #44475a;
+  font-size: 16px;
+}
+
+.disk-data-text {
+  color: #bd93f9;
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.vram-util-progress {
+  color: #ffb86c;
+  background-color: #44475a;
+}
+
+.vram-data-text {
+  color: #ffb86c;
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.ram-util-progress {
+  color: #f1fa8c;
+  background-color: #44475a;
+}
+
+.ram-data-text {
+  color: #f1fa8c;
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.gpu-util-progress {
+  color: #8be9fd;
+  background-color: #44475a;
+}
+
+.gpu-data-text {
+  color: #8be9fd;
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.cpu-util-progress {
+  color: #50fa7b;
+  background-color: #44475a;
+  font-size: 16px;
+}
+
+.cpu-data-text {
+  color: #50fa7b;
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.ws-dead {
+  color: #44475a;
+  font-size: 16px;
+}
+
+.ws-inactive {
+  color: #6272a4;
+  font-size: 16px;
+}
+
+.ws-visible {
+  color: #8be9fd;
+  font-size: 16px;
+}
+
+.ws-current {
+  color: #f1fa8c;
+  font-size: 16px;
+}
+
+.ws-active {
+  color: #50fa7b;
+  font-size: 16px;
+}
+
+trough {
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: none;
+  background-color: #44475a;
+  margin-top: 2px;
+  min-width: 4px;
+  min-height: 4px;
+}
+
+slider {
+  border-radius: 0%;
+  border-width: 1px;
+  border-style: none;
+  margin: -9px -9px -9px -9px;
+  min-width: 16px;
+  min-height: 16px;
+  background-color: transparent;
+}
+
+highlight {
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: none;
+  min-height: 6px;
+  background-color: #ffb86c;
+}
+
+/*# sourceMappingURL=style.css.map */
