@@ -3,7 +3,7 @@
   font-family: "CaskaydiaCove Nerd Font";
 }
 
-.bar {
+.bar, tooltip {
   background-color: #282a36;
   border-radius: 16px;
 }
@@ -152,6 +152,111 @@
 .ws-active {
   color: #50fa7b;
   font-size: 16px;
+}
+
+@keyframes connectanim {
+  from {
+    background-image: radial-gradient(circle farthest-side at center, #1793D1 0%, transparent 0%, transparent 100%);
+  }
+  to {
+    background-image: radial-gradient(circle farthest-side at center, #1793D1 0%, #1793D1 100%, transparent 100%);
+  }
+}
+@keyframes disconnectanim {
+  from {
+    background-image: radial-gradient(circle farthest-side at center, transparent 0%, #1793D1 0%, #1793D1 100%);
+  }
+  to {
+    background-image: radial-gradient(circle farthest-side at center, transparent 0%, transparent 100%, #1793D1 100%);
+  }
+}
+@keyframes scanonanim {
+  from {
+    color: #f1fa8c;
+  }
+  to {
+    color: #50fa7b;
+  }
+}
+@keyframes scanoffanim {
+  from {
+    color: #50fa7b;
+  }
+  to {
+    color: #f1fa8c;
+  }
+}
+.bt-bg {
+  background-color: #282a36;
+  border-radius: 16px;
+}
+
+.bt-header-box {
+  margin-top: 4px;
+  margin-right: 8px;
+  margin-left: 8px;
+  font-size: 24px;
+  color: #1793D1;
+}
+
+.bt-body-box {
+  margin-right: 8px;
+  margin-left: 8px;
+}
+
+.bt-button {
+  border-radius: 16px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  font-size: 16px;
+}
+.bt-button.active {
+  animation-name: connectanim;
+  animation-duration: 50ms;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.bt-button.inactive {
+  animation-name: disconnectanim;
+  animation-duration: 50ms;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.bt-button.failed {
+  color: #ff5555;
+}
+
+.bt-close {
+  color: #ff5555;
+  background-color: #44475a;
+  border-radius: 16px;
+  padding: 0px 8px 0px 7px;
+  margin: 0px 0px 0px 8px;
+}
+
+.bt-scan {
+  color: #f1fa8c;
+  background-color: #44475a;
+  border-radius: 16px;
+  padding: 2px 11px 0px 7px;
+  margin: 0px 0px 0px 10px;
+  font-size: 18px;
+}
+.bt-scan.active {
+  animation-name: scanonanim;
+  animation-duration: 50ms;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.bt-scan.inactive {
+  animation-name: scanoffanim;
+  animation-duration: 50ms;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
 
 trough {

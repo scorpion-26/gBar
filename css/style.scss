@@ -27,7 +27,8 @@ $textsize: 16px;
     //background-color: #00cc00
 }
 
-.bar {
+
+.bar,tooltip{
     background-color: $bg;
     border-radius: 16px;
 }
@@ -173,6 +174,112 @@ $textsize: 16px;
 .ws-active {
     color: $green;
     font-size: $textsize;
+}
+
+// Bluetooth Widget
+@keyframes connectanim {
+    from {
+        background-image: radial-gradient(circle farthest-side at center, $btblue 0%, transparent 0%, transparent 100%)
+    }
+    to {
+        background-image: radial-gradient(circle farthest-side at center, $btblue 0%, $btblue 100%, transparent 100%)
+    }
+}
+@keyframes disconnectanim {
+    from {
+        background-image: radial-gradient(circle farthest-side at center, transparent 0%, $btblue 0%, $btblue 100%)
+    }
+    to {
+        background-image: radial-gradient(circle farthest-side at center, transparent 0%, transparent 100%, $btblue 100%)
+    }
+}
+
+@keyframes scanonanim {
+    from {
+        color: $yellow;
+    }
+    to {
+        color: $green;
+    }
+}
+@keyframes scanoffanim {
+    from {
+        color: $green;
+    }
+    to {
+        color: $yellow;
+    }
+}
+
+.bt-bg {
+    background-color: $bg;
+    border-radius: 16px;
+}
+.bt-header-box {
+    margin-top: 4px;
+    margin-right: 8px;
+    margin-left: 8px;
+    font-size: 24px;
+    color: $btblue;
+} 
+.bt-body-box {
+    margin-right: 8px;
+    margin-left: 8px;
+}
+.bt-button {
+    &.active {
+        animation-name: connectanim;
+        animation-duration: 50ms;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+    }
+    &.inactive {
+        animation-name: disconnectanim;
+        animation-duration: 50ms;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+    }
+    &.failed {
+        color: $red;
+    }
+    border-radius: 16px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+
+    margin-bottom: 4px;
+    margin-top: 4px;
+
+    font-size: 16px;
+    // color: $green;
+}
+.bt-close {
+    color: $red;
+    background-color: $inactive;
+    border-radius: 16px;
+	padding: 0px 8px 0px 7px;
+	margin: 0px 0px 0px 8px;
+}
+.bt-scan {
+    &.active {
+        animation-name: scanonanim;
+        animation-duration: 50ms;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+    }
+    &.inactive {
+        animation-name: scanoffanim;
+        animation-duration: 50ms;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+    }
+    color: $yellow;
+    background-color: $inactive;
+    border-radius: 16px;
+    padding: 2px 11px 0px 7px;
+	margin: 0px 0px 0px 10px;
+    font-size: 18px;
 }
 
 // Sliders
