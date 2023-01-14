@@ -1,6 +1,8 @@
 # gBar 
 My personal blazingly fast and efficient status bar + widgets, in case anyone finds a use for it.
 
+*gBar: **G**TK **Bar***
+
 ## Prerequisites 
 *If you don't have the optional dependencies, some features are not available and you must manually disable them.*
 - wayland
@@ -85,7 +87,7 @@ Audio Flyin:
 - Waybar: 
 Great performance, though limited styling(Almost no dynamic sliders, revealers, ...) and (at least for me) buggy css.
 - eww: 
-Really solid project with many great customization options. There is one problem though: Performance
+Really solid project with many great customization options. There is one problem though: Performance.\
 Due to the way eww configuration is set up, for each dynamic variable (the number of them quickly grows) you need a shell command which opens a process. 
 This became quickly a bottleneck, where the bar took up 10% of the CPU-time due to the creation of many processes all the time (without even considering the workspace widget).
 gBar implements all of the information gathering(CPU, RAM, GPU, Disk, ...) in native C++ code, which is WAY faster. In fact, gBar was meant to be a fast replacement/alternative for eww for me.
