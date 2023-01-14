@@ -72,9 +72,10 @@ void Window::Run(int argc, char** argv)
     {
         gtk_layer_set_anchor(m_Window, GTK_LAYER_SHELL_EDGE_BOTTOM, true);
     }
+    UpdateMargin();
 
     // Create widgets
-    CreateAndAddWidget(m_MainWidget.get(), (GtkWidget*)m_Window);
+    Widget::CreateAndAddWidget(m_MainWidget.get(), (GtkWidget*)m_Window);
 
     gtk_widget_show_all((GtkWidget*)m_Window);
 
@@ -87,16 +88,26 @@ void Window::Close()
     gtk_main_quit();
 }
 
-void Window::CreateAndAddWidget(Widget* widget, GtkWidget* parentWidget)
+void Window::UpdateMargin()
 {
-    // Create this widget
-    widget->Create();
-    // Add
-    gtk_container_add((GtkContainer*)parentWidget, widget->Get());
-
-    for (auto& child : widget->GetChilds())
+    for (auto [anchor, margin] : m_Margin)
     {
-        CreateAndAddWidget(child.get(), widget->Get());
+        if (FLAG_CHECK(anchor, Anchor::Left))
+        {
+            gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_LEFT, margin);
+        }
+        if (FLAG_CHECK(anchor, Anchor::Right))
+        {
+            gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_RIGHT, margin);
+        }
+        if (FLAG_CHECK(anchor, Anchor::Top))
+        {
+            gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_TOP, margin);
+        }
+        if (FLAG_CHECK(anchor, Anchor::Bottom))
+        {
+            gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_BOTTOM, margin);
+        }
     }
 }
 
@@ -104,18 +115,23 @@ void Window::SetMargin(Anchor anchor, int32_t margin)
 {
     if (FLAG_CHECK(anchor, Anchor::Left))
     {
-        gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_LEFT, margin);
+        m_Margin[0] = {Anchor::Left, margin};
     }
     if (FLAG_CHECK(anchor, Anchor::Right))
     {
-        gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_RIGHT, margin);
+        m_Margin[1] = {Anchor::Right, margin};
     }
     if (FLAG_CHECK(anchor, Anchor::Top))
     {
-        gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_TOP, margin);
+        m_Margin[2] = {Anchor::Top, margin};
     }
     if (FLAG_CHECK(anchor, Anchor::Bottom))
     {
-        gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_BOTTOM, margin);
+        m_Margin[2] = {Anchor::Bottom, margin};
+    }
+
+    if (m_Window)
+    {
+        UpdateMargin();
     }
 }

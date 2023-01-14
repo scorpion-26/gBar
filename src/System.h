@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -42,6 +43,9 @@ namespace System
 #ifdef HAS_BLUEZ
     struct BluetoothDevice
     {
+        bool connected;
+        bool paired;
+        std::string mac;
         std::string name;
         // Known types: input-[keyboard,mouse]; audio-headset
         std::string type;
@@ -53,6 +57,14 @@ namespace System
         std::vector<BluetoothDevice> devices;
     };
     BluetoothInfo GetBluetoothInfo();
+    void StartScan();
+    void StopScan();
+
+    // MT functions, callback, is from different thread
+    void Connect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish);
+    void Disconnect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish);
+
+    void OpenBTWidget();
 #endif
 
     struct AudioInfo

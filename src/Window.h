@@ -30,7 +30,7 @@ public:
     void SetExclusive(bool exclusive) { m_Exclusive = exclusive; }
 
 private:
-    void CreateAndAddWidget(Widget* widget, GtkWidget* parentWidget);
+    void UpdateMargin();
 
     GtkWindow* m_Window;
     GtkApplication* m_App = nullptr;
@@ -38,6 +38,7 @@ private:
     std::unique_ptr<Widget> m_MainWidget;
 
     Anchor m_Anchor;
+    std::array<std::pair<Anchor, int32_t>, 4> m_Margin;
     bool m_Exclusive = true;
 
     int32_t m_Monitor;

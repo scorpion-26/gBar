@@ -77,7 +77,7 @@ namespace Bar
         }
 
 #ifdef HAS_BLUEZ
-        static Text* btIconText;
+        static Button* btIconText;
         static Text* btDevText;
         static TimerResult UpdateBluetooth(Box&)
         {
@@ -102,6 +102,8 @@ namespace Bar
                 std::string tooltip;
                 for (auto& dev : info.devices)
                 {
+                    if (!dev.connected)
+                        continue;
                     std::string ico = " ";
                     if (dev.type == "input-keyboard")
                     {
@@ -125,6 +127,11 @@ namespace Bar
                 btDevText->SetText(std::move(btDev));
             }
             return TimerResult::Ok;
+        }
+
+        void OnBTClick(Button&)
+        {
+            System::OpenBTWidget();
         }
 #endif
 
@@ -265,7 +272,8 @@ namespace Bar
             DynCtx::btDevText = devText.get();
             devText->SetClass("bt-num");
 
-            auto iconText = Widget::Create<Text>();
+            auto iconText = Widget::Create<Button>();
+            iconText->OnClick(DynCtx::OnBTClick);
             DynCtx::btIconText = iconText.get();
 
             box->AddChild(std::move(devText));

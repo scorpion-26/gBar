@@ -45,6 +45,21 @@ Widget::~Widget()
     gtk_widget_destroy(m_Widget);
 }
 
+void Widget::CreateAndAddWidget(Widget* widget, GtkWidget* parentWidget)
+{
+    // Create this widget
+    widget->Create();
+    // Add
+    gtk_container_add((GtkContainer*)parentWidget, widget->Get());
+
+    gtk_widget_show(widget->m_Widget);
+
+    for (auto& child : widget->GetChilds())
+    {
+        CreateAndAddWidget(child.get(), widget->Get());
+    }
+}
+
 void Widget::SetClass(const std::string& cssClass)
 {
     if (m_Widget)
@@ -54,6 +69,22 @@ void Widget::SetClass(const std::string& cssClass)
         gtk_style_context_add_class(style, cssClass.c_str());
     }
     m_CssClass = cssClass;
+}
+void Widget::AddClass(const std::string& cssClass)
+{
+    if (m_Widget)
+    {
+        auto style = gtk_widget_get_style_context(m_Widget);
+        gtk_style_context_add_class(style, cssClass.c_str());
+    }
+}
+void Widget::RemoveClass(const std::string& cssClass)
+{
+    if (m_Widget)
+    {
+        auto style = gtk_widget_get_style_context(m_Widget);
+        gtk_style_context_remove_class(style, cssClass.c_str());
+    }
 }
 
 void Widget::SetVerticalTransform(const Transform& transform)
@@ -77,7 +108,22 @@ void Widget::SetTooltip(const std::string& tooltip)
 
 void Widget::AddChild(std::unique_ptr<Widget>&& widget)
 {
+    if (m_Widget)
+    {
+        CreateAndAddWidget(widget.get(), m_Widget);
+    }
     m_Childs.push_back(std::move(widget));
+}
+
+void Widget::RemoveChild(size_t idx)
+{
+    ASSERT(idx < m_Childs.size(), "RemoveChild: Invalid index");
+    if (m_Widget)
+    {
+        auto& child = *m_Childs[idx];
+        gtk_container_remove((GtkContainer*)child.m_Widget, m_Widget);
+    }
+    m_Childs.erase(m_Childs.begin() + idx);
 }
 
 void Widget::SetVisible(bool visible)
@@ -281,7 +327,8 @@ void Button::Create()
     auto clickFn = [](UNUSED GtkButton* gtkButton, void* data)
     {
         Button* button = (Button*)data;
-        button->m_OnClick(*button);
+        if (button->m_OnClick)
+            button->m_OnClick(*button);
     };
     g_signal_connect(m_Widget, "clicked", G_CALLBACK(+clickFn), this);
     ApplyPropertiesToWidget();

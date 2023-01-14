@@ -3,6 +3,7 @@
 #include "System.h"
 #include "Bar.h"
 #include "AudioFlyin.h"
+#include "BluetoothDevices.h"
 
 #include <gtk/gtk.h>
 #include <gtk-layer-shell.h>
@@ -43,6 +44,12 @@ int main(int argc, char** argv)
             exit(0);
         }
     }
+#ifdef HAS_BLUEZ
+    else if (strcmp(argv[1], "bluetooth") == 0)
+    {
+        BluetoothDevices::Create(window, monitor);
+    }
+#endif
 
     window.Run(argc, argv);
 

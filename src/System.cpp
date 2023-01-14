@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <thread>
 
 #include <gio/gio.h>
 
@@ -16,6 +17,7 @@
 
 #include <dlfcn.h>
 #include <sys/statvfs.h>
+#include <unistd.h>
 
 namespace System
 {
@@ -207,16 +209,24 @@ namespace System
                 }
                 else if (strstr(type, "org.bluez.Device1"))
                 {
+                    std::string deviceMac;
                     std::string deviceName;
                     std::string deviceType;
                     bool connected = false;
+                    bool paired = false;
 
                     // This is a device -> One "client"
                     char* str = nullptr;
                     GVariant* var = nullptr;
                     while (g_variant_iter_next(propIter, "{sv}", &str, &var))
                     {
-                        if (strstr(str, "Name"))
+                        if (strcmp(str, "Address") == 0)
+                        {
+                            const char* mac = g_variant_get_string(var, nullptr);
+                            // Copy it for us
+                            deviceMac = mac;
+                        }
+                        else if (strstr(str, "Name"))
                         {
                             const char* name = g_variant_get_string(var, nullptr);
                             // Copy it for us
@@ -232,13 +242,14 @@ namespace System
                         {
                             connected = g_variant_get_boolean(var);
                         }
+                        else if (strstr(str, "Paired"))
+                        {
+                            paired = g_variant_get_boolean(var);
+                        }
                         g_free(str);
                         g_variant_unref(var);
                     }
-                    if (connected)
-                    {
-                        out.devices.push_back(BluetoothDevice{std::move(deviceName), std::move(deviceType)});
-                    }
+                    out.devices.push_back(BluetoothDevice{connected, paired, std::move(deviceMac), std::move(deviceName), std::move(deviceType)});
                 }
                 g_variant_iter_free(propIter);
                 g_free(type);
@@ -250,6 +261,76 @@ namespace System
         g_variant_unref(objects);
 
         return out;
+    }
+
+    static Process btctlProcess{-1};
+    void StartScan()
+    {
+        StopScan();
+        btctlProcess = OpenProcess("/bin/sh", "/bin/sh", "-c", "bluetoothctl scan on", NULL);
+    }
+    void StopScan()
+    {
+        if (btctlProcess.pid != -1)
+        {
+            // Ctrl-C stops bluetoothctl
+            kill(btctlProcess.pid, SIGINT);
+            btctlProcess = {-1};
+        }
+    }
+
+    void Connect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish)
+    {
+        auto thread = [&, mac = device.mac, onFinish]()
+        {
+            // 1. Pair
+            if (!device.paired)
+            {
+                int success = system(("bluetoothctl pair " + mac).c_str());
+                if (success != 0)
+                {
+                    onFinish(false, device);
+                    return;
+                }
+            }
+            // 2. Connect
+            if (!device.connected)
+            {
+                int success = system(("bluetoothctl connect " + mac).c_str());
+                if (success != 0)
+                {
+                    onFinish(false, device);
+                    return;
+                }
+            }
+            onFinish(true, device);
+        };
+        std::thread worker(thread);
+        worker.detach();
+    }
+    void Disconnect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish)
+    {
+        auto thread = [&, mac = device.mac, onFinish]()
+        {
+            // 1. Disconnect
+            if (device.connected)
+            {
+                int success = system(("bluetoothctl disconnect " + mac).c_str());
+                if (success != 0)
+                {
+                    onFinish(false, device);
+                    return;
+                }
+            }
+            onFinish(true, device);
+        };
+        std::thread worker(thread);
+        worker.detach();
+    }
+
+    void OpenBTWidget()
+    {
+        OpenProcess("/bin/sh", "/bin/sh", "-c", "gBar bluetooth");
     }
 #endif
 
@@ -322,7 +403,6 @@ namespace System
 #endif
     }
 
-
     void Init()
     {
 #ifdef HAS_NVIDIA
@@ -336,5 +416,8 @@ namespace System
         NvidiaGPU::Shutdown();
 #endif
         PulseAudio::Shutdown();
+#ifdef HAS_BLUEZ
+        StopScan();
+#endif
     }
 }

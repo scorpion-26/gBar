@@ -25,7 +25,14 @@ pulse = dependency('libpulse')
 
 executable(
   'gBar',
-  ['src/gBar.cpp', 'src/Window.cpp', 'src/Widget.cpp', 'src/System.cpp', 'src/Bar.cpp', 'src/AudioFlyin.cpp'],
+  ['src/gBar.cpp', 
+   'src/Window.cpp', 
+   'src/Widget.cpp', 
+   'src/System.cpp', 
+   'src/Bar.cpp', 
+   'src/AudioFlyin.cpp',
+   'src/BluetoothDevices.cpp',
+  ],
   dependencies: [gtk, gtk_layer_shell, pulse],
   install: true
 )

@@ -41,6 +41,10 @@ gBar bar 0
 ```
 gBar audio [monitor]
 ```
+*Open bluetooth widget*
+```
+gBar bluetooth [monitor]
+```
 
 ## Gallery
 ![The bar with default css](/assets/bar.png)
@@ -50,6 +54,10 @@ gBar audio [monitor]
 ![The audio flyin with default css](/assets/audioflyin.png)
 
 *Audio widget with default css*
+
+![The bluetooth widget with default css](/assets/bt.png)
+
+*Bluetooth widget with default css*
 
 ## Features / Widgets
 Bar: 

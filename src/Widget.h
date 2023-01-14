@@ -41,7 +41,7 @@ enum class TransitionType
     SlideDown
 };
 
-struct Transition 
+struct Transition
 {
     TransitionType type;
     uint32_t durationMS;
@@ -81,7 +81,11 @@ public:
         return std::make_unique<TWidget>();
     }
 
+    static void CreateAndAddWidget(Widget* widget, GtkWidget* parentWidget);
+
     void SetClass(const std::string& cssClass);
+    void AddClass(const std::string& cssClass);
+    void RemoveClass(const std::string& cssClass);
     void SetVerticalTransform(const Transform& transform);
     void SetHorizontalTransform(const Transform& transform);
     void SetTooltip(const std::string& tooltip);
@@ -89,6 +93,10 @@ public:
     virtual void Create() = 0;
 
     void AddChild(std::unique_ptr<Widget>&& widget);
+    void RemoveChild(size_t idx);
+
+    std::vector<std::unique_ptr<Widget>>& GetWidgets() {return m_Childs;}
+
     template<typename TWidget>
     void AddTimer(TimerCallback<TWidget>&& callback, uint32_t timeoutMS)
     {

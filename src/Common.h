@@ -60,3 +60,26 @@ namespace Utils
         return buf;
     }
 }
+
+struct Process
+{
+    pid_t pid;
+};
+
+template<typename... Args>
+inline Process OpenProcess(Args... args)
+{
+    pid_t child = fork();
+    ASSERT(child != -1, "fork error");
+
+    if (child == 0)
+    {
+        // Child
+        execl(args...);
+        exit(0);
+    }
+    else
+    {
+        return {child};
+    }
+}
