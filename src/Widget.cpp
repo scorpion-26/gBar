@@ -66,6 +66,15 @@ void Widget::SetHorizontalTransform(const Transform& transform)
     m_HorizontalTransform = transform;
 }
 
+void Widget::SetTooltip(const std::string& tooltip)
+{
+    if (m_Widget)
+    {
+        gtk_widget_set_tooltip_text(m_Widget, tooltip.c_str());
+    }
+    m_Tooltip = tooltip;
+}
+
 void Widget::AddChild(std::unique_ptr<Widget>&& widget)
 {
     m_Childs.push_back(std::move(widget));
@@ -81,6 +90,8 @@ void Widget::ApplyPropertiesToWidget()
     // Apply style
     auto style = gtk_widget_get_style_context(m_Widget);
     gtk_style_context_add_class(style, m_CssClass.c_str());
+
+    gtk_widget_set_tooltip_text(m_Widget, m_Tooltip.c_str());
 
     // Apply transform
     gtk_widget_set_size_request(m_Widget, m_HorizontalTransform.size, m_VerticalTransform.size);

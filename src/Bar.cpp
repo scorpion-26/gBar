@@ -99,7 +99,7 @@ namespace Bar
                 btIconText->SetClass("bt-label-connected");
                 btIconText->SetText("");
                 std::string btDev;
-
+                std::string tooltip;
                 for (auto& dev : info.devices)
                 {
                     std::string ico = " ";
@@ -115,9 +115,13 @@ namespace Bar
                     {
                         ico = " ";
                     }
+                    tooltip += dev.name + " & ";
                     btDev += ico;
                 }
-
+                // Delete last delim
+                if (tooltip.size())
+                    tooltip.erase(tooltip.end() - 3, tooltip.end());
+                btDevText->SetTooltip(tooltip);
                 btDevText->SetText(std::move(btDev));
             }
             return TimerResult::Ok;
@@ -380,10 +384,11 @@ namespace Bar
             {
                 auto workspace = Widget::Create<Button>();
                 workspace->SetHorizontalTransform({8, false, Alignment::Fill});
-                workspace->OnClick([i](Button&)
-                {
-                    System::GotoWorkspace((uint32_t)i + 1);
-                });
+                workspace->OnClick(
+                    [i](Button&)
+                    {
+                        System::GotoWorkspace((uint32_t)i + 1);
+                    });
                 DynCtx::workspaces[i] = workspace.get();
                 box->AddChild(std::move(workspace));
             }

@@ -84,6 +84,7 @@ public:
     void SetClass(const std::string& cssClass);
     void SetVerticalTransform(const Transform& transform);
     void SetHorizontalTransform(const Transform& transform);
+    void SetTooltip(const std::string& tooltip);
 
     virtual void Create() = 0;
 
@@ -126,6 +127,7 @@ protected:
     std::vector<std::unique_ptr<Widget>> m_Childs;
 
     std::string m_CssClass;
+    std::string m_Tooltip;
     Transform m_HorizontalTransform; // X
     Transform m_VerticalTransform;   // Y
 };

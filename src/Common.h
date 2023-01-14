@@ -1,8 +1,15 @@
 #pragma once
 #include <iostream>
+#include <unistd.h>
+
 #define UNUSED [[maybe_unused]]
 #define LOG(x) std::cout << x << '\n'
-#define ASSERT(x, log) if (!(x)) { LOG(log << "\n[Exiting due to assert failed]"); exit(-1); }
+#define ASSERT(x, log)                                  \
+    if (!(x))                                           \
+    {                                                   \
+        LOG(log << "\n[Exiting due to assert failed]"); \
+        exit(-1);                                       \
+    }
 
 // Flag helper macros
 #define BIT(x) (1 << (x))
