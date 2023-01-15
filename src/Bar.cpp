@@ -104,19 +104,7 @@ namespace Bar
                 {
                     if (!dev.connected)
                         continue;
-                    std::string ico = " ";
-                    if (dev.type == "input-keyboard")
-                    {
-                        ico = " ";
-                    }
-                    else if (dev.type == "input-mouse")
-                    {
-                        ico = " ";
-                    }
-                    else if (dev.type == "audio-headset")
-                    {
-                        ico = " ";
-                    }
+                    std::string ico = System::BTTypeToIcon(dev);
                     tooltip += dev.name + " & ";
                     btDev += ico;
                 }

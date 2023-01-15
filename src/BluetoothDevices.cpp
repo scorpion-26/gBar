@@ -48,7 +48,7 @@ namespace BluetoothDevices
                 button.RemoveClass("inactive");
                 state |= DeviceState::RequestConnect;
 
-                System::Connect(device.device, [&dev = device, &but = button](bool success, System::BluetoothDevice&)
+                System::ConnectBTDevice(device.device, [&dev = device, &but = button](bool success, System::BluetoothDevice&)
                         {
                             deviceMutex.lock();
                             if (!success)
@@ -66,7 +66,7 @@ namespace BluetoothDevices
                 button.RemoveClass("active");
                 state |= DeviceState::RequestDisconnect;
 
-                System::Disconnect(device.device, [&dev = device, &but = button](bool success, System::BluetoothDevice&)
+                System::DisconnectBTDevice(device.device, [&dev = device, &but = button](bool success, System::BluetoothDevice&)
                         {
                             deviceMutex.lock();
                             if (!success)
@@ -84,7 +84,7 @@ namespace BluetoothDevices
         {
             if (device.device.name.size())
             {
-                button.SetText(device.device.name);
+                button.SetText(System::BTTypeToIcon(device.device) + device.device.name);
             }
             else
             {
@@ -239,13 +239,13 @@ namespace BluetoothDevices
             {
                 button.AddClass("active");
                 button.RemoveClass("inactive");
-                System::StartScan();
+                System::StartBTScan();
             }
             else
             {
                 button.AddClass("inactive");
                 button.RemoveClass("active");
-                System::StopScan();
+                System::StopBTScan();
             }
         }
     }

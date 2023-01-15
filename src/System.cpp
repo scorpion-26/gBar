@@ -264,12 +264,12 @@ namespace System
     }
 
     static Process btctlProcess{-1};
-    void StartScan()
+    void StartBTScan()
     {
-        StopScan();
+        StopBTScan();
         btctlProcess = OpenProcess("/bin/sh", "/bin/sh", "-c", "bluetoothctl scan on", NULL);
     }
-    void StopScan()
+    void StopBTScan()
     {
         if (btctlProcess.pid != -1)
         {
@@ -279,7 +279,7 @@ namespace System
         }
     }
 
-    void Connect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish)
+    void ConnectBTDevice(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish)
     {
         auto thread = [&, mac = device.mac, onFinish]()
         {
@@ -308,7 +308,7 @@ namespace System
         std::thread worker(thread);
         worker.detach();
     }
-    void Disconnect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish)
+    void DisconnectBTDevice(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish)
     {
         auto thread = [&, mac = device.mac, onFinish]()
         {
@@ -331,6 +331,27 @@ namespace System
     void OpenBTWidget()
     {
         OpenProcess("/bin/sh", "/bin/sh", "-c", "gBar bluetooth");
+    }
+
+    std::string BTTypeToIcon(const BluetoothDevice& dev)
+    {
+        if (dev.type == "input-keyboard")
+        {
+            return " ";
+        }
+        else if (dev.type == "input-mouse")
+        {
+            return " ";
+        }
+        else if (dev.type == "audio-headset")
+        {
+            return " ";
+        }
+        else if (dev.type == "input-gaming")
+        {
+            return "調 ";
+        }
+        return " ";
     }
 #endif
 
@@ -417,7 +438,7 @@ namespace System
 #endif
         PulseAudio::Shutdown();
 #ifdef HAS_BLUEZ
-        StopScan();
+        StopBTScan();
 #endif
     }
 }

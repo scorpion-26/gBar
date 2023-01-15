@@ -57,14 +57,16 @@ namespace System
         std::vector<BluetoothDevice> devices;
     };
     BluetoothInfo GetBluetoothInfo();
-    void StartScan();
-    void StopScan();
+    void StartBTScan();
+    void StopBTScan();
 
     // MT functions, callback, is from different thread
-    void Connect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish);
-    void Disconnect(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish);
+    void ConnectBTDevice(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish);
+    void DisconnectBTDevice(BluetoothDevice& device, std::function<void(bool, BluetoothDevice&)> onFinish);
 
     void OpenBTWidget();
+
+    std::string BTTypeToIcon(const BluetoothDevice& dev);
 #endif
 
     struct AudioInfo
