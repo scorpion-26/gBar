@@ -399,7 +399,7 @@ namespace System
 #ifdef HAS_HYPRLAND
         system("killall Hyprland");
 #else
-        system("Implement me!");
+        LOG("Implement me!");
 #endif
     }
 
