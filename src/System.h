@@ -5,6 +5,8 @@
 
 namespace System
 {
+    std::string GetWorkspaceSymbol(int index);
+
     // From 0-1, all cores
     double GetCPUUsage();
     // Tctl

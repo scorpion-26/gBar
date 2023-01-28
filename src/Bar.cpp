@@ -170,25 +170,21 @@ namespace Bar
                 {
                 case System::WorkspaceStatus::Dead:
                     workspaces[i]->SetClass("ws-dead");
-                    workspaces[i]->SetText(" ");
                     break;
                 case System::WorkspaceStatus::Inactive:
                     workspaces[i]->SetClass("ws-inactive");
-                    workspaces[i]->SetText(" ");
                     break;
                 case System::WorkspaceStatus::Visible:
                     workspaces[i]->SetClass("ws-visible");
-                    workspaces[i]->SetText(" ");
                     break;
                 case System::WorkspaceStatus::Current:
                     workspaces[i]->SetClass("ws-current");
-                    workspaces[i]->SetText(" ");
                     break;
                 case System::WorkspaceStatus::Active:
                     workspaces[i]->SetClass("ws-active");
-                    workspaces[i]->SetText(" ");
                     break;
                 }
+                workspaces[i]->SetText(System::GetWorkspaceSymbol(i));
             }
             return TimerResult::Ok;
         }

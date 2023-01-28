@@ -28,6 +28,8 @@ namespace System
         std::string lockCommand = ""; // idk, no standard way of doing this.
         std::string exitCommand = ""; // idk, no standard way of doing this.
         std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
+        std::vector<std::string> workspaceSymbols = {"", "", "", "", "", "", "", "", ""};
+        std::string defaultWorkspaceSymbol = "";
     };
 
     static Config config;
@@ -74,6 +76,13 @@ namespace System
             {
                 prop = &config.batteryFolder;
             }
+            else if (line.find("WorkspaceSymbol") != std::string::npos) {
+                for (int i = 0; i < 9; i++) {
+                    if (line.find("WorkspaceSymbol-" + std::to_string(i)) != std::string::npos) {
+                        prop = &(config.workspaceSymbols[i]);
+                    }
+                }
+            }
             if (prop == nullptr)
             {
                 LOG("Warning: unknown config var: " << line);
@@ -81,6 +90,18 @@ namespace System
             }
             *prop = line.substr(line.find(' ') + 1); // Everything after space is data
         }
+    }
+
+    std::string GetWorkspaceSymbol(int index) {
+        if (index < 0 || index > 9) {
+            return "";
+        }
+
+        if (config.workspaceSymbols[index].empty()) {
+            return config.defaultWorkspaceSymbol + " ";
+        }
+
+        return config.workspaceSymbols[index] + " ";
     }
 
     struct CPUTimestamp
