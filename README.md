@@ -84,11 +84,23 @@ Audio Flyin:
 ## Plugins
 gBar utilizes a plugin system for custom widgets.
 Plugins are native shared-libraries, which need to be placed inside ```~/.local/lib/gBar```, ```/usr/lib/gBar``` or ```/usr/local/lib/gBar```.
-Inside example/ there is an example plugin setup. To build and run it, run the following commands:
+Inside example/ there is an example plugin setup. To build and run it, run the following commands inside the example directory:
 
-```meson setup build -Dprefix=~/.local``` for the local user or ```meson setup build``` for all users\
-```ninja -C build install```\
-```gBar gBarHelloWorld``` The second argument is the name of the shared library (without 'lib' and '.so').
+```
+meson setup build -Dprefix=~/.local
+```
+for the local user
+OR 
+```
+meson setup build
+``` 
+for all users
+
+```
+ninja -C build install
+gBar gBarHelloWorld
+```
+The second argument is the name of the shared library (without 'lib' and '.so').
 
 
 ## FAQ
