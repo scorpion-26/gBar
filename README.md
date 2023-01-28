@@ -29,10 +29,6 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
     ```
     ninja -C build && sudo ninja -C build install
     ```
-5. Copy css styling into your config directory($XDG_CONFIG_HOME). This will most likely be ~/.config
-    ```
-    mkdir ~/.config/gBar && cp css/* ~/.config/gBar/
-    ```
 
 ## Running gBar
 *Open bar on monitor 0*
@@ -119,9 +115,19 @@ And lastly: Implementing it myself is fun and a great excuse to learn something 
 The colors are from the Dracula theme: https://draculatheme.com
 
 ### I want to customize the colors
-If you have SASS installed: Edit ~/.config/gBar/style.scss and regenerate style.css with it
+First, find where the data is located for gBar. Possible locations: 
+ - /usr/share/gBar
+ - /usr/local/share/gBar
+ - ~/.local/share/gBar
+ - If you cloned this repository locally: Inside css/
 
-Else: Edit ~/.config/gBar/style.css directly!
+ Copy the scss and css files from within the data direction into ~/.config/gBar. e.g.:
+ ```
+ mkdir ~/.config/gBar/
+ cp /usr/local/share/gBar/* ~/.config/gBar/
+ ```
+ This will override the default behaviour. If you have sass installed, you can modify the scss file and then regenerate the css file accordingly. Else modify the css file directly.
+
 
 ### The Audio widget doesn't open
 Delete /tmp/gBar__audio.

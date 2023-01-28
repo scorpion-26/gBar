@@ -60,3 +60,9 @@ install_headers(
   headers,
   subdir: 'gBar'
 )
+
+install_data(
+  ['css/style.css',
+   'css/style.scss'],
+  install_dir: get_option('datadir') / 'gBar'
+)

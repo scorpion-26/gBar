@@ -1,6 +1,9 @@
 #include "Window.h"
 #include "Common.h"
 
+#include <tuple>
+#include <fstream>
+
 #include <gtk/gtk.h>
 #include <gtk-layer-shell.h>
 
@@ -15,28 +18,63 @@ Window::~Window()
     }
 }
 
+void Window::LoadCSS(GtkCssProvider* provider)
+{
+    struct CSSDir
+    {
+        std::string xdgEnv;
+        std::string fallbackPath;
+        std::string relPath;
+    };
+    std::string home = getenv("HOME");
+    std::array<CSSDir, 4> locations = {
+        CSSDir{"XDG_CONFIG_HOME", home + "/.config",      "/gBar/style.css"}, // Local config
+        CSSDir{"XDG_DATA_HOME",   home + "/.local/share", "/gBar/style.css"}, // local user install
+        CSSDir{"",                "/usr/local/share",     "/gBar/style.css"}, // local all install
+        CSSDir{"",                "/usr/share",           "/gBar/style.css"}, // package manager all install
+    };
+
+    GError* err = nullptr;
+    for (auto& dir : locations)
+    {
+        const char* xdgConfig = dir.xdgEnv.size() ? getenv(dir.xdgEnv.c_str()) : nullptr;
+        std::string file;
+        if (xdgConfig)
+        {
+            file = (std::string(xdgConfig) + dir.relPath).c_str();
+        }
+        else
+        {
+            file = (dir.fallbackPath + dir.relPath).c_str();
+        }
+        if (!std::ifstream(file).is_open())
+        {
+            LOG("Info: No CSS found in " << dir.fallbackPath);
+            continue;
+        }
+
+        gtk_css_provider_load_from_path(provider, file.c_str(), &err);
+
+        if (!err)
+        {
+            LOG("CSS found and loaded successfully!");
+            return;
+        }
+        LOG("Warning: Failed loading config for " << dir.fallbackPath << ", trying next one!");
+        // Log any errors
+        LOG(err->message);
+        g_error_free(err);
+    }
+    ASSERT(false, "No CSS file found!");
+}
+
 void Window::Run(int argc, char** argv)
 {
     gtk_init(&argc, &argv);
 
     // Style
     GtkCssProvider* cssprovider = gtk_css_provider_new();
-    GError* err = nullptr;
-    const char* xdgConfig = getenv("XDG_CONFIG_HOME");
-    if (xdgConfig)
-    {
-        gtk_css_provider_load_from_path(cssprovider, (std::string(xdgConfig) + "/gBar/style.css").c_str(), &err);
-    }
-    else
-    {
-        const char* home = getenv("HOME");
-        gtk_css_provider_load_from_path(cssprovider, (std::string(home) + "/.config/gBar/style.css").c_str(), &err);
-    }
-    if (err)
-    {
-        printf("%s\n", err->message);
-        g_error_free(err);
-    }
+    LoadCSS(cssprovider);
 
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), (GtkStyleProvider*)cssprovider, GTK_STYLE_PROVIDER_PRIORITY_USER);
 

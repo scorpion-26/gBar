@@ -32,6 +32,8 @@ public:
 private:
     void UpdateMargin();
 
+    void LoadCSS(GtkCssProvider* provider);
+
     GtkWindow* m_Window;
     GtkApplication* m_App = nullptr;
 
