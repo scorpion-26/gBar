@@ -75,6 +75,10 @@ Bar:
 - GPU stats (Nvidia only): Utilisation, temperature, VRAM
 - Disk: Free/Total
 
+Bluetooth:
+ - Scanning of nearby bluetooth devices
+ - Pairing and connecting
+
 Audio Flyin: 
 - Audio control
 
