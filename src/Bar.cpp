@@ -292,7 +292,7 @@ namespace Bar
         Sensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText);
         Sensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText);
         // Only show battery percentage if battery folder is set and exists
-        if (System::GetBatteryPercentage() != 0) {
+        if (System::GetBatteryPercentage() >= 0) {
             Sensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText);
         }
     }

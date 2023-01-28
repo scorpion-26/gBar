@@ -152,7 +152,7 @@ namespace System
         std::ifstream currentChargeFile(config.batteryFolder + "/charge_now");
         if (!fullChargeFile.is_open() || !currentChargeFile.is_open())
         {
-            return 0.f;
+            return -1.f;
         }
         std::string fullChargeStr;
         std::string currentChargeStr;
