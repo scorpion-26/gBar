@@ -10,6 +10,8 @@ namespace System
     // Tctl
     double GetCPUTemp();
 
+    double GetBatteryPercentage();
+
     struct RAMInfo
     {
         double totalGiB;

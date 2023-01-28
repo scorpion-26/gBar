@@ -27,6 +27,7 @@ namespace System
         std::string suspendCommand = "systemctl suspend";
         std::string lockCommand = ""; // idk, no standard way of doing this.
         std::string exitCommand = ""; // idk, no standard way of doing this.
+        std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
     };
 
     static Config config;
@@ -68,6 +69,10 @@ namespace System
             else if (line.find("ExitCommand: ") != std::string::npos)
             {
                 prop = &config.exitCommand;
+            }
+            else if (line.find("BatteryFolder: ") != std::string::npos)
+            {
+                prop = &config.batteryFolder;
             }
             if (prop == nullptr)
             {
@@ -139,6 +144,23 @@ namespace System
         uint32_t intTemp = atoi(tempStr.c_str());
         double temp = (double)intTemp / 1000;
         return temp;
+    }
+
+    double GetBatteryPercentage()
+    {
+        std::ifstream fullChargeFile(config.batteryFolder + "/charge_full");
+        std::ifstream currentChargeFile(config.batteryFolder + "/charge_now");
+        if (!fullChargeFile.is_open() || !currentChargeFile.is_open())
+        {
+            return 0.f;
+        }
+        std::string fullChargeStr;
+        std::string currentChargeStr;
+        std::getline(fullChargeFile, fullChargeStr);
+        std::getline(currentChargeFile, currentChargeStr);
+        uint32_t intFullCharge = atoi(fullChargeStr.c_str());
+        uint32_t intCurrentCharge = atoi(currentChargeStr.c_str());
+        return ((double)intCurrentCharge / (double)intFullCharge);
     }
 
     RAMInfo GetRAMInfo()
