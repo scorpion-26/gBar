@@ -29,6 +29,16 @@ namespace Bar
             return TimerResult::Ok;
         }
 
+        static Text* batteryText;
+        static TimerResult UpdateBattery(CairoSensor& sensor)
+        {
+            double percentage = System::GetBatteryPercentage();
+
+            batteryText->SetText("Battery: " + Utils::ToStringPrecision(percentage * 100, "%0.1f") + "%");
+            sensor.SetValue(percentage);
+            return TimerResult::Ok;
+        }
+
         static Text* ramText;
         static TimerResult UpdateRAM(CairoSensor& sensor)
         {
@@ -281,6 +291,10 @@ namespace Bar
 #endif
         Sensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText);
         Sensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText);
+        // Only show battery percentage if battery folder is set and exists
+        if (System::GetBatteryPercentage() >= 0) {
+            Sensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText);
+        }
     }
 
     void WidgetPower(Widget& parent)
