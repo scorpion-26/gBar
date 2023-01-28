@@ -21,6 +21,63 @@
 
 namespace System
 {
+    struct Config
+    {
+        std::string cpuThermalZone = ""; // idk, no standard way of doing this.
+        std::string suspendCommand = "systemctl suspend";
+        std::string lockCommand = ""; // idk, no standard way of doing this.
+        std::string exitCommand = ""; // idk, no standard way of doing this.
+    };
+
+    static Config config;
+
+    void LoadConfig()
+    {
+        const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
+        std::ifstream file;
+        if (xdgConfigHome)
+        {
+            file = std::ifstream(std::string(xdgConfigHome) + "/gBar/config");
+        }
+        else
+        {
+            std::string home = getenv("HOME");
+            file = std::ifstream(home + "/.config/gBar/config");
+        }
+        if (!file.is_open())
+        {
+            LOG("Failed opening config!");
+            return;
+        }
+        std::string line;
+        while (std::getline(file, line))
+        {
+            std::string* prop = nullptr;
+            if (line.find("CPUThermalZone: ") != std::string::npos)
+            {
+                prop = &config.cpuThermalZone;
+            }
+            else if (line.find("SuspendCommand: ") != std::string::npos)
+            {
+                prop = &config.suspendCommand;
+            }
+            else if (line.find("LockCommand: ") != std::string::npos)
+            {
+                prop = &config.lockCommand;
+            }
+            else if (line.find("ExitCommand: ") != std::string::npos)
+            {
+                prop = &config.exitCommand;
+            }
+            if (prop == nullptr)
+            {
+                LOG("Warning: unknown config var: " << line);
+                continue;
+            }
+            *prop = line.substr(line.find(' ') + 1); // Everything after space is data
+        }
+    }
+
     struct CPUTimestamp
     {
         size_t total = 0;
@@ -72,8 +129,7 @@ namespace System
 
     double GetCPUTemp()
     {
-        constexpr const char* tempFilePath = "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input";
-        std::ifstream tempFile(tempFilePath);
+        std::ifstream tempFile(config.cpuThermalZone);
         if (!tempFile.is_open())
         {
             return 0.f;
@@ -141,7 +197,7 @@ namespace System
         struct statvfs stat;
         int err = statvfs("/", &stat);
         ASSERT(err == 0, "Cannot stat root!");
-        
+
         DiskInfo out{};
         out.totalGiB = (double)(stat.f_blocks * stat.f_frsize) / (1024 * 1024 * 1024);
         out.usedGiB = (double)((stat.f_blocks - stat.f_bfree) * stat.f_frsize) / (1024 * 1024 * 1024);
@@ -396,36 +452,22 @@ namespace System
 
     void ExitWM()
     {
-#ifdef HAS_HYPRLAND
-        system("killall Hyprland");
-#else
-        LOG("Implement me!");
-#endif
+        system(config.exitCommand.c_str());
     }
 
     void Lock()
     {
-#ifdef HAS_SYS
-        // My personal lock script
-        system("~/.config/scripts/sys.sh lock");
-#else
-        LOG("Lock not implemented! Please implement me below!");
-        // system("XXX");
-#endif
+        system(config.lockCommand.c_str());
     }
 
     void Suspend()
     {
-#ifdef HAS_SYS
-        // My personal suspend script
-        system("~/.config/scripts/sys.sh suspend");
-#else
-        system("systemctl suspend");
-#endif
+        system(config.suspendCommand.c_str());
     }
 
     void Init()
     {
+        LoadConfig();
 #ifdef HAS_NVIDIA
         NvidiaGPU::Init();
 #endif

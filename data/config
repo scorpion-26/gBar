@@ -1,0 +1,4 @@
+CPUThermalZone: /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input
+SuspendCommand: ~/.config/scripts/sys.sh suspend
+LockCommand: ~/.config/scripts/sys.sh lock
+ExitCommand: killall Hyprland

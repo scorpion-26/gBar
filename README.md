@@ -77,8 +77,17 @@ Bar:
 Audio Flyin: 
 - Audio control
 
+## Configuration for your system
+Copy my personal config(found under data/config) into ~/.config/gBar/config and modify it to your needs(Mine will 100% not work, since it is dependant on my dotfiles).
+The config must be *exactly* formatted the following way(Don't forget the space between the variable and the data!):
+```
+[Variable]: [value]
+[Variable]: [value]
+[...]
+```
+
 ## Plugins
-gBar utilizes a plugin system for custom widgets.
+gBar utilizes a plugin system for custom widgets anyone can create without modifying the source code.
 Plugins are native shared-libraries, which need to be placed inside ```~/.local/lib/gBar```, ```/usr/lib/gBar``` or ```/usr/local/lib/gBar```.
 Inside example/ there is an example plugin setup. To build and run it, run the following commands inside the example directory:
 
@@ -133,12 +142,8 @@ First, find where the data is located for gBar. Possible locations:
 Delete /tmp/gBar__audio.
 This happens, when you kill the widget before it closes automatically after a few seconds.
 
-### CPU Temperature is wrong/Lock doesn't work
-*This is caused by the way my system and/or Linux is setup.*
-
-Temperature: Edit the variable ```tempFilePath``` in ```src/System.cpp``` to the correct thermal zone file and recompile. The one for my system is *very* likely wrong.
-
-Lock: There is no generic way to lock a system. So please, implement it to suit your needs (Replace XXX by a shell command in ```src/System.cpp```)
+### CPU Temperature is wrong / Lock doesn't work / Exiting WM does not work
+See *Configuration for your system*
 
 ### The icons are not showing!
 Please install a Nerd Font from https://www.nerdfonts.com (I use Caskaydia Cove NF), and change style.css/style.scss accordingly (Refer to 'I want to customize the colors' for that)
