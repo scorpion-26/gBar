@@ -4,9 +4,8 @@
 #include "Bar.h"
 #include "AudioFlyin.h"
 #include "BluetoothDevices.h"
+#include "Plugin.h"
 
-#include <gtk/gtk.h>
-#include <gtk-layer-shell.h>
 #include <cmath>
 #include <cstdio>
 #include <unistd.h>
@@ -50,6 +49,10 @@ int main(int argc, char** argv)
         BluetoothDevices::Create(window, monitor);
     }
 #endif
+    else
+    {
+        Plugin::LoadWidgetFromPlugin(argv[1], window, monitor);
+    }
 
     window.Run(argc, argv);
 

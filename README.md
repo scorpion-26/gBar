@@ -81,6 +81,15 @@ Bar:
 Audio Flyin: 
 - Audio control
 
+## Plugins
+gBar utilizes a plugin system for custom widgets.
+Plugins are native shared-libraries, which need to be placed inside ```~/.local/lib/gBar```, ```/usr/lib/gBar``` or ```/usr/local/lib/gBar```.
+Inside example/ there is an example plugin setup. To build and run it, run the following commands:
+
+```meson setup build -Dprefix=~/.local``` for the local user or ```meson setup build``` for all users\
+```ninja -C build install```\
+```gBar gBarHelloWorld``` The second argument is the name of the shared library (without 'lib' and '.so').
+
 
 ## FAQ
 ### There are already many GTK bars out there, why not use them?
@@ -101,9 +110,6 @@ The colors are from the Dracula theme: https://draculatheme.com
 If you have SASS installed: Edit ~/.config/gBar/style.scss and regenerate style.css with it
 
 Else: Edit ~/.config/gBar/style.css directly!
-
-### I want to modify the widgets behaviour/Add my own widgets
-Unfortunately, you need to implement it yourself in C++. For inspiration look into src/Bar.cpp or src/AudioFlyin.cpp, or open an issue(Maybe I'll implement it for you).
 
 ### The Audio widget doesn't open
 Delete /tmp/gBar__audio.

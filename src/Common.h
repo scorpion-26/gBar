@@ -83,3 +83,17 @@ inline Process OpenProcess(Args... args)
         return {child};
     }
 }
+
+// Plugins
+#include "Window.h"
+#define DL_VERSION 1
+
+#define DEFINE_PLUGIN(fun)                                                \
+    extern "C" int32_t Plugin_GetVersion()                                \
+    {                                                                     \
+        return DL_VERSION;                                                \
+    };                                                                    \
+    extern "C" void Plugin_InvokeCreateFun(void* window, int32_t monitor) \
+    {                                                                     \
+        fun(*(Window*)window, monitor);                                   \
+    }

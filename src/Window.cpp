@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Common.h"
 
+#include <gtk/gtk.h>
 #include <gtk-layer-shell.h>
 
 Window::Window(std::unique_ptr<Widget>&& mainWidget, int32_t monitor) : m_MainWidget(std::move(mainWidget)), m_Monitor(monitor) {}
