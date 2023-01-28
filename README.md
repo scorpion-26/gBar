@@ -69,6 +69,7 @@ Bar:
    - Suspend
    - Lock (Requires manual setup, see FAQ)
    - Exit/Logout (Hyprland only)
+- Battery: Capacity
 - CPU stats: Utilisation, temperature (Temperature requires manual setup, see FAQ)
 - RAM: Utilisation
 - GPU stats (Nvidia only): Utilisation, temperature, VRAM
