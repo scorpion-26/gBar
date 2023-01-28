@@ -155,6 +155,17 @@ $textsize: 16px;
     font-size: $textsize;
 }
 
+.battery-util-progress {
+    color: $pink;
+    background-color: $inactive;
+    font-size: $textsize;
+}
+.battery-data-text {
+    color: $pink;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
 .ws-dead {
     color: $inactive;
     font-size: $textsize;
