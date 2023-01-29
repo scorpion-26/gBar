@@ -55,6 +55,7 @@ executable(
   ['src/gBar.cpp'], 
   dependencies: [gtk],
   link_with: libgBar,
+  install_rpath: '$ORIGIN/:$ORIGIN/../lib',
   install: true
 )
 
