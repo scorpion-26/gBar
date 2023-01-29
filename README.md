@@ -83,7 +83,7 @@ Audio Flyin:
 - Audio control
 
 ## Configuration for your system
-Copy my personal config(found under data/config) into ~/.config/gBar/config and modify it to your needs(Mine will 100% not work, since it is dependant on my dotfiles).
+Copy the example config (found under data/config) into ~/.config/gBar/config and modify it to your needs.
 
 ## Plugins
 gBar utilizes a plugin system for custom widgets anyone can create without modifying the source code.
