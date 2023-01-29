@@ -28,6 +28,8 @@ namespace System
         std::string lockCommand = ""; // idk, no standard way of doing this.
         std::string exitCommand = ""; // idk, no standard way of doing this.
         std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
+        std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
+        std::string defaultWorkspaceSymbol = "";
     };
 
     static Config config;
@@ -73,6 +75,17 @@ namespace System
             else if (line.find("BatteryFolder: ") != std::string::npos)
             {
                 prop = &config.batteryFolder;
+            }
+            else if (line.find("DefaultWorkspaceSymbol") != std::string::npos) {
+                prop = &config.defaultWorkspaceSymbol;
+            }
+            else if (line.find("WorkspaceSymbol") != std::string::npos) {
+                for (int i = 1; i < 10; i++) {
+                    if (line.find("WorkspaceSymbol-" + std::to_string(i)) != std::string::npos) {
+                        // Subtract 1 to index from 1 to 9 rather than 0 to 8
+                        prop = &(config.workspaceSymbols[i - 1]);
+                    }
+                }
             }
             if (prop == nullptr)
             {
@@ -450,6 +463,18 @@ namespace System
     void GotoWorkspace(uint32_t workspace)
     {
         return Hyprland::Goto(workspace);
+    }
+    std::string GetWorkspaceSymbol(int index) {
+        if (index < 0 || index > 9) {
+            LOG("Workspace Symbol Index Out Of Bounds: " + std::to_string(index));
+            return "";
+        }
+
+        if (config.workspaceSymbols[index].empty()) {
+            return config.defaultWorkspaceSymbol + " ";
+        }
+
+        return config.workspaceSymbols[index] + " ";
     }
 #endif
 
