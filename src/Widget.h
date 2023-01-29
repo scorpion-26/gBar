@@ -58,6 +58,12 @@ struct SliderRange
     double min, max, step;
 };
 
+enum class TimerDispatchBehaviour
+{
+    ImmediateDispatch, // Call immediately after adding the timeout, then every x ms
+    LateDispatch       // Call for the first time after x ms.
+};
+
 enum class TimerResult
 {
     Ok,
@@ -95,10 +101,10 @@ public:
     void AddChild(std::unique_ptr<Widget>&& widget);
     void RemoveChild(size_t idx);
 
-    std::vector<std::unique_ptr<Widget>>& GetWidgets() {return m_Childs;}
+    std::vector<std::unique_ptr<Widget>>& GetWidgets() { return m_Childs; }
 
     template<typename TWidget>
-    void AddTimer(TimerCallback<TWidget>&& callback, uint32_t timeoutMS)
+    void AddTimer(TimerCallback<TWidget>&& callback, uint32_t timeoutMS, TimerDispatchBehaviour dispatch = TimerDispatchBehaviour::ImmediateDispatch)
     {
         struct TimerPayload
         {
@@ -119,6 +125,13 @@ public:
             }
             return true;
         };
+        if (dispatch == TimerDispatchBehaviour::ImmediateDispatch)
+        {
+            if (fn(payload) == false)
+            {
+                return;
+            }
+        }
         g_timeout_add(timeoutMS, +fn, payload);
     }
 
@@ -181,7 +194,7 @@ class CairoSensor : public Widget
 {
 public:
     virtual void Create() override;
-    
+
     // Goes from 0-1
     void SetValue(double val);
     void SetStyle(SensorStyle style);
@@ -197,7 +210,7 @@ class Revealer : public Widget
 {
 public:
     void SetTransition(Transition transition);
-    
+
     void SetRevealed(bool revealed);
 
     virtual void Create() override;

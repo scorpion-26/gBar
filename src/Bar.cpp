@@ -234,6 +234,11 @@ namespace Bar
         box->SetSpacing({8, false});
         box->SetHorizontalTransform({-1, false, Alignment::Right});
         {
+            auto icon = Widget::Create<Text>();
+            icon->SetClass("audio-icon");
+            icon->SetText("墳");
+            DynCtx::audioIcon = icon.get();
+
             auto slider = Widget::Create<Slider>();
             slider->SetOrientation(Orientation::Horizontal);
             slider->SetHorizontalTransform({100, true, Alignment::Fill});
@@ -242,11 +247,6 @@ namespace Bar
             slider->AddTimer<Slider>(DynCtx::UpdateAudio, DynCtx::updateTimeFast);
             slider->OnValueChange(DynCtx::OnChangeVolume);
             slider->SetRange({0, 1, 0.01});
-
-            auto icon = Widget::Create<Text>();
-            icon->SetClass("audio-icon");
-            icon->SetText("墳");
-            DynCtx::audioIcon = icon.get();
 
             box->AddChild(std::move(slider));
             box->AddChild(std::move(icon));
@@ -260,7 +260,6 @@ namespace Bar
     {
         auto box = Widget::Create<Box>();
         box->SetSpacing({0, false});
-        box->AddTimer<Box>(DynCtx::UpdateBluetooth, DynCtx::updateTime);
         {
             auto devText = Widget::Create<Text>();
             DynCtx::btDevText = devText.get();
@@ -273,6 +272,7 @@ namespace Bar
             box->AddChild(std::move(devText));
             box->AddChild(std::move(iconText));
         }
+        box->AddTimer<Box>(DynCtx::UpdateBluetooth, DynCtx::updateTime);
 
         parent.AddChild(std::move(box));
     }
@@ -424,10 +424,10 @@ namespace Bar
 #endif
 
             auto time = Widget::Create<Text>();
-            time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
             time->SetHorizontalTransform({-1, true, Alignment::Center});
             time->SetClass("time-text");
             time->SetText("Uninitialized");
+            time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
 
             auto right = Widget::Create<Box>();
             right->SetClass("right");
