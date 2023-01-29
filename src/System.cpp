@@ -80,9 +80,10 @@ namespace System
                 prop = &config.defaultWorkspaceSymbol;
             }
             else if (line.find("WorkspaceSymbol") != std::string::npos) {
-                for (int i = 0; i < 9; i++) {
+                for (int i = 1; i < 10; i++) {
                     if (line.find("WorkspaceSymbol-" + std::to_string(i)) != std::string::npos) {
-                        prop = &(config.workspaceSymbols[i]);
+                        // Subtract 1 to index from 1 to 9 rather than 0 to 8
+                        prop = &(config.workspaceSymbols[i - 1]);
                     }
                 }
             }
