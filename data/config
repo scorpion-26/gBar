@@ -4,3 +4,4 @@ LockCommand: ~/.config/scripts/sys.sh lock
 ExitCommand: killall Hyprland
 BatteryFolder: /sys/class/power_supply/BAT1
 WorkspaceSymbol-0: 
+DefaultWorkspaceSymbol: 

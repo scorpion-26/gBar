@@ -76,6 +76,9 @@ namespace System
             {
                 prop = &config.batteryFolder;
             }
+            else if (line.find("DefaultWorkspaceSymbol") != std::string::npos) {
+                prop = &config.defaultWorkspaceSymbol;
+            }
             else if (line.find("WorkspaceSymbol") != std::string::npos) {
                 for (int i = 0; i < 9; i++) {
                     if (line.find("WorkspaceSymbol-" + std::to_string(i)) != std::string::npos) {
