@@ -87,7 +87,6 @@ namespace AudioFlyin
         mainWidget->SetSpacing({8, false});
         mainWidget->SetVerticalTransform({16, true, Alignment::Fill});
         mainWidget->SetClass("bar");
-        mainWidget->AddTimer<Box>(DynCtx::Main, 1);
 
         auto padding = Widget::Create<Box>();
         padding->SetHorizontalTransform({8, true, Alignment::Fill});
@@ -97,6 +96,8 @@ namespace AudioFlyin
 
         padding = Widget::Create<Box>();
         mainWidget->AddChild(std::move(padding));
+
+        mainWidget->AddTimer<Box>(DynCtx::Main, 1);
 
         window = Window(std::move(mainWidget), monitor);
         window.SetExclusive(false);

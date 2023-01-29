@@ -277,10 +277,10 @@ namespace BluetoothDevices
     void WidgetBody(Widget& parentWidget)
     {
         auto bodyBox = Widget::Create<Box>();
+        DynCtx::deviceListBox = bodyBox.get();
         bodyBox->SetOrientation(Orientation::Vertical);
         bodyBox->SetClass("bt-body-box");
         bodyBox->AddTimer<Widget>(DynCtx::OnUpdate, 100);
-        DynCtx::deviceListBox = bodyBox.get();
         parentWidget.AddChild(std::move(bodyBox));
     }
 
