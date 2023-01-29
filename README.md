@@ -84,12 +84,6 @@ Audio Flyin:
 
 ## Configuration for your system
 Copy my personal config(found under data/config) into ~/.config/gBar/config and modify it to your needs(Mine will 100% not work, since it is dependant on my dotfiles).
-The config must be *exactly* formatted the following way(Don't forget the space between the variable and the data!):
-```
-[Variable]: [value]
-[Variable]: [value]
-[...]
-```
 
 ## Plugins
 gBar utilizes a plugin system for custom widgets anyone can create without modifying the source code.

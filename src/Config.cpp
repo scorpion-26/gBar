@@ -10,6 +10,80 @@ const Config& Config::Get()
     return config;
 }
 
+template<typename T>
+void ApplyProperty(T& propertyToSet, const std::string_view& value);
+
+template<>
+void ApplyProperty<std::string>(std::string& propertyToSet, const std::string_view& value)
+{
+    propertyToSet = value;
+}
+
+template<>
+void ApplyProperty<uint32_t>(uint32_t& propertyToSet, const std::string_view& value)
+{
+    // Why, C++?
+    std::string valStr = std::string(value);
+    propertyToSet = atoi(valStr.c_str());
+}
+
+template<>
+void ApplyProperty<bool>(bool& propertyToSet, const std::string_view& value)
+{
+    // Why, C++?
+    if (value == "true")
+    {
+        propertyToSet = true;
+    }
+    else if (value == "false")
+    {
+        propertyToSet = false;
+    }
+    else
+    {
+        LOG("Invalid value for bool property: " << value);
+    }
+}
+
+template<typename T>
+void AddConfigVar(const std::string& propertyName, T& propertyToSet, std::string_view line, bool& setConfig)
+{
+    const char* whitespace = " \t";
+    if (setConfig)
+    {
+        // Don't bother, already found something else
+        return;
+    }
+
+    // Strip empty space at the beginning
+    size_t firstChar = line.find_last_not_of(whitespace);
+    if (firstChar == std::string::npos)
+    {
+        // Line is empty, don't need to check anymore
+        setConfig = true;
+        return;
+    }
+    line = line.substr(line.find_first_not_of(whitespace));
+
+    // Check if line starts with [propertyName]:
+    if (line.find(propertyName + ":") != 0)
+    {
+        return;
+    }
+    size_t colon = line.find_first_of(":");
+
+    // Now get the value part
+    std::string_view value = line.substr(colon + 1);
+    size_t beginValue = value.find_first_not_of(whitespace);
+    size_t endValue = value.find_last_not_of(whitespace);
+    value = value.substr(beginValue, endValue - beginValue + 1);
+
+    // Set value
+    ApplyProperty<T>(propertyToSet, value);
+    LOG("Set value for " << propertyName << ": " << value);
+    setConfig = true;
+}
+
 void Config::Load()
 {
     const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
@@ -31,47 +105,35 @@ void Config::Load()
     std::string line;
     while (std::getline(file, line))
     {
-        std::string* prop = nullptr;
-        if (line.find("CPUThermalZone: ") != std::string::npos)
+        std::string_view lineView = {line};
+        // Strip comments
+        size_t comment = line.find_first_of('#');
+        if (comment == 0)
         {
-            prop = &config.cpuThermalZone;
+            continue;
         }
-        else if (line.find("SuspendCommand: ") != std::string::npos)
+        if (comment != std::string_view::npos)
         {
-            prop = &config.suspendCommand;
+            lineView = lineView.substr(comment - 1);
         }
-        else if (line.find("LockCommand: ") != std::string::npos)
+
+        bool foundProperty = false;
+        AddConfigVar("CPUThermalZone", config.cpuThermalZone, lineView, foundProperty);
+        AddConfigVar("SuspendCommand", config.suspendCommand, lineView, foundProperty);
+        AddConfigVar("LockCommand", config.lockCommand, lineView, foundProperty);
+        AddConfigVar("ExitCommand", config.exitCommand, lineView, foundProperty);
+        AddConfigVar("BatteryFolder", config.batteryFolder, lineView, foundProperty);
+        AddConfigVar("DefaultWorkspaceSymbol", config.defaultWorkspaceSymbol, lineView, foundProperty);
+        for (int i = 1; i < 10; i++)
         {
-            prop = &config.lockCommand;
+            // Subtract 1 to index from 1 to 9 rather than 0 to 8
+            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), config.workspaceSymbols[i - 1], lineView, foundProperty);
         }
-        else if (line.find("ExitCommand: ") != std::string::npos)
-        {
-            prop = &config.exitCommand;
-        }
-        else if (line.find("BatteryFolder: ") != std::string::npos)
-        {
-            prop = &config.batteryFolder;
-        }
-        else if (line.find("DefaultWorkspaceSymbol") != std::string::npos)
-        {
-            prop = &config.defaultWorkspaceSymbol;
-        }
-        else if (line.find("WorkspaceSymbol") != std::string::npos)
-        {
-            for (int i = 1; i < 10; i++)
-            {
-                if (line.find("WorkspaceSymbol-" + std::to_string(i)) != std::string::npos)
-                {
-                    // Subtract 1 to index from 1 to 9 rather than 0 to 8
-                    prop = &(config.workspaceSymbols[i - 1]);
-                }
-            }
-        }
-        if (prop == nullptr)
+
+        if (foundProperty == false)
         {
             LOG("Warning: unknown config var: " << line);
             continue;
         }
-        *prop = line.substr(line.find(' ') + 1); // Everything after space is data
     }
 }
