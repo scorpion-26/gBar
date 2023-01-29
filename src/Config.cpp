@@ -123,6 +123,7 @@ void Config::Load()
         AddConfigVar("LockCommand", config.lockCommand, lineView, foundProperty);
         AddConfigVar("ExitCommand", config.exitCommand, lineView, foundProperty);
         AddConfigVar("BatteryFolder", config.batteryFolder, lineView, foundProperty);
+        AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("DefaultWorkspaceSymbol", config.defaultWorkspaceSymbol, lineView, foundProperty);
         for (int i = 1; i < 10; i++)
         {

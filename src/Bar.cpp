@@ -2,6 +2,7 @@
 
 #include "System.h"
 #include "Common.h"
+#include "Config.h"
 
 namespace Bar
 {
@@ -409,7 +410,7 @@ namespace Bar
         monitorID = monitor;
 
         auto mainWidget = Widget::Create<Box>();
-        mainWidget->SetSpacing({0, true});
+        mainWidget->SetSpacing({0, Config::Get().centerTime});
         mainWidget->SetClass("bar");
         {
 #ifdef HAS_HYPRLAND

@@ -13,6 +13,7 @@ public:
     std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
     std::string defaultWorkspaceSymbol = "";
 
+    bool centerTime = true;
 
     static void Load();
     static const Config& Get();
