@@ -14,6 +14,7 @@ headers = [
   'src/PulseAudio.h',
   'src/Widget.h',
   'src/Window.h',
+  'src/Config.h'
 ]
 
 if get_option('HasHyprland')
@@ -40,7 +41,8 @@ libgBar = library('gBar',
    'src/Bar.cpp', 
    'src/AudioFlyin.cpp',
    'src/BluetoothDevices.cpp',
-   'src/Plugin.cpp'
+   'src/Plugin.cpp',
+   'src/Config.cpp'
   ],
   dependencies: [gtk, gtk_layer_shell, pulse],
   install: true)

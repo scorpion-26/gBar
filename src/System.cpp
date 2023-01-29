@@ -3,6 +3,7 @@
 #include "NvidiaGPU.h"
 #include "PulseAudio.h"
 #include "Hyprland.h"
+#include "Config.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -21,81 +22,6 @@
 
 namespace System
 {
-    struct Config
-    {
-        std::string cpuThermalZone = ""; // idk, no standard way of doing this.
-        std::string suspendCommand = "systemctl suspend";
-        std::string lockCommand = ""; // idk, no standard way of doing this.
-        std::string exitCommand = ""; // idk, no standard way of doing this.
-        std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
-        std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
-        std::string defaultWorkspaceSymbol = "";
-    };
-
-    static Config config;
-
-    void LoadConfig()
-    {
-        const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
-        std::ifstream file;
-        if (xdgConfigHome)
-        {
-            file = std::ifstream(std::string(xdgConfigHome) + "/gBar/config");
-        }
-        else
-        {
-            std::string home = getenv("HOME");
-            file = std::ifstream(home + "/.config/gBar/config");
-        }
-        if (!file.is_open())
-        {
-            LOG("Failed opening config!");
-            return;
-        }
-        std::string line;
-        while (std::getline(file, line))
-        {
-            std::string* prop = nullptr;
-            if (line.find("CPUThermalZone: ") != std::string::npos)
-            {
-                prop = &config.cpuThermalZone;
-            }
-            else if (line.find("SuspendCommand: ") != std::string::npos)
-            {
-                prop = &config.suspendCommand;
-            }
-            else if (line.find("LockCommand: ") != std::string::npos)
-            {
-                prop = &config.lockCommand;
-            }
-            else if (line.find("ExitCommand: ") != std::string::npos)
-            {
-                prop = &config.exitCommand;
-            }
-            else if (line.find("BatteryFolder: ") != std::string::npos)
-            {
-                prop = &config.batteryFolder;
-            }
-            else if (line.find("DefaultWorkspaceSymbol") != std::string::npos) {
-                prop = &config.defaultWorkspaceSymbol;
-            }
-            else if (line.find("WorkspaceSymbol") != std::string::npos) {
-                for (int i = 1; i < 10; i++) {
-                    if (line.find("WorkspaceSymbol-" + std::to_string(i)) != std::string::npos) {
-                        // Subtract 1 to index from 1 to 9 rather than 0 to 8
-                        prop = &(config.workspaceSymbols[i - 1]);
-                    }
-                }
-            }
-            if (prop == nullptr)
-            {
-                LOG("Warning: unknown config var: " << line);
-                continue;
-            }
-            *prop = line.substr(line.find(' ') + 1); // Everything after space is data
-        }
-    }
-
     struct CPUTimestamp
     {
         size_t total = 0;
@@ -147,7 +73,7 @@ namespace System
 
     double GetCPUTemp()
     {
-        std::ifstream tempFile(config.cpuThermalZone);
+        std::ifstream tempFile(Config::Get().cpuThermalZone);
         if (!tempFile.is_open())
         {
             return 0.f;
@@ -161,8 +87,8 @@ namespace System
 
     double GetBatteryPercentage()
     {
-        std::ifstream fullChargeFile(config.batteryFolder + "/charge_full");
-        std::ifstream currentChargeFile(config.batteryFolder + "/charge_now");
+        std::ifstream fullChargeFile(Config::Get().batteryFolder + "/charge_full");
+        std::ifstream currentChargeFile(Config::Get().batteryFolder + "/charge_now");
         if (!fullChargeFile.is_open() || !currentChargeFile.is_open())
         {
             return -1.f;
@@ -470,11 +396,11 @@ namespace System
             return "";
         }
 
-        if (config.workspaceSymbols[index].empty()) {
-            return config.defaultWorkspaceSymbol + " ";
+        if (Config::Get().workspaceSymbols[index].empty()) {
+            return Config::Get().defaultWorkspaceSymbol + " ";
         }
 
-        return config.workspaceSymbols[index] + " ";
+        return Config::Get().workspaceSymbols[index] + " ";
     }
 #endif
 
@@ -499,22 +425,22 @@ namespace System
 
     void ExitWM()
     {
-        system(config.exitCommand.c_str());
+        system(Config::Get().exitCommand.c_str());
     }
 
     void Lock()
     {
-        system(config.lockCommand.c_str());
+        system(Config::Get().lockCommand.c_str());
     }
 
     void Suspend()
     {
-        system(config.suspendCommand.c_str());
+        system(Config::Get().suspendCommand.c_str());
     }
 
     void Init()
     {
-        LoadConfig();
+        Config::Load();
 #ifdef HAS_NVIDIA
         NvidiaGPU::Init();
 #endif
