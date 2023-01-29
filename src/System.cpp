@@ -96,18 +96,6 @@ namespace System
         }
     }
 
-    std::string GetWorkspaceSymbol(int index) {
-        if (index < 0 || index > 9) {
-            return "";
-        }
-
-        if (config.workspaceSymbols[index].empty()) {
-            return config.defaultWorkspaceSymbol + " ";
-        }
-
-        return config.workspaceSymbols[index] + " ";
-    }
-
     struct CPUTimestamp
     {
         size_t total = 0;
@@ -475,6 +463,18 @@ namespace System
     void GotoWorkspace(uint32_t workspace)
     {
         return Hyprland::Goto(workspace);
+    }
+    std::string GetWorkspaceSymbol(int index) {
+        if (index < 0 || index > 9) {
+            LOG("Workspace Symbol Index Out Of Bounds: " + std::to_string(index));
+            return "";
+        }
+
+        if (config.workspaceSymbols[index].empty()) {
+            return config.defaultWorkspaceSymbol + " ";
+        }
+
+        return config.workspaceSymbols[index] + " ";
     }
 #endif
 
