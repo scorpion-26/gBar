@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 
-#ifdef HAS_BLUEZ
+#ifdef WITH_BLUEZ
 namespace BluetoothDevices
 {
     namespace DynCtx

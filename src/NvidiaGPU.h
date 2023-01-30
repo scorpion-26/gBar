@@ -1,8 +1,10 @@
 #pragma once
 #include "Common.h"
+#include "Config.h"
+
 #include <dlfcn.h>
 
-#ifdef HAS_NVIDIA
+#ifdef WITH_NVIDIA
 namespace NvidiaGPU
 {
     static void* nvmldl;
@@ -11,9 +13,18 @@ namespace NvidiaGPU
 
     inline void Init()
     {
-        if (nvmldl) return;
+        if (nvmldl || !RuntimeConfig::Get().hasNvidia)
+            return;
+
         nvmldl = dlopen("libnvidia-ml.so", RTLD_NOW);
-        ASSERT(nvmldl, "Cannot open libnvidia-ml.so");
+        // nvmldl not found. Nvidia probably not installed
+        if (!nvmldl)
+        {
+            LOG("NVML not found, disabling Nvidia GPU");
+            RuntimeConfig::Get().hasNvidia = false;
+            return;
+        }
+
         typedef int (*PFN_nvmlInit)();
         auto nvmlInit = (PFN_nvmlInit)dlsym(nvmldl, "nvmlInit");
         int res = nvmlInit();
@@ -25,10 +36,11 @@ namespace NvidiaGPU
         res = nvmlDeviceGetHandle(0, &nvmlGPUHandle);
         ASSERT(res == 0, "Failed getting device");
     }
-    
+
     inline void Shutdown()
     {
-        dlclose(nvmldl);
+        if (nvmldl)
+            dlclose(nvmldl);
     }
 
     struct GPUUtilization
@@ -45,6 +57,12 @@ namespace NvidiaGPU
 
     inline GPUUtilization GetUtilization()
     {
+        if (!RuntimeConfig::Get().hasNvidia)
+        {
+            LOG("Error: Called Nvidia GetUtilization, but nvml wasn't found!");
+            return {};
+        }
+
         GPUUtilization util;
         typedef int (*PFN_nvmlDeviceGetUtilizationRates)(void*, GPUUtilization*);
         auto nvmlDeviceGetUtilizationRates = (PFN_nvmlDeviceGetUtilizationRates)dlsym(nvmldl, "nvmlDeviceGetUtilizationRates");
@@ -56,6 +74,12 @@ namespace NvidiaGPU
 
     inline uint32_t GetTemperature()
     {
+        if (!RuntimeConfig::Get().hasNvidia)
+        {
+            LOG("Error: Called Nvidia GetTemperature, but nvml wasn't found!");
+            return {};
+        }
+
         typedef int (*PFN_nvmlDeviceGetTemperature)(void*, uint32_t, uint32_t*);
         auto nvmlDeviceGetTemperature = (PFN_nvmlDeviceGetTemperature)dlsym(nvmldl, "nvmlDeviceGetTemperature");
         uint32_t temp;
@@ -66,6 +90,12 @@ namespace NvidiaGPU
 
     inline VRAM GetVRAM()
     {
+        if (!RuntimeConfig::Get().hasNvidia)
+        {
+            LOG("Error: Called Nvidia GetVRAM, but nvml wasn't found!");
+            return {};
+        }
+
         typedef int (*PFN_nvmlDeviceGetMemoryInfo)(void*, VRAM*);
         auto nvmlDeviceGetMemoryInfo = (PFN_nvmlDeviceGetMemoryInfo)dlsym(nvmldl, "nvmlDeviceGetMemoryInfo");
         VRAM mem;

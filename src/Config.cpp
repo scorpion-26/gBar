@@ -138,3 +138,9 @@ void Config::Load()
         }
     }
 }
+
+RuntimeConfig& RuntimeConfig::Get()
+{
+    static RuntimeConfig config;
+    return config;
+}

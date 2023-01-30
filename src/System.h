@@ -19,7 +19,7 @@ namespace System
     };
     RAMInfo GetRAMInfo();
 
-#ifdef HAS_NVIDIA
+#ifdef WITH_NVIDIA
     struct GPUInfo
     {
         double utilisation;
@@ -42,7 +42,7 @@ namespace System
     };
     DiskInfo GetDiskInfo();
 
-#ifdef HAS_BLUEZ
+#ifdef WITH_BLUEZ
     struct BluetoothDevice
     {
         bool connected;
@@ -79,7 +79,7 @@ namespace System
     AudioInfo GetAudioInfo();
     void SetVolume(double volume);
 
-#ifdef HAS_HYPRLAND
+#ifdef WITH_HYPRLAND
     enum class WorkspaceStatus
     {
         Dead,

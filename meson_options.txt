@@ -1,6 +1,6 @@
-option('HasHyprland', type: 'boolean', value : true)
-option('HasNvidia', type: 'boolean', value : true)
-option('HasBlueZ', type: 'boolean', value : true)
+option('WithHyprland', type: 'boolean', value : true)
+option('WithNvidia', type: 'boolean', value : true)
+option('WithBlueZ', type: 'boolean', value : true)
 
 # You shouldn't enable this, unless you know what you are doing!
-option('HasSys', type: 'boolean', value : false)
+option('WithSys', type: 'boolean', value : false)

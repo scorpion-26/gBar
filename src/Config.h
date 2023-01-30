@@ -18,3 +18,28 @@ public:
     static void Load();
     static const Config& Get();
 };
+
+// Configs, that rely on specific files to be available(e.g. Hyprland running)
+class RuntimeConfig
+{
+public:
+#ifdef WITH_NVIDIA
+    bool hasNvidia = true;
+#else
+    bool hasNvidia = false;
+#endif
+
+#ifdef WITH_HYPRLAND
+    bool hasHyprland = true;
+#else
+    bool hasHyprland = false;
+#endif
+
+#ifdef WITH_BLUEZ
+    bool hasBlueZ = true;
+#else
+    bool hasBlueZ = false;
+#endif
+
+    static RuntimeConfig& Get();
+};

@@ -133,7 +133,7 @@ namespace System
         return out;
     }
 
-#ifdef HAS_NVIDIA
+#ifdef WITH_NVIDIA
     GPUInfo GetGPUInfo()
     {
         NvidiaGPU::GPUUtilization util = NvidiaGPU::GetUtilization();
@@ -165,10 +165,33 @@ namespace System
         return out;
     }
 
-#ifdef HAS_BLUEZ
+#ifdef WITH_BLUEZ
+    void InitBluetooth()
+    {
+        // Try connecting to d-bus and org.bluez
+        GDBusConnection* connection = g_bus_get_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr);
+        ASSERT(connection, "Failed to connect to d-bus!");
+
+        GError* err = nullptr;
+        GVariant* objects = g_dbus_connection_call_sync(connection, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
+                                                        nullptr, G_VARIANT_TYPE("(a{oa{sa{sv}}})"), G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &err);
+        if (!objects)
+        {
+            LOG("Can't connect to BlueZ d-bus! Disabling Bluetooth!");
+            LOG(err->message);
+            g_error_free(err);
+            // Not found, disable bluetooth
+            RuntimeConfig::Get().hasBlueZ = false;
+        }
+    }
     BluetoothInfo GetBluetoothInfo()
     {
         BluetoothInfo out{};
+        if (!RuntimeConfig::Get().hasBlueZ)
+        {
+            LOG("Error: GetBluetoothInfo called, but bluetooth isn't available");
+            return out;
+        }
         // Init D-Bus
         GDBusConnection* connection = g_bus_get_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr);
         ASSERT(connection, "Failed to connect to d-bus!");
@@ -381,7 +404,7 @@ namespace System
         PulseAudio::SetVolume(volume);
     }
 
-#ifdef HAS_HYPRLAND
+#ifdef WITH_HYPRLAND
     WorkspaceStatus GetWorkspaceStatus(uint32_t monitor, uint32_t workspace)
     {
         return Hyprland::GetStatus(monitor, workspace);
@@ -441,18 +464,29 @@ namespace System
     void Init()
     {
         Config::Load();
-#ifdef HAS_NVIDIA
+
+#ifdef WITH_NVIDIA
         NvidiaGPU::Init();
 #endif
+
+#ifdef WITH_HYPRLAND
+        Hyprland::Init();
+#endif
+
+#ifdef WITH_BLUEZ
+        InitBluetooth();
+#endif
+
         PulseAudio::Init();
     }
     void FreeResources()
     {
-#ifdef HAS_NVIDIA
+#ifdef WITH_NVIDIA
         NvidiaGPU::Shutdown();
 #endif
         PulseAudio::Shutdown();
-#ifdef HAS_BLUEZ
+
+#ifdef WITH_BLUEZ
         StopBTScan();
 #endif
     }

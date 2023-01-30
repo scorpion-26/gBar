@@ -1,6 +1,7 @@
 #pragma once
 #include "Common.h"
 #include "System.h"
+#include "Config.h"
 
 #include <cstdint>
 #include <string>
@@ -10,9 +11,19 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#ifdef HAS_HYPRLAND
+#ifdef WITH_HYPRLAND
 namespace Hyprland
 {
+    inline void Init()
+    {
+        if (!getenv("HYPRLAND_INSTANCE_SIGNATURE"))
+        {
+            LOG("Hyprland not running, disabling workspaces");
+            // Not available
+            RuntimeConfig::Get().hasHyprland = false;
+        }
+    }
+
     inline std::string DispatchIPC(const std::string& arg)
     {
         int hyprSocket = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -46,6 +57,12 @@ namespace Hyprland
 
     inline System::WorkspaceStatus GetStatus(uint32_t monitorID, uint32_t workspaceId)
     {
+        if (RuntimeConfig::Get().hasHyprland == false)
+        {
+            LOG("Error: Queried for workspace status, but Hyprland isn't open!");
+            return System::WorkspaceStatus::Dead;
+        }
+
         std::string workspaces = DispatchIPC("/workspaces");
         if (workspaces.find("workspace ID " + std::to_string(workspaceId)) == std::string::npos)
         {
@@ -87,8 +104,15 @@ namespace Hyprland
             return System::WorkspaceStatus::Inactive;
         }
     }
+
     inline void Goto(uint32_t workspace)
     {
+        if (RuntimeConfig::Get().hasHyprland == false)
+        {
+            LOG("Error: Called Go to workspace, but Hyprland isn't open!");
+            return;
+        }
+
         system(("hyprctl dispatch workspace " + std::to_string(workspace)).c_str());
     }
 }

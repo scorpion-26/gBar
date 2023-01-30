@@ -52,7 +52,7 @@ namespace Bar
             return TimerResult::Ok;
         }
 
-#ifdef HAS_NVIDIA
+#ifdef WITH_NVIDIA
         static Text* gpuText;
         static TimerResult UpdateGPU(CairoSensor& sensor)
         {
@@ -87,7 +87,7 @@ namespace Bar
             return TimerResult::Ok;
         }
 
-#ifdef HAS_BLUEZ
+#ifdef WITH_BLUEZ
         static Button* btIconText;
         static Text* btDevText;
         static TimerResult UpdateBluetooth(Box&)
@@ -161,7 +161,7 @@ namespace Bar
             return TimerResult::Ok;
         }
 
-#ifdef HAS_HYPRLAND
+#ifdef WITH_HYPRLAND
         static std::array<Button*, 9> workspaces;
         TimerResult UpdateWorkspaces(Box&)
         {
@@ -169,21 +169,11 @@ namespace Bar
             {
                 switch (System::GetWorkspaceStatus((uint32_t)monitorID, i + 1))
                 {
-                case System::WorkspaceStatus::Dead:
-                    workspaces[i]->SetClass("ws-dead");
-                    break;
-                case System::WorkspaceStatus::Inactive:
-                    workspaces[i]->SetClass("ws-inactive");
-                    break;
-                case System::WorkspaceStatus::Visible:
-                    workspaces[i]->SetClass("ws-visible");
-                    break;
-                case System::WorkspaceStatus::Current:
-                    workspaces[i]->SetClass("ws-current");
-                    break;
-                case System::WorkspaceStatus::Active:
-                    workspaces[i]->SetClass("ws-active");
-                    break;
+                case System::WorkspaceStatus::Dead: workspaces[i]->SetClass("ws-dead"); break;
+                case System::WorkspaceStatus::Inactive: workspaces[i]->SetClass("ws-inactive"); break;
+                case System::WorkspaceStatus::Visible: workspaces[i]->SetClass("ws-visible"); break;
+                case System::WorkspaceStatus::Current: workspaces[i]->SetClass("ws-current"); break;
+                case System::WorkspaceStatus::Active: workspaces[i]->SetClass("ws-active"); break;
                 }
                 workspaces[i]->SetText(System::GetWorkspaceSymbol(i));
             }
@@ -256,7 +246,7 @@ namespace Bar
         parent.AddChild(std::move(box));
     }
 
-#ifdef HAS_BLUEZ
+#ifdef WITH_BLUEZ
     void WidgetBluetooth(Widget& parent)
     {
         auto box = Widget::Create<Box>();
@@ -282,14 +272,18 @@ namespace Bar
     void WidgetSensors(Widget& parent)
     {
         Sensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText);
-#ifdef HAS_NVIDIA
-        Sensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText);
-        Sensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText);
+#ifdef WITH_NVIDIA
+        if (RuntimeConfig::Get().hasNvidia)
+        {
+            Sensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText);
+            Sensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText);
+        }
 #endif
         Sensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText);
         Sensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText);
         // Only show battery percentage if battery folder is set and exists
-        if (System::GetBatteryPercentage() >= 0) {
+        if (System::GetBatteryPercentage() >= 0)
+        {
             Sensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText);
         }
     }
@@ -376,7 +370,7 @@ namespace Bar
         parent.AddChild(std::move(eventBox));
     }
 
-#ifdef HAS_HYPRLAND
+#ifdef WITH_HYPRLAND
     void WidgetWorkspaces(Widget& parent)
     {
         auto margin = Widget::Create<Box>();
@@ -413,15 +407,14 @@ namespace Bar
         mainWidget->SetSpacing({0, Config::Get().centerTime});
         mainWidget->SetClass("bar");
         {
-#ifdef HAS_HYPRLAND
             auto left = Widget::Create<Box>();
             left->SetSpacing({0, false});
             left->SetHorizontalTransform({-1, true, Alignment::Left});
-            WidgetWorkspaces(*left);
-#else
-            auto left = Widget::Create<Box>();
-            left->SetSpacing({0, false});
-            left->SetHorizontalTransform({-1, true, Alignment::Left});
+#ifdef WITH_HYPRLAND
+            if (RuntimeConfig::Get().hasHyprland)
+            {
+                WidgetWorkspaces(*left);
+            }
 #endif
 
             auto time = Widget::Create<Text>();
@@ -437,8 +430,9 @@ namespace Bar
             {
                 WidgetAudio(*right);
 
-#ifdef HAS_BLUEZ
-                WidgetBluetooth(*right);
+#ifdef WITH_BLUEZ
+                if (RuntimeConfig::Get().hasBlueZ)
+                    WidgetBluetooth(*right);
 #endif
 
                 WidgetSensors(*right);

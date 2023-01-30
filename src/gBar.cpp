@@ -5,6 +5,7 @@
 #include "AudioFlyin.h"
 #include "BluetoothDevices.h"
 #include "Plugin.h"
+#include "Config.h"
 
 #include <cmath>
 #include <cstdio>
@@ -43,10 +44,18 @@ int main(int argc, char** argv)
             exit(0);
         }
     }
-#ifdef HAS_BLUEZ
+#ifdef WITH_BLUEZ
     else if (strcmp(argv[1], "bluetooth") == 0)
     {
-        BluetoothDevices::Create(window, monitor);
+        if (RuntimeConfig::Get().hasBlueZ)
+        {
+            BluetoothDevices::Create(window, monitor);
+        }
+        else
+        {
+            LOG("Blutooth disabled, cannot open bluetooth widget!");
+            exit(1);
+        }
     }
 #endif
     else

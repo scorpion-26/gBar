@@ -4,7 +4,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 *gBar: **G**TK **Bar***
 
 ## Prerequisites 
-*If you don't have the optional dependencies, some features are not available and you must manually disable them.*
+*If you don't have the optional dependencies, some features are not available.*
 - wayland
 - Hyprland(Optional -> For workspaces widget)
 - nvidia-utils(Optional -> For GPU status)
@@ -23,7 +23,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
     ```
     *All optional dependencies are disabled*
     ```
-    meson build --buildtype=release -DHasHyprland=false -DHasNvidia=false -DHasBlueZ=false
+    meson build --buildtype=release -DWithHyprland=false -DWithNvidia=false -DWithBlueZ=false
     ```
 4. Build and install
     ```

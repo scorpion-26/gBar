@@ -17,19 +17,19 @@ headers = [
   'src/Config.h'
 ]
 
-if get_option('HasHyprland')
-  add_global_arguments('-DHAS_HYPRLAND', language: 'cpp')
+if get_option('WithHyprland')
+  add_global_arguments('-DWITH_HYPRLAND', language: 'cpp')
   headers += 'src/Hyprland.h'
 endif
-if get_option('HasNvidia')
-  add_global_arguments('-DHAS_NVIDIA', language: 'cpp')
+if get_option('WithNvidia')
+  add_global_arguments('-DWITH_NVIDIA', language: 'cpp')
   headers += 'src/NvidiaGPU.h'
 endif
-if get_option('HasBlueZ')
-  add_global_arguments('-DHAS_BLUEZ', language: 'cpp')
+if get_option('WithBlueZ')
+  add_global_arguments('-DWITH_BLUEZ', language: 'cpp')
 endif
-if get_option('HasSys')
-  add_global_arguments('-DHAS_SYS', language: 'cpp')
+if get_option('WithSys')
+  add_global_arguments('-DWITH_SYS', language: 'cpp')
 endif
 
 pulse = dependency('libpulse')
