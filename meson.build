@@ -19,11 +19,11 @@ headers = [
 
 if get_option('HasHyprland')
   add_global_arguments('-DHAS_HYPRLAND', language: 'cpp')
-  headers += 'src/NvidiaGPU.h'
+  headers += 'src/Hyprland.h'
 endif
 if get_option('HasNvidia')
   add_global_arguments('-DHAS_NVIDIA', language: 'cpp')
-  headers += 'src/Hyprland.h'
+  headers += 'src/NvidiaGPU.h'
 endif
 if get_option('HasBlueZ')
   add_global_arguments('-DHAS_BLUEZ', language: 'cpp')
