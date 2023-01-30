@@ -1,6 +1,7 @@
 #include "System.h"
 #include "Common.h"
 #include "NvidiaGPU.h"
+#include "AMDGPU.h"
 #include "PulseAudio.h"
 #include "Hyprland.h"
 #include "Config.h"
@@ -133,23 +134,55 @@ namespace System
         return out;
     }
 
-#ifdef WITH_NVIDIA
+#if defined WITH_NVIDIA || defined WITH_AMD
     GPUInfo GetGPUInfo()
     {
-        NvidiaGPU::GPUUtilization util = NvidiaGPU::GetUtilization();
-        GPUInfo out;
-        out.utilisation = util.gpu;
-        out.coreTemp = NvidiaGPU::GetTemperature();
-        return out;
+#ifdef WITH_NVIDIA
+        if (RuntimeConfig::Get().hasNvidia)
+        {
+            NvidiaGPU::GPUUtilization util = NvidiaGPU::GetUtilization();
+            GPUInfo out;
+            out.utilisation = util.gpu;
+            out.coreTemp = NvidiaGPU::GetTemperature();
+            return out;
+        }
+#endif
+#ifdef WITH_AMD
+        if (RuntimeConfig::Get().hasAMD)
+        {
+            uint32_t util = AMDGPU::GetUtilization();
+            GPUInfo out;
+            out.utilisation = util;
+            out.coreTemp = AMDGPU::GetTemperature();
+            return out;
+        }
+#endif
+        return {};
     }
 
     VRAMInfo GetVRAMInfo()
     {
-        NvidiaGPU::VRAM vram = NvidiaGPU::GetVRAM();
-        VRAMInfo out;
-        out.totalGiB = (double)vram.totalB / (1024 * 1024 * 1024);
-        out.usedGiB = out.totalGiB - ((double)vram.freeB / (1024 * 1024 * 1024));
-        return out;
+#ifdef WITH_NVIDIA
+        if (RuntimeConfig::Get().hasNvidia)
+        {
+            NvidiaGPU::VRAM vram = NvidiaGPU::GetVRAM();
+            VRAMInfo out;
+            out.totalGiB = (double)vram.totalB / (1024 * 1024 * 1024);
+            out.usedGiB = out.totalGiB - ((double)vram.freeB / (1024 * 1024 * 1024));
+            return out;
+        }
+#endif
+#ifdef WITH_AMD
+        if (RuntimeConfig::Get().hasAMD)
+        {
+            AMDGPU::VRAM vram = AMDGPU::GetVRAM();
+            VRAMInfo out;
+            out.totalGiB = (double)vram.totalB / (1024 * 1024 * 1024);
+            out.usedGiB = (double)vram.usedB / (1024 * 1024 * 1024);
+            return out;
+        }
+#endif
+        return {};
     }
 #endif
 
@@ -413,13 +446,16 @@ namespace System
     {
         return Hyprland::Goto(workspace);
     }
-    std::string GetWorkspaceSymbol(int index) {
-        if (index < 0 || index > 9) {
+    std::string GetWorkspaceSymbol(int index)
+    {
+        if (index < 0 || index > 9)
+        {
             LOG("Workspace Symbol Index Out Of Bounds: " + std::to_string(index));
             return "";
         }
 
-        if (Config::Get().workspaceSymbols[index].empty()) {
+        if (Config::Get().workspaceSymbols[index].empty())
+        {
             return Config::Get().defaultWorkspaceSymbol + " ";
         }
 
@@ -467,6 +503,10 @@ namespace System
 
 #ifdef WITH_NVIDIA
         NvidiaGPU::Init();
+#endif
+
+#ifdef WITH_AMD
+        AMDGPU::Init();
 #endif
 
 #ifdef WITH_HYPRLAND

@@ -52,7 +52,7 @@ namespace Bar
             return TimerResult::Ok;
         }
 
-#ifdef WITH_NVIDIA
+#if defined WITH_NVIDIA || defined WITH_AMD
         static Text* gpuText;
         static TimerResult UpdateGPU(CairoSensor& sensor)
         {
@@ -272,8 +272,8 @@ namespace Bar
     void WidgetSensors(Widget& parent)
     {
         Sensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText);
-#ifdef WITH_NVIDIA
-        if (RuntimeConfig::Get().hasNvidia)
+#if defined WITH_NVIDIA || defined WITH_AMD
+        if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
         {
             Sensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText);
             Sensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText);

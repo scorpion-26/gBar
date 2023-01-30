@@ -19,7 +19,7 @@ namespace System
     };
     RAMInfo GetRAMInfo();
 
-#ifdef WITH_NVIDIA
+#if defined WITH_NVIDIA || defined WITH_AMD
     struct GPUInfo
     {
         double utilisation;

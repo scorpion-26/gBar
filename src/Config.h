@@ -28,6 +28,11 @@ public:
 #else
     bool hasNvidia = false;
 #endif
+#ifdef WITH_AMD
+    bool hasAMD = true;
+#else
+    bool hasAMD = false;
+#endif
 
 #ifdef WITH_HYPRLAND
     bool hasHyprland = true;
