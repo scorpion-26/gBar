@@ -9,6 +9,8 @@ namespace AMDGPU
     static const char* utilizationFile = "/sys/class/drm/card0/device/gpu_busy_percent";
     static const char* vramTotalFile = "/sys/class/drm/card0/device/mem_info_vram_total";
     static const char* vramUsedFile = "/sys/class/drm/card0/device/mem_info_vram_used";
+    // TODO: Make this configurable
+    static const char* tempFile = "/sys/class/drm/card0/device/hwmon/hwmon1/temp1_input";
 
     inline void Init()
     {
@@ -32,7 +34,6 @@ namespace AMDGPU
         std::ifstream file(utilizationFile);
         std::string line;
         std::getline(file, line);
-        LOG("AMD GetUtilization: " << line);
         return atoi(line.c_str());
     }
 
@@ -43,8 +44,11 @@ namespace AMDGPU
             LOG("Error: Called AMD GetTemperature, but AMD GPU wasn't found!");
             return {};
         }
-        // TODO!
-        return 0;
+
+        std::ifstream file(tempFile);
+        std::string line;
+        std::getline(file, line);
+        return atoi(line.c_str()) / 1000;
     }
 
     struct VRAM 
@@ -65,12 +69,10 @@ namespace AMDGPU
         std::ifstream file(vramTotalFile);
         std::string line;
         std::getline(file, line);
-        LOG("AMD GetVRAM(total): " << line);
         mem.totalB = atoi(line.c_str());
     
         file = std::ifstream(vramUsedFile);
         std::getline(file, line);
-        LOG("AMD GetVRAM(total): " << line);
         mem.usedB = atoi(line.c_str());
 
         return mem;
