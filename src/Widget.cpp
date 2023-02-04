@@ -131,6 +131,11 @@ void Widget::SetVisible(bool visible)
     gtk_widget_set_visible(m_Widget, visible);
 }
 
+void Widget::PropagateToParent(GdkEvent* event)
+{
+    gtk_propagate_event(gtk_widget_get_parent(m_Widget), event);
+}
+
 void Widget::ApplyPropertiesToWidget()
 {
     // Apply style
@@ -190,7 +195,6 @@ void EventBox::Create()
 {
     m_Widget = gtk_event_box_new();
     gtk_event_box_set_above_child((GtkEventBox*)m_Widget, false);
-    gtk_event_box_set_visible_window((GtkEventBox*)m_Widget, false);
     auto enter = [](GtkWidget*, GdkEventCrossing*, gpointer data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
@@ -326,11 +330,12 @@ void Text::Create()
 void Button::Create()
 {
     m_Widget = gtk_button_new_with_label(m_Text.c_str());
-    auto clickFn = [](UNUSED GtkButton* gtkButton, void* data)
+    auto clickFn = [](UNUSED GtkButton* gtkButton, void* data) -> gboolean
     {
         Button* button = (Button*)data;
         if (button->m_OnClick)
             button->m_OnClick(*button);
+        return GDK_EVENT_STOP;
     };
     g_signal_connect(m_Widget, "clicked", G_CALLBACK(+clickFn), this);
     ApplyPropertiesToWidget();
@@ -390,11 +395,12 @@ void Slider::Create()
     g_signal_connect(m_Widget, "change-value", G_CALLBACK(+changedFn), this);
 
     // Propagate events to any parent eventboxes
-    auto propagate = [](GtkWidget* widget, GdkEventCrossing* data, gpointer) -> gboolean
+    auto propagate = [](GtkWidget*, GdkEventCrossing* data, gpointer widget) -> gboolean
     {
-        // Seems to be necessary.
-        gtk_propagate_event(gtk_widget_get_parent(widget), (GdkEvent*)data);
-        // Seems not to be necessary
+        Slider* slider = (Slider*)widget;
+        // Seems to be necessary. For revealers to work properly, we need to notify it of the event through propagation.
+        // Automatic propagation with GDK_EVENT_PROPAGATE doesn't work for some reason
+        slider->PropagateToParent((GdkEvent*)data);
         return GDK_EVENT_PROPAGATE;
     };
     gtk_widget_set_events(m_Widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
