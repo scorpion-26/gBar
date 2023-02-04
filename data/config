@@ -32,5 +32,5 @@ DefaultWorkspaceSymbol: 
 # This can cause issues, if there is not enough space on screen (e.g. when opening the text)
 CenterTime: true
 
-# Sets the audio slider to be on reveal(Just like the sensors). Only affects the bar.
-AudioRevealer: true
+# Sets the audio slider to be on reveal (Just like the sensors) when true. Only affects the bar.
+AudioRevealer: false
