@@ -229,6 +229,28 @@ void CairoArea::Create()
     ApplyPropertiesToWidget();
 }
 
+Quad CairoArea::GetQuad()
+{
+    GtkAllocation dim;
+    gtk_widget_get_allocation(m_Widget, &dim);
+    Quad q;
+    if (dim.height >= dim.width)
+    {
+        // Height greater than width; Fill in x and add margin at the top and bottom
+        q.size = dim.width;
+        q.x = 0;
+        q.y = ((double)dim.height - (double)dim.width) / 2;
+    }
+    else if (dim.width < dim.height)
+    {
+        // Height greater than width; Fill in y and add margin at the sides
+        q.size = dim.height;
+        q.y = 0;
+        q.x = ((double)dim.width - (double)dim.height) / 2;
+    }
+    return q;
+}
+
 void Sensor::SetValue(double val)
 {
     m_Val = val;
@@ -245,29 +267,11 @@ void Sensor::SetStyle(SensorStyle style)
 
 void Sensor::Draw(cairo_t* cr)
 {
-    GtkAllocation dim;
-    gtk_widget_get_allocation(m_Widget, &dim);
-    double xStart = 0;
-    double yStart = 0;
-    double size = dim.width;
-    if (dim.height >= dim.width)
-    {
-        // Height greater than width; Fill in x and add margin at the top and bottom
-        size = dim.width;
-        xStart = 0;
-        yStart = ((double)dim.height - (double)dim.width) / 2;
-    }
-    else if (dim.width < dim.height)
-    {
-        // Height greater than width; Fill in y and add margin at the sides
-        size = dim.height;
-        yStart = 0;
-        xStart = ((double)dim.width - (double)dim.height) / 2;
-    }
+    Quad q = GetQuad();
 
-    double xCenter = xStart + size / 2;
-    double yCenter = yStart + size / 2;
-    double radius = (size / 2) - (m_Style.strokeWidth / 2);
+    double xCenter = q.x + q.size / 2;
+    double yCenter = q.y + q.size / 2;
+    double radius = (q.size / 2) - (m_Style.strokeWidth / 2);
 
     double beg = m_Style.start * (M_PI / 180);
     double angle = m_Val * 2 * M_PI;

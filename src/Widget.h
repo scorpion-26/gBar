@@ -47,6 +47,11 @@ struct Transition
     uint32_t durationMS;
 };
 
+struct Quad
+{
+    double x, y, size;
+};
+
 struct SensorStyle
 {
     double start = -90; // 0 = leftmost; -90 = topmost
@@ -203,6 +208,8 @@ public:
 
 protected:
     virtual void Draw(cairo_t* cr) = 0;
+
+    Quad GetQuad();
 };
 
 class Sensor : public CairoArea
