@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <unistd.h>
+#include <string>
 
 #define UNUSED [[maybe_unused]]
 #define LOG(x) std::cout << x << '\n'
@@ -66,8 +67,7 @@ struct Process
     pid_t pid;
 };
 
-template<typename... Args>
-inline Process OpenProcess(Args... args)
+inline Process OpenProcess(const std::string& command)
 {
     pid_t child = fork();
     ASSERT(child != -1, "fork error");
@@ -75,7 +75,7 @@ inline Process OpenProcess(Args... args)
     if (child == 0)
     {
         // Child
-        execl(args...);
+        system(command.c_str());
         exit(0);
     }
     else

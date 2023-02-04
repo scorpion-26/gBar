@@ -340,7 +340,7 @@ namespace System
     void StartBTScan()
     {
         StopBTScan();
-        btctlProcess = OpenProcess("/bin/sh", "/bin/sh", "-c", "bluetoothctl scan on", NULL);
+        btctlProcess = OpenProcess("/bin/sh -c \"bluetoothctl scan on\"");
     }
     void StopBTScan()
     {
@@ -403,7 +403,7 @@ namespace System
 
     void OpenBTWidget()
     {
-        OpenProcess("/bin/sh", "/bin/sh", "-c", "gBar bluetooth");
+        OpenProcess("/bin/sh -c \"gBar bluetooth\"");
     }
 
     std::string BTTypeToIcon(const BluetoothDevice& dev)
