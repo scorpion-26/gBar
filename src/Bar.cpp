@@ -221,15 +221,8 @@ namespace Bar
 
     void WidgetAudio(Widget& parent)
     {
-        auto box = Widget::Create<Box>();
-        box->SetSpacing({8, false});
-        box->SetHorizontalTransform({-1, false, Alignment::Right});
+        auto widgetAudioSlider = [](Widget& parent)
         {
-            auto icon = Widget::Create<Text>();
-            icon->SetClass("audio-icon");
-            icon->SetText("墳");
-            DynCtx::audioIcon = icon.get();
-
             auto slider = Widget::Create<Slider>();
             slider->SetOrientation(Orientation::Horizontal);
             slider->SetHorizontalTransform({100, true, Alignment::Fill});
@@ -239,11 +232,60 @@ namespace Bar
             slider->OnValueChange(DynCtx::OnChangeVolume);
             slider->SetRange({0, 1, 0.01});
 
-            box->AddChild(std::move(slider));
-            box->AddChild(std::move(icon));
-        }
+            parent.AddChild(std::move(slider));
+        };
 
-        parent.AddChild(std::move(box));
+        auto widgetAudioBody = [&widgetAudioSlider](Widget& parent)
+        {
+            auto box = Widget::Create<Box>();
+            box->SetSpacing({8, false});
+            box->SetHorizontalTransform({-1, true, Alignment::Right});
+            {
+                auto icon = Widget::Create<Text>();
+                icon->SetClass("audio-icon");
+                icon->SetText("墳");
+                DynCtx::audioIcon = icon.get();
+
+                if (Config::Get().audioRevealer)
+                {
+                    EventBox& eventBox = (EventBox&)parent;
+                    auto revealer = Widget::Create<Revealer>();
+                    revealer->SetTransition({TransitionType::SlideLeft, 500});
+                    // Add event to eventbox for the revealer to open
+                    eventBox.SetEventFn(
+                        [slideRevealer = revealer.get()](EventBox&, bool hovered)
+                        {
+                            slideRevealer->SetRevealed(hovered);
+                        });
+                    {
+                        widgetAudioSlider(*revealer);
+                    }
+
+                    box->AddChild(std::move(revealer));
+                }
+                else
+                {
+                    // Straight forward
+                    widgetAudioSlider(*box);
+                }
+
+                box->AddChild(std::move(icon));
+            }
+            parent.AddChild(std::move(box));
+        };
+
+        if (Config::Get().audioRevealer)
+        {
+            // Need an EventBox
+            auto eventBox = Widget::Create<EventBox>();
+            widgetAudioBody(*eventBox);
+            parent.AddChild(std::move(eventBox));
+        }
+        else
+        {
+            // Just invoke it.
+            widgetAudioBody(parent);
+        }
     }
 
 #ifdef WITH_BLUEZ

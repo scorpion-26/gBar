@@ -14,6 +14,7 @@ public:
     std::string defaultWorkspaceSymbol = "";
 
     bool centerTime = true;
+    bool audioRevealer = false;
 
     static void Load();
     static const Config& Get();

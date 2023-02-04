@@ -31,3 +31,6 @@ DefaultWorkspaceSymbol: 
 # Forces the time to be centered.
 # This can cause issues, if there is not enough space on screen (e.g. when opening the text)
 CenterTime: true
+
+# Sets the audio slider to be on reveal (Just like the sensors) when true. Only affects the bar.
+AudioRevealer: false

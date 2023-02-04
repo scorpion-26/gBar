@@ -141,6 +141,7 @@ public:
     void SetVisible(bool visible);
 
 protected:
+    void PropagateToParent(GdkEvent* event);
     void ApplyPropertiesToWidget();
 
     GtkWidget* m_Widget = nullptr;
