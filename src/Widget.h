@@ -53,9 +53,14 @@ struct SensorStyle
     double strokeWidth = 4;
 };
 
-struct SliderRange
+struct Range
 {
-    double min, max, step;
+    double min, max;
+};
+
+struct SliderRange : Range
+{
+    double step;
 };
 
 enum class TimerDispatchBehaviour
@@ -191,17 +196,24 @@ private:
     std::function<void(EventBox&, bool)> m_EventFn;
 };
 
-class CairoSensor : public Widget
+class CairoArea : public Widget
 {
 public:
     virtual void Create() override;
 
+protected:
+    virtual void Draw(cairo_t* cr) = 0;
+};
+
+class Sensor : public CairoArea
+{
+public:
     // Goes from 0-1
     void SetValue(double val);
     void SetStyle(SensorStyle style);
 
 private:
-    void Draw(cairo_t* cr);
+    void Draw(cairo_t* cr) override;
 
     double m_Val;
     SensorStyle m_Style{};

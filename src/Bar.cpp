@@ -20,7 +20,7 @@ namespace Bar
         }
 
         static Text* cpuText;
-        static TimerResult UpdateCPU(CairoSensor& sensor)
+        static TimerResult UpdateCPU(Sensor& sensor)
         {
             double usage = System::GetCPUUsage();
             double temp = System::GetCPUTemp();
@@ -31,7 +31,7 @@ namespace Bar
         }
 
         static Text* batteryText;
-        static TimerResult UpdateBattery(CairoSensor& sensor)
+        static TimerResult UpdateBattery(Sensor& sensor)
         {
             double percentage = System::GetBatteryPercentage();
 
@@ -41,7 +41,7 @@ namespace Bar
         }
 
         static Text* ramText;
-        static TimerResult UpdateRAM(CairoSensor& sensor)
+        static TimerResult UpdateRAM(Sensor& sensor)
         {
             System::RAMInfo info = System::GetRAMInfo();
             double used = info.totalGiB - info.freeGiB;
@@ -54,7 +54,7 @@ namespace Bar
 
 #if defined WITH_NVIDIA || defined WITH_AMD
         static Text* gpuText;
-        static TimerResult UpdateGPU(CairoSensor& sensor)
+        static TimerResult UpdateGPU(Sensor& sensor)
         {
             System::GPUInfo info = System::GetGPUInfo();
 
@@ -65,7 +65,7 @@ namespace Bar
         }
 
         static Text* vramText;
-        static TimerResult UpdateVRAM(CairoSensor& sensor)
+        static TimerResult UpdateVRAM(Sensor& sensor)
         {
             System::VRAMInfo info = System::GetVRAMInfo();
 
@@ -77,7 +77,7 @@ namespace Bar
 #endif
 
         static Text* diskText;
-        static TimerResult UpdateDisk(CairoSensor& sensor)
+        static TimerResult UpdateDisk(Sensor& sensor)
         {
             System::DiskInfo info = System::GetDiskInfo();
 
@@ -182,7 +182,7 @@ namespace Bar
 #endif
     }
 
-    void Sensor(Widget& parent, TimerCallback<CairoSensor>&& callback, const std::string& sensorClass, const std::string& textClass, Text*& textPtr)
+    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorClass, const std::string& textClass, Text*& textPtr)
     {
         auto eventBox = Widget::Create<EventBox>();
         {
@@ -205,13 +205,13 @@ namespace Bar
                     revealer->AddChild(std::move(text));
                 }
 
-                auto cairoSensor = Widget::Create<CairoSensor>();
-                cairoSensor->SetClass(sensorClass);
-                cairoSensor->AddTimer<CairoSensor>(std::move(callback), DynCtx::updateTime);
-                cairoSensor->SetHorizontalTransform({24, true, Alignment::Fill});
+                auto sensor = Widget::Create<Sensor>();
+                sensor->SetClass(sensorClass);
+                sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
+                sensor->SetHorizontalTransform({24, true, Alignment::Fill});
 
                 box->AddChild(std::move(revealer));
-                box->AddChild(std::move(cairoSensor));
+                box->AddChild(std::move(sensor));
             }
             eventBox->AddChild(std::move(box));
         }
@@ -313,20 +313,20 @@ namespace Bar
 
     void WidgetSensors(Widget& parent)
     {
-        Sensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText);
+        WidgetSensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText);
 #if defined WITH_NVIDIA || defined WITH_AMD
         if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
         {
-            Sensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText);
-            Sensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText);
+            WidgetSensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText);
+            WidgetSensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText);
         }
 #endif
-        Sensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText);
-        Sensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText);
+        WidgetSensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText);
+        WidgetSensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText);
         // Only show battery percentage if battery folder is set and exists
         if (System::GetBatteryPercentage() >= 0)
         {
-            Sensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText);
+            WidgetSensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText);
         }
     }
 

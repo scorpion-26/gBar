@@ -214,13 +214,13 @@ void EventBox::Create()
     ApplyPropertiesToWidget();
 }
 
-void CairoSensor::Create()
+void CairoArea::Create()
 {
     m_Widget = gtk_drawing_area_new();
     auto drawFn = [](GtkWidget*, cairo_t* c, void* data) -> gboolean
     {
-        CairoSensor* sensor = (CairoSensor*)data;
-        sensor->Draw(c);
+        CairoArea* area = (CairoArea*)data;
+        area->Draw(c);
         return false;
     };
 
@@ -229,7 +229,7 @@ void CairoSensor::Create()
     ApplyPropertiesToWidget();
 }
 
-void CairoSensor::SetValue(double val)
+void Sensor::SetValue(double val)
 {
     m_Val = val;
     if (m_Widget)
@@ -238,12 +238,12 @@ void CairoSensor::SetValue(double val)
     }
 }
 
-void CairoSensor::SetStyle(SensorStyle style)
+void Sensor::SetStyle(SensorStyle style)
 {
     m_Style = style;
 }
 
-void CairoSensor::Draw(cairo_t* cr)
+void Sensor::Draw(cairo_t* cr)
 {
     GtkAllocation dim;
     gtk_widget_get_allocation(m_Widget, &dim);
