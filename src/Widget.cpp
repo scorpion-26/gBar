@@ -189,6 +189,8 @@ void EventBox::SetEventFn(std::function<void(EventBox&, bool)>&& fn)
 void EventBox::Create()
 {
     m_Widget = gtk_event_box_new();
+    gtk_event_box_set_above_child((GtkEventBox*)m_Widget, false);
+    gtk_event_box_set_visible_window((GtkEventBox*)m_Widget, false);
     auto enter = [](GtkWidget*, GdkEventCrossing*, gpointer data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
@@ -386,5 +388,17 @@ void Slider::Create()
         return false;
     };
     g_signal_connect(m_Widget, "change-value", G_CALLBACK(+changedFn), this);
+
+    // Propagate events to any parent eventboxes
+    auto propagate = [](GtkWidget* widget, GdkEventCrossing* data, gpointer) -> gboolean
+    {
+        // Seems to be necessary.
+        gtk_propagate_event(gtk_widget_get_parent(widget), (GdkEvent*)data);
+        // Seems not to be necessary
+        return GDK_EVENT_PROPAGATE;
+    };
+    gtk_widget_set_events(m_Widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
+    g_signal_connect(m_Widget, "enter-notify-event", G_CALLBACK(+propagate), this);
+    g_signal_connect(m_Widget, "leave-notify-event", G_CALLBACK(+propagate), this);
     ApplyPropertiesToWidget();
 }

@@ -123,13 +123,15 @@ void Config::Load()
         AddConfigVar("LockCommand", config.lockCommand, lineView, foundProperty);
         AddConfigVar("ExitCommand", config.exitCommand, lineView, foundProperty);
         AddConfigVar("BatteryFolder", config.batteryFolder, lineView, foundProperty);
-        AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("DefaultWorkspaceSymbol", config.defaultWorkspaceSymbol, lineView, foundProperty);
         for (int i = 1; i < 10; i++)
         {
             // Subtract 1 to index from 1 to 9 rather than 0 to 8
             AddConfigVar("WorkspaceSymbol-" + std::to_string(i), config.workspaceSymbols[i - 1], lineView, foundProperty);
         }
+
+        AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
+        AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
 
         if (foundProperty == false)
         {
