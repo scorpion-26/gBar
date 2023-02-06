@@ -7,7 +7,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 *If you don't have the optional dependencies, some features are not available.*
 - wayland
 - Hyprland(Optional -> For workspaces widget)
-- nvidia-utils(Optional -> For GPU status)
+- nvidia-utils(Optional -> For Nvidia GPU status)
 - bluez(Optional -> For Bluetooth status)
 - GTK 3.0
 - gtk-layer-shell
@@ -72,7 +72,7 @@ Bar:
 - Battery: Capacity
 - CPU stats: Utilisation, temperature (Temperature requires manual setup, see FAQ)
 - RAM: Utilisation
-- GPU stats (Nvidia only): Utilisation, temperature, VRAM
+- GPU stats (Nvidia/AMD only): Utilisation, temperature, VRAM
 - Disk: Free/Total
 
 Bluetooth:
