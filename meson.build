@@ -2,7 +2,7 @@ project('gBar',
     ['cpp'],
     version: '0.0.1',
     license: 'MIT',
-    meson_version: '>=0.46.0',
+    meson_version: '>=0.49.0',
     default_options: ['c_std=c++17', 'warning_level=3'])
 
 gtk = dependency('gtk+-3.0')
