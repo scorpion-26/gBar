@@ -93,6 +93,11 @@ namespace System
     std::string GetWorkspaceSymbol(int index);
 #endif
 
+    // Bytes per second upload. dx is time since last call. Will always return 0 on first run
+    double GetNetworkBpsUpload(double dt);
+    // Bytes per second download. dx is time since last call. Will always return 0 on first run
+    double GetNetworkBpsDownload(double dt);
+
     std::string GetTime();
 
     void Shutdown();

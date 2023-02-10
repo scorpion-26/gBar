@@ -155,6 +155,23 @@ namespace Bar
             return TimerResult::Ok;
         }
 
+        Text* networkText;
+        TimerResult UpdateNetwork(NetworkSensor& sensor)
+        {
+            double bpsUp = System::GetNetworkBpsUpload(updateTime / 1000.0);
+            double bpsDown = System::GetNetworkBpsDownload(updateTime / 1000.0);
+
+            std::string upload = Utils::StorageUnitDynamic(bpsUp, "%0.1f%s");
+            std::string download = Utils::StorageUnitDynamic(bpsDown, "%0.1f%s");
+
+            networkText->SetText(Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down");
+
+            sensor.SetUp(bpsUp);
+            sensor.SetDown(bpsDown);
+
+            return TimerResult::Ok;
+        }
+
         TimerResult UpdateTime(Text& text)
         {
             text.SetText(System::GetTime());
@@ -310,6 +327,44 @@ namespace Bar
         parent.AddChild(std::move(box));
     }
 #endif
+
+    void WidgetNetwork(Widget& parent)
+    {
+        auto eventBox = Widget::Create<EventBox>();
+        {
+            auto box = Widget::Create<Box>();
+            box->SetSpacing({0, false});
+            box->SetHorizontalTransform({-1, true, Alignment::Right});
+            {
+                auto revealer = Widget::Create<Revealer>();
+                revealer->SetTransition({TransitionType::SlideLeft, 500});
+                // Add event to eventbox for the revealer to open
+                eventBox->SetEventFn(
+                    [textRevealer = revealer.get()](EventBox&, bool hovered)
+                    {
+                        textRevealer->SetRevealed(hovered);
+                    });
+                {
+                    auto text = Widget::Create<Text>();
+                    text->SetClass("network-data-text");
+                    DynCtx::networkText = text.get();
+                    revealer->AddChild(std::move(text));
+                }
+
+                auto sensor = Widget::Create<NetworkSensor>();
+                sensor->SetLimitUp({(double)Config::Get().minUploadBytes, (double)Config::Get().maxUploadBytes});
+                sensor->SetLimitDown({(double)Config::Get().minDownloadBytes, (double)Config::Get().maxDownloadBytes});
+                sensor->AddTimer<NetworkSensor>(DynCtx::UpdateNetwork, DynCtx::updateTime);
+                sensor->SetHorizontalTransform({24, true, Alignment::Fill});
+
+                box->AddChild(std::move(revealer));
+                box->AddChild(std::move(sensor));
+            }
+            eventBox->AddChild(std::move(box));
+        }
+
+        parent.AddChild(std::move(eventBox));
+    }
 
     void WidgetSensors(Widget& parent)
     {
@@ -476,6 +531,8 @@ namespace Bar
                 if (RuntimeConfig::Get().hasBlueZ)
                     WidgetBluetooth(*right);
 #endif
+                if (Config::Get().networkWidget)
+                    WidgetNetwork(*right);
 
                 WidgetSensors(*right);
 

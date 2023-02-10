@@ -166,6 +166,62 @@ $textsize: 16px;
     font-size: $textsize;
 }
 
+.network-data-text {
+    color: $green;
+    margin-right: 6px;
+    font-size: $textsize;
+}
+
+// <= 0% (Below MinUploadBytes)
+.network-up-under {
+    color: $inactive;
+}
+// <= 25%
+.network-up-low {
+    color: $green;
+}
+// <= 50%
+.network-up-mid-low {
+    color: $yellow;
+}
+// <= 75%
+.network-up-mid-high {
+    color: $orange;
+}
+// <= 100%
+.network-up-high {
+    color: $purple;
+}
+// > 100% (Above MaxUploadBytes)
+.network-up-over {
+    color: $red;
+}
+
+// <= 0% (Below MinDownloadBytes)
+.network-down-under {
+    color: $inactive;
+}
+// <= 25%
+.network-down-low {
+    color: $green;
+}
+// <= 50%
+.network-down-mid-low {
+    color: $yellow;
+}
+// <= 75%
+.network-down-mid-high {
+    color: $orange;
+}
+// <= 100%
+.network-down-high {
+    color: $purple;
+}
+// > 100% (Above MaxDownloadBytes)
+.network-down-over {
+    color: $red;
+}
+
 .ws-dead {
     color: $inactive;
     font-size: $textsize;

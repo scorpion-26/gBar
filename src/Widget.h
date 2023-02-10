@@ -226,6 +226,32 @@ private:
     SensorStyle m_Style{};
 };
 
+class NetworkSensor : public CairoArea
+{
+public:
+    virtual void Create() override;
+
+    void SetLimitUp(Range limit) { limitUp = limit; };
+    void SetLimitDown(Range limit) { limitDown = limit; };
+
+    void SetUp(double val);
+    void SetDown(double val);
+
+private:
+    void Draw(cairo_t* cr) override;
+
+    // These are in percent
+    double up, down;
+
+    Range limitUp;
+    Range limitDown;
+
+    // What I do here is a little bit gross, but I need a working style context
+    // Just manually creating a style context doesn't work for me.
+    std::unique_ptr<Box> contextUp;
+    std::unique_ptr<Box> contextDown;
+};
+
 class Revealer : public Widget
 {
 public:

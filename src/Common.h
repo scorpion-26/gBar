@@ -60,6 +60,33 @@ namespace Utils
         snprintf(buf, sizeof(buf), fmt, x);
         return buf;
     }
+
+    // Format must be something like %0.1f %s
+    inline std::string StorageUnitDynamic(double bytes, const char* fmt)
+    {
+        constexpr double KiB = 1024;
+        constexpr double MiB = 1024 * KiB;
+        constexpr double GiB = 1024 * MiB;
+        char buf[128];
+        if (bytes >= GiB)
+        {
+            snprintf(buf, sizeof(buf), fmt, bytes * (1 / GiB), "GiB");
+            return buf;
+        }
+        if (bytes >= MiB)
+        {
+            snprintf(buf, sizeof(buf), fmt, bytes * (1 / MiB), "MiB");
+            return buf;
+        }
+        if (bytes >= KiB)
+        {
+            snprintf(buf, sizeof(buf), fmt, bytes * (1 / KiB), "KiB");
+            return buf;
+        }
+
+        snprintf(buf, sizeof(buf), fmt, bytes, "B");
+        return buf;
+    }
 }
 
 struct Process

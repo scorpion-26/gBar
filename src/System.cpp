@@ -463,6 +463,47 @@ namespace System
     }
 #endif
 
+    double GetNetworkBpsCommon(double dt, uint64_t& prevBytes, const std::string& deviceFile)
+    {
+        std::ifstream bytes(deviceFile);
+        ASSERT(bytes.is_open(), "Couldn't open " << deviceFile);
+        std::string bytesStr;
+        std::getline(bytes, bytesStr);
+
+        uint64_t curBytes = std::stoull(bytesStr);
+
+        if (prevBytes == UINT64_MAX)
+        {
+            prevBytes = curBytes;
+            return 0;
+        }
+        else
+        {
+            uint64_t diffBytes = curBytes - prevBytes;
+            prevBytes = curBytes;
+            // Is double precision a problem here?
+            return diffBytes / dt;
+        }
+    }
+
+    double GetNetworkBpsUpload(double dt)
+    {
+        // Better safe than sorry. Isn't 32bit max only a few GB?
+        static uint64_t prevUploadBytes = UINT64_MAX;
+        // Apparently /sys/class/net/.../statistics/[t/r]x_bytes is valid for all net devices under Linux
+        // https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net-statistics
+        return GetNetworkBpsCommon(dt, prevUploadBytes, "/sys/class/net/" + Config::Get().networkAdapter + "/statistics/tx_bytes");
+    }
+
+    double GetNetworkBpsDownload(double dt)
+    {
+        // Better safe than sorry. Isn't 32bit max only a few GB?
+        static uint64_t prevDownloadBytes = UINT64_MAX;
+        // Apparently /sys/class/net/.../statistics/[t/r]x_bytes is valid for all net devices under Linux
+        // https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net-statistics
+        return GetNetworkBpsCommon(dt, prevDownloadBytes, "/sys/class/net/" + Config::Get().networkAdapter + "/statistics/rx_bytes");
+    }
+
     std::string GetTime()
     {
         time_t stdTime = time(NULL);

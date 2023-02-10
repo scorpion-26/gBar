@@ -2,19 +2,27 @@
 #include <string>
 #include <vector>
 
-class Config 
+class Config
 {
 public:
-    std::string cpuThermalZone = ""; // idk, no standard way of doing this.
+    std::string cpuThermalZone = "";     // idk, no standard way of doing this.
+    std::string networkAdapter = "eno1"; // Is this standard?
     std::string suspendCommand = "systemctl suspend";
-    std::string lockCommand = ""; // idk, no standard way of doing this.
-    std::string exitCommand = ""; // idk, no standard way of doing this.
+    std::string lockCommand = "";   // idk, no standard way of doing this.
+    std::string exitCommand = "";   // idk, no standard way of doing this.
     std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
     std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
     std::string defaultWorkspaceSymbol = "";
 
     bool centerTime = true;
     bool audioRevealer = false;
+    bool networkWidget = true;
+
+    // Controls for color progression of the network widget
+    uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
+    uint32_t maxUploadBytes = 4 * 1024 * 1024;    // 4 MiB Top limit of the network widgets upload. Everything above it is considered "over"
+    uint32_t minDownloadBytes = 0;                // Bottom limit of the network widgets download. Everything above it is considered "under"
+    uint32_t maxDownloadBytes = 10 * 1024 * 1024; // 10 MiB Top limit of the network widgets download. Everything above it is considered "over"
 
     static void Load();
     static const Config& Get();

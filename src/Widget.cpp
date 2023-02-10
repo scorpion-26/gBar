@@ -1,5 +1,6 @@
 #include "Widget.h"
 #include "Common.h"
+#include "CSS.h"
 
 #include <cmath>
 
@@ -296,6 +297,146 @@ void Sensor::Draw(cairo_t* cr)
 
     gdk_rgba_free(bgCol);
     gdk_rgba_free(fgCol);
+}
+
+static std::string NetworkSensorPercentToCSS(double percent)
+{
+    if (percent <= 0.)
+    {
+        return "under";
+    }
+    else if (percent <= 0.25)
+    {
+        return "low";
+    }
+    else if (percent <= 0.50)
+    {
+        return "mid-low";
+    }
+    else if (percent <= 0.75)
+    {
+        return "mid-high";
+    }
+    else if (percent <= 1.)
+    {
+        return "high";
+    }
+    else
+    {
+        return "over";
+    }
+}
+
+static double NetworkSensorRateToPercent(double rate, Range range)
+{
+    return (rate - range.min) / (range.max - range.min);
+}
+
+void NetworkSensor::Create()
+{
+    CairoArea::Create();
+
+    // Add virtual children for style context(I know, it is really gross)
+    contextUp = Widget::Create<Box>();
+    contextUp->SetSpacing({0, true});
+    contextUp->SetClass("network-up-under");
+    contextUp->SetHorizontalTransform({0, false, Alignment::Fill});
+    contextUp->Create();
+
+    contextDown = Widget::Create<Box>();
+    contextDown->SetSpacing({0, true});
+    contextDown->SetClass("network-down-under");
+    contextDown->SetHorizontalTransform({0, false, Alignment::Fill});
+    contextDown->Create();
+}
+
+void NetworkSensor::SetUp(double val)
+{
+    if (!contextUp)
+    {
+        return;
+    }
+
+    up = NetworkSensorRateToPercent(val, limitUp);
+
+    // Add css class
+    std::string newClass = NetworkSensorPercentToCSS(up);
+    contextUp->SetClass("network-up-" + newClass);
+
+    // Schedule redraw
+    if (m_Widget)
+    {
+        gtk_widget_queue_draw(m_Widget);
+    }
+}
+
+void NetworkSensor::SetDown(double val)
+{
+    if (!contextDown)
+    {
+        return;
+    }
+
+    down = NetworkSensorRateToPercent(val, limitDown);
+
+    // Add css class
+    std::string newClass = NetworkSensorPercentToCSS(down);
+    contextDown->SetClass("network-down-" + newClass);
+
+    // Schedule redraw
+    if (m_Widget)
+    {
+        gtk_widget_queue_draw(m_Widget);
+    }
+}
+
+void NetworkSensor::Draw(cairo_t* cr)
+{
+    constexpr double epsilon = 1;
+
+    Quad q = GetQuad();
+    auto virtToPx = [&](double virtPx)
+    {
+        return q.size * (virtPx / 24.f);
+    };
+
+    GdkRGBA* colUp;
+    GdkRGBA* colDown;
+    gtk_style_context_get(gtk_widget_get_style_context(contextUp->Get()), GTK_STATE_FLAG_NORMAL, GTK_STYLE_PROPERTY_COLOR, &colUp, NULL);
+    gtk_style_context_get(gtk_widget_get_style_context(contextDown->Get()), GTK_STATE_FLAG_NORMAL, GTK_STYLE_PROPERTY_COLOR, &colDown, NULL);
+
+    // Upload
+    cairo_set_source_rgb(cr, colUp->red, colUp->green, colUp->blue);
+
+    // Triangle
+    cairo_move_to(cr, q.x + virtToPx(6), q.y + virtToPx(0));   // Top mid
+    cairo_line_to(cr, q.x + virtToPx(0), q.y + virtToPx(10));  // Left bottom
+    cairo_line_to(cr, q.x + virtToPx(12), q.y + virtToPx(10)); // Right bottom
+    cairo_close_path(cr);
+    cairo_fill(cr);
+
+    // Rectangle
+    // Go a bit above, to avoid gaps between tri and quad
+    cairo_rectangle(cr, q.x + virtToPx(4), q.y + virtToPx(10 - epsilon), virtToPx(4), virtToPx(12 + epsilon));
+    cairo_fill(cr);
+
+    // Download
+    cairo_set_source_rgb(cr, colDown->red, colDown->green, colDown->blue);
+
+    // Triangle
+    cairo_move_to(cr, q.x + virtToPx(18), q.y + virtToPx(24)); // Bottom mid
+    cairo_line_to(cr, q.x + virtToPx(12), q.y + virtToPx(14)); // Left top
+    cairo_line_to(cr, q.x + virtToPx(24), q.y + virtToPx(14)); // Right top
+    cairo_close_path(cr);
+    cairo_fill(cr);
+
+    // Rectangle
+    // Go a bit below, to avoid gaps between tri and quad
+    cairo_rectangle(cr, q.x + virtToPx(16), q.y + virtToPx(2), virtToPx(4), virtToPx(12 + epsilon));
+    cairo_fill(cr);
+
+    gdk_rgba_free(colUp);
+    gdk_rgba_free(colDown);
 }
 
 void Revealer::SetTransition(Transition transition)

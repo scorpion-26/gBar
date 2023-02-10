@@ -119,6 +119,7 @@ void Config::Load()
 
         bool foundProperty = false;
         AddConfigVar("CPUThermalZone", config.cpuThermalZone, lineView, foundProperty);
+        AddConfigVar("NetworkAdapter", config.networkAdapter, lineView, foundProperty);
         AddConfigVar("SuspendCommand", config.suspendCommand, lineView, foundProperty);
         AddConfigVar("LockCommand", config.lockCommand, lineView, foundProperty);
         AddConfigVar("ExitCommand", config.exitCommand, lineView, foundProperty);
@@ -132,6 +133,12 @@ void Config::Load()
 
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
+        AddConfigVar("NetworkWidget", config.networkWidget, lineView, foundProperty);
+
+        AddConfigVar("MinUploadBytes", config.minUploadBytes, lineView, foundProperty);
+        AddConfigVar("MaxUploadBytes", config.maxUploadBytes, lineView, foundProperty);
+        AddConfigVar("MinDownloadBytes", config.minDownloadBytes, lineView, foundProperty);
+        AddConfigVar("MaxDownloadBytes", config.maxDownloadBytes, lineView, foundProperty);
 
         if (foundProperty == false)
         {
