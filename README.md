@@ -74,6 +74,7 @@ Bar:
 - RAM: Utilisation
 - GPU stats (Nvidia/AMD only): Utilisation, temperature, VRAM
 - Disk: Free/Total
+- Network: Current upload and download speed
 
 Bluetooth:
  - Scanning of nearby bluetooth devices
