@@ -114,7 +114,7 @@ void Config::Load()
         }
         if (comment != std::string_view::npos)
         {
-            lineView = lineView.substr(comment - 1);
+            lineView = lineView.substr(0, comment - 1);
         }
 
         bool foundProperty = false;
@@ -135,7 +135,7 @@ void Config::Load()
 
         if (foundProperty == false)
         {
-            LOG("Warning: unknown config var: " << line);
+            LOG("Warning: unknown config var: " << lineView);
             continue;
         }
     }
