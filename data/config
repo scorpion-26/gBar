@@ -28,6 +28,12 @@ BatteryFolder: /sys/class/power_supply/BAT1
 # The default symbol for the workspaces
 DefaultWorkspaceSymbol: 
 
+# Scroll through the workspaces of the current monitor instead of all workspaces
+WorkspaceScrollOnMonitor: true
+
+# When true: Scroll up -> Next workspace instead of previous workspace. Analogous with scroll down
+WorkspaceScrollInvert: false
+
 # Forces the time to be centered.
 # This can cause issues, if there is not enough space on screen (e.g. when opening the text)
 CenterTime: true

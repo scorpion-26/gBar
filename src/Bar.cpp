@@ -196,6 +196,26 @@ namespace Bar
             }
             return TimerResult::Ok;
         }
+
+        void ScrollWorkspaces(EventBox&, ScrollDirection direction)
+        {
+            switch (direction)
+            {
+            case ScrollDirection::Up:
+                if (Config::Get().workspaceScrollInvert)
+                    System::GotoNextWorkspace('+');
+                else
+                    System::GotoNextWorkspace('-');
+                break;
+            case ScrollDirection::Down:
+                if (Config::Get().workspaceScrollInvert)
+                    System::GotoNextWorkspace('-');
+                else
+                    System::GotoNextWorkspace('+');
+                break;
+            default: break;
+            }
+        }
 #endif
     }
 
@@ -473,26 +493,30 @@ namespace Bar
         auto margin = Widget::Create<Box>();
         margin->SetHorizontalTransform({12, true, Alignment::Left});
         parent.AddChild(std::move(margin));
-
-        auto box = Widget::Create<Box>();
-        box->SetSpacing({8, true});
-        box->SetHorizontalTransform({-1, true, Alignment::Left});
+        auto eventBox = Widget::Create<EventBox>();
+        eventBox->SetScrollFn(DynCtx::ScrollWorkspaces);
         {
-            for (size_t i = 0; i < DynCtx::workspaces.size(); i++)
+            auto box = Widget::Create<Box>();
+            box->SetSpacing({8, true});
+            box->SetHorizontalTransform({-1, true, Alignment::Left});
             {
-                auto workspace = Widget::Create<Button>();
-                workspace->SetHorizontalTransform({8, false, Alignment::Fill});
-                workspace->OnClick(
-                    [i](Button&)
-                    {
-                        System::GotoWorkspace((uint32_t)i + 1);
-                    });
-                DynCtx::workspaces[i] = workspace.get();
-                box->AddChild(std::move(workspace));
+                for (size_t i = 0; i < DynCtx::workspaces.size(); i++)
+                {
+                    auto workspace = Widget::Create<Button>();
+                    workspace->SetHorizontalTransform({8, false, Alignment::Fill});
+                    workspace->OnClick(
+                        [i](Button&)
+                        {
+                            System::GotoWorkspace((uint32_t)i + 1);
+                        });
+                    DynCtx::workspaces[i] = workspace.get();
+                    box->AddChild(std::move(workspace));
+                }
             }
+            box->AddTimer<Box>(DynCtx::UpdateWorkspaces, DynCtx::updateTimeFast);
+            eventBox->AddChild(std::move(box));
         }
-        box->AddTimer<Box>(DynCtx::UpdateWorkspaces, DynCtx::updateTimeFast);
-        parent.AddChild(std::move(box));
+        parent.AddChild(std::move(eventBox));
     }
 #endif
 

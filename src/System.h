@@ -90,6 +90,8 @@ namespace System
     };
     WorkspaceStatus GetWorkspaceStatus(uint32_t monitor, uint32_t workspace);
     void GotoWorkspace(uint32_t workspace);
+    // direction: + or -
+    void GotoNextWorkspace(char direction);
     std::string GetWorkspaceSymbol(int index);
 #endif
 

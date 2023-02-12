@@ -446,6 +446,10 @@ namespace System
     {
         return Hyprland::Goto(workspace);
     }
+    void GotoNextWorkspace(char direction)
+    {
+        return Hyprland::GotoNext(direction);
+    }
     std::string GetWorkspaceSymbol(int index)
     {
         if (index < 0 || index > 9)

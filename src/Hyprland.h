@@ -115,5 +115,17 @@ namespace Hyprland
 
         system(("hyprctl dispatch workspace " + std::to_string(workspace)).c_str());
     }
+
+    // direction: + or -
+    inline void GotoNext(char direction)
+    {
+        char scrollOp = 'e';
+        if (Config::Get().workspaceScrollOnMonitor)
+        {
+            scrollOp = 'm';
+        }
+        std::string cmd = std::string("hyprctl dispatch workspace ") + scrollOp + direction + "1";
+        system(cmd.c_str());
+    }
 }
 #endif
