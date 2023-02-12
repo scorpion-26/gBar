@@ -80,6 +80,12 @@ enum class TimerResult
     Delete
 };
 
+enum class ScrollDirection
+{
+    Up,
+    Down
+};
+
 template<typename TWidget>
 using Callback = std::function<void(TWidget&)>;
 template<typename TWidget>
@@ -194,11 +200,13 @@ private:
 class EventBox : public Widget
 {
 public:
-    void SetEventFn(std::function<void(EventBox&, bool)>&& fn);
+    void SetHoverFn(std::function<void(EventBox&, bool)>&& fn);
+    void SetScrollFn(std::function<void(EventBox&, ScrollDirection)>&& fn);
     virtual void Create() override;
 
 private:
-    std::function<void(EventBox&, bool)> m_EventFn;
+    std::function<void(EventBox&, bool)> m_HoverFn;
+    std::function<void(EventBox&, ScrollDirection)> m_ScrollFn;
 };
 
 class CairoArea : public Widget

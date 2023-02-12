@@ -187,9 +187,14 @@ void CenterBox::Create()
     ApplyPropertiesToWidget();
 }
 
-void EventBox::SetEventFn(std::function<void(EventBox&, bool)>&& fn)
+void EventBox::SetHoverFn(std::function<void(EventBox&, bool)>&& fn)
 {
-    m_EventFn = fn;
+    m_HoverFn = fn;
+}
+
+void EventBox::SetScrollFn(std::function<void(EventBox&, ScrollDirection)>&& fn)
+{
+    m_ScrollFn = fn;
 }
 
 void EventBox::Create()
@@ -199,18 +204,37 @@ void EventBox::Create()
     auto enter = [](GtkWidget*, GdkEventCrossing*, gpointer data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
-        box->m_EventFn(*box, true);
+        if (box->m_HoverFn)
+            box->m_HoverFn(*box, true);
         return false;
     };
     auto leave = [](GtkWidget*, GdkEventCrossing*, void* data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
-        box->m_EventFn(*box, false);
+        if (box->m_HoverFn)
+            box->m_HoverFn(*box, false);
         return false;
     };
-    gtk_widget_set_events(m_Widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
+    auto scroll = [](GtkWidget*, GdkEventScroll event, void* data) -> gboolean
+    {
+        EventBox* box = (EventBox*)data;
+        if (box->m_ScrollFn)
+        {
+            if (event.direction == GDK_SCROLL_DOWN)
+            {
+                box->m_ScrollFn(*box, ScrollDirection::Down);
+            }
+            else if (event.direction == GDK_SCROLL_UP)
+            {
+                box->m_ScrollFn(*box, ScrollDirection::Up);
+            }
+        }
+        return false;
+    };
+    gtk_widget_set_events(m_Widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_SCROLL_MASK);
     g_signal_connect(m_Widget, "enter-notify-event", G_CALLBACK(+enter), this);
     g_signal_connect(m_Widget, "leave-notify-event", G_CALLBACK(+leave), this);
+    g_signal_connect(m_Widget, "scroll-event", G_CALLBACK(+scroll), this);
 
     ApplyPropertiesToWidget();
 }

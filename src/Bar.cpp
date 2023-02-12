@@ -210,7 +210,7 @@ namespace Bar
                 auto revealer = Widget::Create<Revealer>();
                 revealer->SetTransition({TransitionType::SlideLeft, 500});
                 // Add event to eventbox for the revealer to open
-                eventBox->SetEventFn(
+                eventBox->SetHoverFn(
                     [textRevealer = revealer.get()](EventBox&, bool hovered)
                     {
                         textRevealer->SetRevealed(hovered);
@@ -269,7 +269,7 @@ namespace Bar
                     auto revealer = Widget::Create<Revealer>();
                     revealer->SetTransition({TransitionType::SlideLeft, 500});
                     // Add event to eventbox for the revealer to open
-                    eventBox.SetEventFn(
+                    eventBox.SetHoverFn(
                         [slideRevealer = revealer.get()](EventBox&, bool hovered)
                         {
                             slideRevealer->SetRevealed(hovered);
@@ -339,7 +339,7 @@ namespace Bar
                 auto revealer = Widget::Create<Revealer>();
                 revealer->SetTransition({TransitionType::SlideLeft, 500});
                 // Add event to eventbox for the revealer to open
-                eventBox->SetEventFn(
+                eventBox->SetHoverFn(
                     [textRevealer = revealer.get()](EventBox&, bool hovered)
                     {
                         textRevealer->SetRevealed(hovered);
@@ -388,7 +388,7 @@ namespace Bar
     void WidgetPower(Widget& parent)
     {
         auto eventBox = Widget::Create<EventBox>();
-        eventBox->SetEventFn(DynCtx::PowerBoxEvent);
+        eventBox->SetHoverFn(DynCtx::PowerBoxEvent);
         {
             auto powerBox = Widget::Create<Box>();
             powerBox->SetClass("power-box");
