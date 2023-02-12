@@ -215,16 +215,17 @@ void EventBox::Create()
             box->m_HoverFn(*box, false);
         return false;
     };
-    auto scroll = [](GtkWidget*, GdkEventScroll event, void* data) -> gboolean
+    // I am so done with the GTK docs. The docs clearly say GdkEventScroll and not GdkEventScroll*, but GdkEventScroll* is passed
+    auto scroll = [](GtkWidget*, GdkEventScroll* event, void* data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
         if (box->m_ScrollFn)
         {
-            if (event.direction == GDK_SCROLL_DOWN)
+            if (event->direction == GDK_SCROLL_DOWN)
             {
                 box->m_ScrollFn(*box, ScrollDirection::Down);
             }
-            else if (event.direction == GDK_SCROLL_UP)
+            else if (event->direction == GDK_SCROLL_UP)
             {
                 box->m_ScrollFn(*box, ScrollDirection::Up);
             }
