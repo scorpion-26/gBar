@@ -555,7 +555,7 @@ namespace Bar
                 if (RuntimeConfig::Get().hasBlueZ)
                     WidgetBluetooth(*right);
 #endif
-                if (Config::Get().networkWidget)
+                if (Config::Get().networkWidget && RuntimeConfig::Get().hasNet)
                     WidgetNetwork(*right);
 
                 WidgetSensors(*right);

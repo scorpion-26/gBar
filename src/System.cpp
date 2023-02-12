@@ -467,10 +467,23 @@ namespace System
     }
 #endif
 
+    void CheckNetwork()
+    {
+        std::ifstream bytes("/sys/class/net/" + Config::Get().networkAdapter + "/statistics/tx_bytes");
+        if (!bytes.is_open())
+        {
+            LOG("Cannot open network device! Disabling Network widget.");
+            RuntimeConfig::Get().hasNet = false;
+        }
+    }
+
     double GetNetworkBpsCommon(double dt, uint64_t& prevBytes, const std::string& deviceFile)
     {
+        if (!RuntimeConfig::Get().hasNet)
+        {
+            return 0.f;
+        }
         std::ifstream bytes(deviceFile);
-        ASSERT(bytes.is_open(), "Couldn't open " << deviceFile);
         std::string bytesStr;
         std::getline(bytes, bytesStr);
 
@@ -563,6 +576,8 @@ namespace System
 #endif
 
         PulseAudio::Init();
+
+        CheckNetwork();
     }
     void FreeResources()
     {

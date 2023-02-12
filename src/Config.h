@@ -57,5 +57,7 @@ public:
     bool hasBlueZ = false;
 #endif
 
+    bool hasNet = true;
+
     static RuntimeConfig& Get();
 };
