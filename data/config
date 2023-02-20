@@ -41,6 +41,9 @@ CenterTime: true
 # Sets the audio slider to be on reveal (Just like the sensors) when true. Only affects the bar.
 AudioRevealer: false
 
+# Sets the rate of change of the slider on each scroll. In Percent
+AudioScrollSpeed: 5
+
 # The network adapter to use. You can query /sys/class/net for all possible values
 NetworkAdapter: eno1
 

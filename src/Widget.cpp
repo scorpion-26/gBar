@@ -550,6 +550,11 @@ void Slider::SetInverted(bool inverted)
     m_Inverted = inverted;
 }
 
+void Slider::SetScrollSpeed(double speed)
+{
+    m_ScrollSpeed = speed;
+}
+
 void Slider::Create()
 {
     m_Widget = gtk_scale_new_with_range(Utils::ToGtkOrientation(m_Orientation), m_Range.min, m_Range.max, m_Range.step);
@@ -564,6 +569,29 @@ void Slider::Create()
     };
     g_signal_connect(m_Widget, "change-value", G_CALLBACK(+changedFn), this);
 
+    auto scroll = [](GtkWidget*, GdkEventScroll* event, void* data) -> gboolean
+    {
+        Slider* slider = (Slider*)data;
+        double value = gtk_range_get_value((GtkRange*)slider->m_Widget);
+        // Range generates a 'smooth' event.
+        if (event->delta_y >= 0)
+        {
+            value -= slider->m_ScrollSpeed;
+            slider->SetValue(value);
+            if (slider->m_OnValueChange)
+                slider->m_OnValueChange(*slider, value);
+        }
+        else if (event->delta_y <= 0)
+        {
+            value += slider->m_ScrollSpeed;
+            slider->SetValue(value);
+            if (slider->m_OnValueChange)
+                slider->m_OnValueChange(*slider, value);
+        }
+        return GDK_EVENT_STOP;
+    };
+    g_signal_connect(m_Widget, "scroll-event", G_CALLBACK(+scroll), this);
+
     // Propagate events to any parent eventboxes
     auto propagate = [](GtkWidget*, GdkEventCrossing* data, gpointer widget) -> gboolean
     {
@@ -573,7 +601,7 @@ void Slider::Create()
         slider->PropagateToParent((GdkEvent*)data);
         return GDK_EVENT_PROPAGATE;
     };
-    gtk_widget_set_events(m_Widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
+    gtk_widget_set_events(m_Widget, GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_SCROLL_MASK);
     g_signal_connect(m_Widget, "enter-notify-event", G_CALLBACK(+propagate), this);
     g_signal_connect(m_Widget, "leave-notify-event", G_CALLBACK(+propagate), this);
     ApplyPropertiesToWidget();

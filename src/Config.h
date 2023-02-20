@@ -26,6 +26,8 @@ public:
     uint32_t minDownloadBytes = 0;                // Bottom limit of the network widgets download. Everything above it is considered "under"
     uint32_t maxDownloadBytes = 10 * 1024 * 1024; // 10 MiB Top limit of the network widgets download. Everything above it is considered "over"
 
+    uint32_t audioScrollSpeed = 5; // 5% each scroll
+
     static void Load();
     static const Config& Get();
 };

@@ -142,6 +142,8 @@ void Config::Load()
         AddConfigVar("MinDownloadBytes", config.minDownloadBytes, lineView, foundProperty);
         AddConfigVar("MaxDownloadBytes", config.maxDownloadBytes, lineView, foundProperty);
 
+        AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
+
         if (foundProperty == false)
         {
             LOG("Warning: unknown config var: " << lineView);

@@ -268,6 +268,7 @@ namespace Bar
             slider->AddTimer<Slider>(DynCtx::UpdateAudio, DynCtx::updateTimeFast);
             slider->OnValueChange(DynCtx::OnChangeVolume);
             slider->SetRange({0, 1, 0.01});
+            slider->SetScrollSpeed((double)Config::Get().audioScrollSpeed / 100.);
 
             parent.AddChild(std::move(slider));
         };

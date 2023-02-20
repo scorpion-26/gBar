@@ -314,6 +314,7 @@ public:
     void SetOrientation(Orientation orientation);
     void SetInverted(bool flipped);
     void SetRange(SliderRange range);
+    void SetScrollSpeed(double speed);
 
     void OnValueChange(std::function<void(Slider&, double)>&& callback);
 
@@ -323,5 +324,6 @@ private:
     Orientation m_Orientation = Orientation::Horizontal;
     SliderRange m_Range;
     bool m_Inverted = false;
+    double m_ScrollSpeed = 5. / 100.; // 5%
     std::function<void(Slider&, double)> m_OnValueChange;
 };
