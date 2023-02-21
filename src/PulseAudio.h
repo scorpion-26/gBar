@@ -5,21 +5,39 @@
 #include <pulse/pulseaudio.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <list>
 
 namespace PulseAudio
 {
 
     static pa_mainloop* mainLoop;
     static pa_context* context;
-    static int32_t pending = 0;
+    static std::list<pa_operation*> pendingOperations;
 
     inline void FlushLoop()
     {
-        while (pending > 0)
+        while (pendingOperations.size() > 0)
         {
             pa_mainloop_iterate(mainLoop, 0, nullptr);
+            // Remove done or cancelled operations
+            pendingOperations.remove_if(
+                [](pa_operation* op)
+                {
+                    pa_operation_state_t state = pa_operation_get_state(op);
+                    if (state == PA_OPERATION_DONE)
+                    {
+                        pa_operation_unref(op);
+                        return true;
+                    }
+                    else if (state == PA_OPERATION_CANCELLED)
+                    {
+                        LOG("Warning: Cancelled pa_operation!");
+                        pa_operation_unref(op);
+                        return true;
+                    }
+                    return false;
+                });
         }
-        pending = 0;
     }
 
     inline void Init()
@@ -30,7 +48,8 @@ namespace PulseAudio
         context = pa_context_new(api, "gBar PA context");
         int res = pa_context_connect(context, nullptr, PA_CONTEXT_NOAUTOSPAWN, nullptr);
 
-        auto stateCallback = [](pa_context* c, void*)
+        bool ready = false;
+        auto stateCallback = [](pa_context* c, void* ready)
         {
             switch (pa_context_get_state(c))
             {
@@ -43,17 +62,17 @@ namespace PulseAudio
                 // Don't care
                 break;
             case PA_CONTEXT_READY:
-                // Prevent pending from going negative when PA_CONTEXT_READY is called multiple times
-                if (pending > 0)
-                    pending--;
+                LOG("PulseAudio: Context is ready!");
+                *(bool*)ready = true;
                 break;
             }
         };
+        pa_context_set_state_callback(context, +stateCallback, &ready);
 
-        pa_context_set_state_callback(context, +stateCallback, nullptr);
-        pending++;
-
-        FlushLoop();
+        while (!ready)
+        {
+            pa_mainloop_iterate(mainLoop, 0, nullptr);
+        }
 
         ASSERT(res >= 0, "pa_context_connect failed!");
     }
@@ -65,12 +84,15 @@ namespace PulseAudio
         // 1. Get default sink
         auto serverInfo = [](pa_context*, const pa_server_info* info, void* sink)
         {
-            pending--;
+            if (!info)
+                return;
+
             *(const char**)sink = info->default_sink_name;
         };
 
-        pa_context_get_server_info(context, +serverInfo, &defaultSink);
-        pending++;
+        pa_operation* op = pa_context_get_server_info(context, +serverInfo, &defaultSink);
+        pa_operation_ref(op);
+        pendingOperations.push_back(op);
 
         FlushLoop();
 
@@ -85,11 +107,12 @@ namespace PulseAudio
             out->volume = vol;
             out->muted = info->mute;
 
-            pending--;
         };
-        pa_context_get_sink_info_by_name(context, defaultSink, +sinkInfo, &info);
+        op = pa_context_get_sink_info_by_name(context, defaultSink, +sinkInfo, &info);
 
-        pending++;
+        pa_operation_ref(op);
+        pendingOperations.push_back(op);
+
         FlushLoop();
 
         return info;
