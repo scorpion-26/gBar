@@ -14,7 +14,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 - PulseAudio server (PipeWire works too!)
 - meson, gcc/clang, ninja
 
-## Building and installation
+## Building and installation (Manually)
 1. Configure with meson
     
     *All optional dependencies enabled*
@@ -29,6 +29,11 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
     ```
     ninja -C build && sudo ninja -C build install
     ```
+
+## Building and installation (AUR)
+For Arch systems, gBar can be found on the AUR.
+You can install it e.g.: with yay
+```yay -S gbar-git```
 
 ## Running gBar
 *Open bar on monitor 0*
