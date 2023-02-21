@@ -11,14 +11,15 @@ namespace PulseAudio
 
     static pa_mainloop* mainLoop;
     static pa_context* context;
-    static uint32_t pending = 0;
+    static int32_t pending = 0;
 
     inline void FlushLoop()
     {
-        while (pending)
+        while (pending > 0)
         {
             pa_mainloop_iterate(mainLoop, 0, nullptr);
         }
+        pending = 0;
     }
 
     inline void Init()
@@ -41,7 +42,11 @@ namespace PulseAudio
             case PA_CONTEXT_CONNECTING:
                 // Don't care
                 break;
-            case PA_CONTEXT_READY: pending--; break;
+            case PA_CONTEXT_READY:
+                // Prevent pending from going negative when PA_CONTEXT_READY is called multiple times
+                if (pending > 0)
+                    pending--;
+                break;
             }
         };
 
