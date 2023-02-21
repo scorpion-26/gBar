@@ -203,7 +203,12 @@ namespace System
     {
         // Try connecting to d-bus and org.bluez
         GDBusConnection* connection = g_bus_get_sync(G_BUS_TYPE_SYSTEM, nullptr, nullptr);
-        ASSERT(connection, "Failed to connect to d-bus!");
+        if (!connection)
+        {
+            LOG("Can't connect to d-bus! Disabling Bluetooth!");
+            // dbus not found, disable bluetooth
+            RuntimeConfig::Get().hasBlueZ = false;
+        }
 
         GError* err = nullptr;
         GVariant* objects = g_dbus_connection_call_sync(connection, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
