@@ -3,14 +3,9 @@
 #include <unistd.h>
 #include <string>
 
+#include "Log.h"
+
 #define UNUSED [[maybe_unused]]
-#define LOG(x) std::cout << x << '\n'
-#define ASSERT(x, log)                                  \
-    if (!(x))                                           \
-    {                                                   \
-        LOG(log << "\n[Exiting due to assert failed]"); \
-        exit(-1);                                       \
-    }
 
 // Flag helper macros
 #define BIT(x) (1 << (x))

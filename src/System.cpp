@@ -562,6 +562,8 @@ namespace System
 
     void Init()
     {
+        Logging::Init();
+
         Config::Load();
 
 #ifdef WITH_NVIDIA
@@ -594,5 +596,6 @@ namespace System
 #ifdef WITH_BLUEZ
         StopBTScan();
 #endif
+        Logging::Shutdown();
     }
 }

@@ -10,6 +10,7 @@ gtk_layer_shell = dependency('gtk-layer-shell-0')
 
 headers = [
   'src/Common.h',
+  'src/Log.h',
   'src/System.h',
   'src/PulseAudio.h',
   'src/Widget.h',
@@ -37,6 +38,8 @@ if get_option('WithSys')
   add_global_arguments('-DWITH_SYS', language: 'cpp')
 endif
 
+add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
+
 pulse = dependency('libpulse')
 
 libgBar = library('gBar', 
@@ -48,7 +51,8 @@ libgBar = library('gBar',
    'src/BluetoothDevices.cpp',
    'src/Plugin.cpp',
    'src/Config.cpp',
-   'src/CSS.cpp'
+   'src/CSS.cpp',
+   'src/Log.cpp'
   ],
   dependencies: [gtk, gtk_layer_shell, pulse],
   install: true)
