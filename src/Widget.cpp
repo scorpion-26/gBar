@@ -204,15 +204,23 @@ void EventBox::Create()
     auto enter = [](GtkWidget*, GdkEventCrossing*, gpointer data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
-        if (box->m_HoverFn)
+        if (box->m_HoverFn && box->m_DiffHoverEvents <= 0)
+        {
             box->m_HoverFn(*box, true);
+            box->m_DiffHoverEvents = 0;
+        }
+        box->m_DiffHoverEvents++;
         return false;
     };
     auto leave = [](GtkWidget*, GdkEventCrossing*, void* data) -> gboolean
     {
         EventBox* box = (EventBox*)data;
-        if (box->m_HoverFn)
+        box->m_DiffHoverEvents--;
+        if (box->m_HoverFn && box->m_DiffHoverEvents <= 0)
+        {
             box->m_HoverFn(*box, false);
+            box->m_DiffHoverEvents = 0;
+        }
         return false;
     };
     // I am so done with the GTK docs. The docs clearly say GdkEventScroll and not GdkEventScroll*, but GdkEventScroll* is passed

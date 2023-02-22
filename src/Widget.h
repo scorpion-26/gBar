@@ -205,6 +205,9 @@ public:
     virtual void Create() override;
 
 private:
+    // If two hover events are sent, it needs also two close events for a close.
+    // Somehow not doing that causes an issue.
+    int32_t m_DiffHoverEvents = 0;
     std::function<void(EventBox&, bool)> m_HoverFn;
     std::function<void(EventBox&, ScrollDirection)> m_ScrollFn;
 };
