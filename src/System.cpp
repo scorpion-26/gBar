@@ -437,9 +437,13 @@ namespace System
     {
         return PulseAudio::GetInfo();
     }
-    void SetVolume(double volume)
+    void SetVolumeSink(double volume)
     {
-        PulseAudio::SetVolume(volume);
+        PulseAudio::SetVolumeSink(volume);
+    }
+    void SetVolumeSource(double volume)
+    {
+        PulseAudio::SetVolumeSource(volume);
     }
 
 #ifdef WITH_HYPRLAND

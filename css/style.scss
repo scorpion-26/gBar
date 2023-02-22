@@ -76,10 +76,73 @@ $textsize: 16px;
     margin-right: 6px;
 }
 
+// Common slider settings
+trough {
+    border-radius: 3px;
+    border-width: 1px;
+    border-style: none;
+    background-color: $inactive;
+    margin-top: 2px;
+    min-width: 4px;
+    min-height: 4px;
+}
+
+slider {
+    // Controls the size of the control area (set border-style to solid to see)
+    border-radius: 0%;
+    border-width: 1px;
+    border-style: none;
+    margin: -9px -9px -9px -9px;
+    min-width: 16px;
+    min-height: 16px;
+    background-color: transparent;
+}
+
+highlight {
+    border-radius: 3px;
+    border-width: 1px;
+    border-style: none;
+    min-height: 6px;
+}
+
 .audio-icon {
     font-size: 24px;
     color: $orange;
     margin-right: 12px;
+}
+
+.audio-volume {
+    trough {
+        background-color: $inactive;
+    }
+
+    slider {
+        background-color: transparent;
+    }
+
+    highlight {
+        background-color: $orange;
+    }
+}
+
+.mic-icon {
+    font-size: 24px;
+    color: $purple;
+    margin-right: 0px;
+}
+
+.mic-volume {
+    trough {
+        background-color: $inactive;
+    }
+
+    slider {
+        background-color: transparent;
+    }
+
+    highlight {
+        background-color: $purple;
+    }
 }
 
 .bt-num {
@@ -348,34 +411,3 @@ $textsize: 16px;
 	margin: 0px 0px 0px 10px;
     font-size: 18px;
 }
-
-// Sliders
-trough {
-    border-radius: 3px;
-    border-width: 1px;
-	border-style: none;
-    background-color: $inactive;
-    margin-top: 2px;
-	min-width: 4px;
-	min-height: 4px;
-}
-
-slider {
-    // Controls the size of the control area (set border-style to solid to see)
-	border-radius: 0%;
-    border-width: 1px;
-	border-style: none;
-	margin: -9px -9px -9px -9px;
-	min-width: 16px;
-	min-height: 16px;
-	background-color: transparent;
-}
-
-highlight {
-	border-radius: 3px;
-    border-width: 1px;
-	border-style: none;
-    min-height: 6px;
-	background-color: $orange;
-}
-

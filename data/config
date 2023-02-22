@@ -38,6 +38,9 @@ WorkspaceScrollInvert: false
 # This can cause issues, if there is not enough space on screen (e.g. when opening the text)
 CenterTime: true
 
+# Adds a audio input(aka. microphone) widget
+AudioInput: false
+
 # Sets the audio slider to be on reveal (Just like the sensors) when true. Only affects the bar.
 AudioRevealer: false
 

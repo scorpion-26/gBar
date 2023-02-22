@@ -4,5 +4,10 @@
 
 namespace AudioFlyin
 {
-    void Create(Window& window, int32_t monitor);
+    enum class Type
+    {
+        Speaker,
+        Microphone
+    };
+    void Create(Window& window, int32_t monitor, Type type);
 }

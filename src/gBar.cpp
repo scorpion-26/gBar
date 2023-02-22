@@ -13,6 +13,24 @@
 
 const char* audioTmpFileOpen = "/tmp/gBar__audio";
 
+static bool flyin = false;
+void OpenAudioFlyin(Window& window, int32_t monitor, AudioFlyin::Type type)
+{
+    flyin = true;
+    if (access(audioTmpFileOpen, F_OK) != 0)
+    {
+        FILE* audioTempFile = fopen(audioTmpFileOpen, "w");
+        AudioFlyin::Create(window, monitor, type);
+        fclose(audioTempFile);
+    }
+    else
+    {
+        // Already open, close
+        LOG("Audio flyin already open");
+        exit(0);
+    }
+}
+
 int main(int argc, char** argv)
 {
     System::Init();
@@ -31,18 +49,11 @@ int main(int argc, char** argv)
     }
     else if (strcmp(argv[1], "audio") == 0)
     {
-        if (access(audioTmpFileOpen, F_OK) != 0)
-        {
-            FILE* audioTempFile = fopen(audioTmpFileOpen, "w");
-            AudioFlyin::Create(window, monitor);
-            fclose(audioTempFile);
-        }
-        else
-        {
-            // Already open, close
-            LOG("Audio already open");
-            exit(0);
-        }
+        OpenAudioFlyin(window, monitor, AudioFlyin::Type::Speaker);
+    }
+    else if (strcmp(argv[1], "mic") == 0)
+    {
+        OpenAudioFlyin(window, monitor, AudioFlyin::Type::Microphone);
     }
 #ifdef WITH_BLUEZ
     else if (strcmp(argv[1], "bluetooth") == 0)
@@ -66,7 +77,7 @@ int main(int argc, char** argv)
     window.Run(argc, argv);
 
     System::FreeResources();
-    if (strcmp(argv[1], "audio") == 0)
+    if (flyin)
     {
         remove(audioTmpFileOpen);
     }

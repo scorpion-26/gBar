@@ -134,23 +134,43 @@ namespace Bar
         }
 #endif
 
-        void OnChangeVolume(Slider&, double value)
+        void OnChangeVolumeSink(Slider&, double value)
         {
-            System::SetVolume(value);
+            System::SetVolumeSink(value);
         }
 
+        void OnChangeVolumeSource(Slider&, double value)
+        {
+            System::SetVolumeSource(value);
+        }
+
+        Slider* audioSlider;
+        Slider* micSlider;
         Text* audioIcon;
-        TimerResult UpdateAudio(Slider& slider)
+        Text* micIcon;
+        TimerResult UpdateAudio(Widget&)
         {
             System::AudioInfo info = System::GetAudioInfo();
-            slider.SetValue(info.volume);
-            if (info.muted)
+            audioSlider->SetValue(info.sinkVolume);
+            if (info.sinkMuted)
             {
-                audioIcon->SetText("ﱝ");
+                audioIcon->SetText("󰝟");
             }
             else
             {
-                audioIcon->SetText("墳");
+                audioIcon->SetText("󰕾");
+            }
+            if (Config::Get().audioInput)
+            {
+                micSlider->SetValue(info.sourceVolume);
+                if (info.sourceMuted)
+                {
+                    micIcon->SetText("󰍭");
+                }
+                else
+                {
+                    micIcon->SetText("󰍬");
+                }
             }
             return TimerResult::Ok;
         }
@@ -256,33 +276,59 @@ namespace Bar
         parent.AddChild(std::move(eventBox));
     }
 
+    // Handles in and out
     void WidgetAudio(Widget& parent)
     {
-        auto widgetAudioSlider = [](Widget& parent)
+        enum class AudioType
+        {
+            Input,
+            Output
+        };
+        auto widgetAudioSlider = [](Widget& parent, AudioType type)
         {
             auto slider = Widget::Create<Slider>();
             slider->SetOrientation(Orientation::Horizontal);
             slider->SetHorizontalTransform({100, true, Alignment::Fill});
             slider->SetInverted(true);
-            slider->SetClass("audio-volume");
-            slider->AddTimer<Slider>(DynCtx::UpdateAudio, DynCtx::updateTimeFast);
-            slider->OnValueChange(DynCtx::OnChangeVolume);
+            switch (type)
+            {
+            case AudioType::Input:
+                slider->SetClass("mic-volume");
+                slider->OnValueChange(DynCtx::OnChangeVolumeSource);
+                DynCtx::micSlider = slider.get();
+                break;
+            case AudioType::Output:
+                slider->SetClass("audio-volume");
+                slider->OnValueChange(DynCtx::OnChangeVolumeSink);
+                DynCtx::audioSlider = slider.get();
+                break;
+            }
             slider->SetRange({0, 1, 0.01});
             slider->SetScrollSpeed((double)Config::Get().audioScrollSpeed / 100.);
 
             parent.AddChild(std::move(slider));
         };
 
-        auto widgetAudioBody = [&widgetAudioSlider](Widget& parent)
+        auto widgetAudioBody = [&widgetAudioSlider](Widget& parent, AudioType type)
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, false});
             box->SetHorizontalTransform({-1, true, Alignment::Right});
             {
                 auto icon = Widget::Create<Text>();
-                icon->SetClass("audio-icon");
-                icon->SetText("墳");
-                DynCtx::audioIcon = icon.get();
+                switch (type)
+                {
+                case AudioType::Input:
+                    icon->SetClass("mic-icon");
+                    icon->SetText("󰍬");
+                    DynCtx::micIcon = icon.get();
+                    break;
+                case AudioType::Output:
+                    icon->SetClass("audio-icon");
+                    icon->SetText("󰕾 ");
+                    DynCtx::audioIcon = icon.get();
+                    break;
+                }
 
                 if (Config::Get().audioRevealer)
                 {
@@ -296,7 +342,7 @@ namespace Bar
                             slideRevealer->SetRevealed(hovered);
                         });
                     {
-                        widgetAudioSlider(*revealer);
+                        widgetAudioSlider(*revealer, type);
                     }
 
                     box->AddChild(std::move(revealer));
@@ -304,7 +350,7 @@ namespace Bar
                 else
                 {
                     // Straight forward
-                    widgetAudioSlider(*box);
+                    widgetAudioSlider(*box, type);
                 }
 
                 box->AddChild(std::move(icon));
@@ -315,15 +361,27 @@ namespace Bar
         if (Config::Get().audioRevealer)
         {
             // Need an EventBox
+            if (Config::Get().audioInput)
+            {
+                auto eventBox = Widget::Create<EventBox>();
+                widgetAudioBody(*eventBox, AudioType::Input);
+                parent.AddChild(std::move(eventBox));
+            }
+            // Need an EventBox
             auto eventBox = Widget::Create<EventBox>();
-            widgetAudioBody(*eventBox);
+            widgetAudioBody(*eventBox, AudioType::Output);
             parent.AddChild(std::move(eventBox));
         }
         else
         {
             // Just invoke it.
-            widgetAudioBody(parent);
+            if (Config::Get().audioInput)
+            {
+                widgetAudioBody(parent, AudioType::Input);
+            }
+            widgetAudioBody(parent, AudioType::Output);
         }
+        parent.AddTimer<Widget>(DynCtx::UpdateAudio, DynCtx::updateTimeFast);
     }
 
 #ifdef WITH_BLUEZ

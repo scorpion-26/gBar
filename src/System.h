@@ -73,11 +73,15 @@ namespace System
 
     struct AudioInfo
     {
-        double volume;
-        bool muted;
+        double sinkVolume;
+        bool sinkMuted;
+
+        double sourceVolume;
+        bool sourceMuted;
     };
     AudioInfo GetAudioInfo();
-    void SetVolume(double volume);
+    void SetVolumeSink(double volume);
+    void SetVolumeSource(double volume);
 
 #ifdef WITH_HYPRLAND
     enum class WorkspaceStatus

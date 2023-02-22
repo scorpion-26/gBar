@@ -16,9 +16,10 @@ public:
 
     bool centerTime = true;
     bool audioRevealer = false;
+    bool audioInput = false;
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
-    bool workspaceScrollInvert = false; // Up = +1, instead of Up = -1
+    bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"

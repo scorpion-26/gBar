@@ -5,6 +5,8 @@ namespace AudioFlyin
 {
     namespace DynCtx
     {
+        Type type;
+
         Window* win;
         Slider* slider;
         Text* icon;
@@ -19,28 +21,59 @@ namespace AudioFlyin
 
         void OnChangeVolume(Slider&, double value)
         {
-            System::SetVolume(value);
+            if (type == Type::Speaker)
+            {
+                System::SetVolumeSink(value);
+            }
+            else if (type == Type::Microphone)
+            {
+                System::SetVolumeSource(value);
+            }
         }
 
         TimerResult Main(Box&)
         {
             System::AudioInfo info = System::GetAudioInfo();
-            if (sliderVal != info.volume || muted != info.muted)
+            if (type == Type::Speaker)
             {
-                // Extend timer
-                curCloseTime = msOpen + closeTime;
-
-                sliderVal = info.volume;
-                slider->SetValue(info.volume);
-
-                muted = info.muted;
-                if (info.muted)
+                if (sliderVal != info.sinkVolume || muted != info.sinkMuted)
                 {
-                    icon->SetText("ﱝ");
+                    // Extend timer
+                    curCloseTime = msOpen + closeTime;
+
+                    sliderVal = info.sinkVolume;
+                    slider->SetValue(info.sinkVolume);
+
+                    muted = info.sinkMuted;
+                    if (info.sinkMuted)
+                    {
+                        icon->SetText("ﱝ");
+                    }
+                    else
+                    {
+                        icon->SetText("墳");
+                    }
                 }
-                else
+            }
+            else if (type == Type::Microphone)
+            {
+                if (sliderVal != info.sourceVolume || muted != info.sourceMuted)
                 {
-                    icon->SetText("墳");
+                    // Extend timer
+                    curCloseTime = msOpen + closeTime;
+
+                    sliderVal = info.sourceVolume;
+                    slider->SetValue(info.sourceVolume);
+
+                    muted = info.sourceMuted;
+                    if (info.sourceMuted)
+                    {
+                        icon->SetText("󰍭");
+                    }
+                    else
+                    {
+                        icon->SetText("󰍬");
+                    }
                 }
             }
 
@@ -66,23 +99,40 @@ namespace AudioFlyin
         slider->SetOrientation(Orientation::Horizontal);
         slider->SetHorizontalTransform({100, true, Alignment::Fill});
         slider->SetInverted(true);
-        slider->SetClass("audio-volume");
+        if (DynCtx::type == Type::Speaker)
+        {
+            slider->SetClass("audio-volume");
+        }
+        else if (DynCtx::type == Type::Microphone)
+        {
+            slider->SetClass("mic-volume");
+        }
         slider->OnValueChange(DynCtx::OnChangeVolume);
         slider->SetRange({0, 1, 0.01});
         DynCtx::slider = slider.get();
 
         auto icon = Widget::Create<Text>();
-        icon->SetClass("audio-icon");
-        icon->SetText("墳");
+        if (DynCtx::type == Type::Speaker)
+        {
+            icon->SetClass("audio-icon");
+            icon->SetText("󰕾 ");
+        }
+        else if (DynCtx::type == Type::Microphone)
+        {
+            icon->SetClass("mic-icon");
+            icon->SetText("󰍬");
+        }
+
         DynCtx::icon = icon.get();
 
         parent.AddChild(std::move(slider));
         parent.AddChild(std::move(icon));
     }
 
-    void Create(Window& window, int32_t monitor)
+    void Create(Window& window, int32_t monitor, Type type)
     {
         DynCtx::win = &window;
+        DynCtx::type = type;
         auto mainWidget = Widget::Create<Box>();
         mainWidget->SetSpacing({8, false});
         mainWidget->SetVerticalTransform({16, true, Alignment::Fill});

@@ -132,6 +132,7 @@ void Config::Load()
         }
 
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
+        AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
         AddConfigVar("NetworkWidget", config.networkWidget, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollOnMonitor", config.workspaceScrollOnMonitor, lineView, foundProperty);

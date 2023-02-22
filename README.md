@@ -44,6 +44,10 @@ gBar bar 0
 ```
 gBar audio [monitor]
 ```
+*Open microphone flyin, this is equivalent to the audio flyin*
+```
+gBar mic [monitor]
+```
 *Open bluetooth widget*
 ```
 gBar bluetooth [monitor]
@@ -68,6 +72,7 @@ Bar:
 - Time
 - Bluetooth (BlueZ only)
 - Audio control
+- Microphone control
 - Power control
    - Shutdown
    - Restart
@@ -87,6 +92,7 @@ Bluetooth:
 
 Audio Flyin: 
 - Audio control
+- Microphone control
 
 ## Configuration for your system
 Copy the example config (found under data/config) into ~/.config/gBar/config and modify it to your needs.
