@@ -15,6 +15,10 @@ namespace PulseAudio
     static pa_context* context;
     static std::list<pa_operation*> pendingOperations;
 
+    static System::AudioInfo info;
+    static bool queueUpdate = false;
+    static bool blockUpdate = false;
+
     inline void FlushLoop()
     {
         while (pendingOperations.size() > 0)
@@ -39,6 +43,89 @@ namespace PulseAudio
                     return false;
                 });
         }
+    }
+
+    inline double PAVolumeToDouble(const pa_cvolume* volume)
+    {
+        double vol = (double)pa_cvolume_avg(volume) / (double)PA_VOLUME_NORM;
+        // Just round to 1% precision, should be enough
+        constexpr double precision = 0.01;
+        double volRounded = std::round(vol * 1 / precision) * precision;
+        return volRounded;
+    }
+
+    inline void UpdateInfo()
+    {
+        LOG("PulseAudio: Update info");
+        struct ServerInfo
+        {
+            const char* defaultSink = nullptr;
+            const char* defaultSource = nullptr;
+        } serverInfo;
+
+        // 1. Get default sink
+        auto getServerInfo = [](pa_context*, const pa_server_info* paInfo, void* out)
+        {
+            if (!paInfo)
+                return;
+
+            ServerInfo* serverInfo = (ServerInfo*)out;
+            serverInfo->defaultSink = paInfo->default_sink_name;
+            serverInfo->defaultSource = paInfo->default_source_name;
+
+            auto sinkInfo = [](pa_context*, const pa_sink_info* paInfo, int, void* audioInfo)
+            {
+                if (!paInfo)
+                    return;
+
+                System::AudioInfo* out = (System::AudioInfo*)audioInfo;
+
+                double vol = PAVolumeToDouble(&paInfo->volume);
+                out->sinkVolume = vol;
+                out->sinkMuted = paInfo->mute;
+            };
+            if (serverInfo->defaultSink)
+            {
+                pa_operation* op = pa_context_get_sink_info_by_name(context, serverInfo->defaultSink, +sinkInfo, &info);
+                pa_operation_ref(op);
+                pendingOperations.push_back(op);
+            }
+
+            auto sourceInfo = [](pa_context*, const pa_source_info* paInfo, int, void* audioInfo)
+            {
+                if (!paInfo)
+                    return;
+
+                System::AudioInfo* out = (System::AudioInfo*)audioInfo;
+
+                double vol = PAVolumeToDouble(&paInfo->volume);
+                out->sourceVolume = vol;
+                out->sourceMuted = paInfo->mute;
+            };
+            if (serverInfo->defaultSource)
+            {
+                pa_operation* op = pa_context_get_source_info_by_name(context, serverInfo->defaultSource, +sourceInfo, &info);
+                pa_operation_ref(op);
+                pendingOperations.push_back(op);
+            }
+        };
+
+        pa_operation* op = pa_context_get_server_info(context, +getServerInfo, &serverInfo);
+        pa_operation_ref(op);
+        pendingOperations.push_back(op);
+        FlushLoop();
+    }
+
+    inline System::AudioInfo GetInfo()
+    {
+        pa_mainloop_iterate(mainLoop, 0, nullptr);
+        if (queueUpdate && !blockUpdate)
+        {
+            UpdateInfo();
+        }
+        queueUpdate = false;
+        blockUpdate = false;
+        return info;
     }
 
     inline void Init()
@@ -75,85 +162,28 @@ namespace PulseAudio
             pa_mainloop_iterate(mainLoop, 0, nullptr);
         }
 
-        ASSERT(res >= 0, "pa_context_connect failed!");
-    }
-
-    inline double PAVolumeToDouble(const pa_cvolume* volume)
-    {
-        double vol = (double)pa_cvolume_avg(volume) / (double)PA_VOLUME_NORM;
-        // Just round to 1% precision, should be enough
-        constexpr double precision = 0.01;
-        double volRounded = std::round(vol * 1 / precision) * precision;
-        return volRounded;
-    }
-
-    inline System::AudioInfo GetInfo()
-    {
-        struct ServerInfo
+        // Subscribe to source and sink changes
+        auto subscribeSuccess = [](pa_context*, int success, void*)
         {
-            const char* defaultSink = nullptr;
-            const char* defaultSource = nullptr;
-        } serverInfo;
-
-        System::AudioInfo info{};
-        // 1. Get default sink
-        auto getServerInfo = [](pa_context*, const pa_server_info* info, void* out)
-        {
-            if (!info)
-                return;
-
-            ServerInfo* serverInfo = (ServerInfo*)out;
-            serverInfo->defaultSink = info->default_sink_name;
-            serverInfo->defaultSource = info->default_source_name;
+            ASSERT(success >= 0, "Failed to subscribe to pulseaudio");
         };
-
-        pa_operation* op = pa_context_get_server_info(context, +getServerInfo, &serverInfo);
+        pa_operation* op = pa_context_subscribe(context, (pa_subscription_mask_t)(PA_SUBSCRIPTION_MASK_SINK | PA_SUBSCRIPTION_MASK_SOURCE),
+                                                +subscribeSuccess, nullptr);
         pa_operation_ref(op);
         pendingOperations.push_back(op);
-
         FlushLoop();
 
-        auto sinkInfo = [](pa_context*, const pa_sink_info* info, int, void* audioInfo)
+        auto subscribeCallback = [](pa_context*, pa_subscription_event_type_t type, uint32_t, void*)
         {
-            if (!info)
-                return;
-
-            System::AudioInfo* out = (System::AudioInfo*)audioInfo;
-
-            double vol = PAVolumeToDouble(&info->volume);
-            out->sinkVolume = vol;
-            out->sinkMuted = info->mute;
+            if (type == PA_SUBSCRIPTION_EVENT_CHANGE)
+                queueUpdate = true;
         };
-        if (serverInfo.defaultSink)
-        {
-            op = pa_context_get_sink_info_by_name(context, serverInfo.defaultSink, +sinkInfo, &info);
-            pa_operation_ref(op);
-            pendingOperations.push_back(op);
+        pa_context_set_subscribe_callback(context, +subscribeCallback, nullptr);
 
-            FlushLoop();
-        }
+        // Initialise info
+        UpdateInfo();
 
-        auto sourceInfo = [](pa_context*, const pa_source_info* info, int, void* audioInfo)
-        {
-            if (!info)
-                return;
-
-            System::AudioInfo* out = (System::AudioInfo*)audioInfo;
-
-            double vol = PAVolumeToDouble(&info->volume);
-            out->sourceVolume = vol;
-            out->sourceMuted = info->mute;
-        };
-        if (serverInfo.defaultSource)
-        {
-            op = pa_context_get_source_info_by_name(context, serverInfo.defaultSource, +sourceInfo, &info);
-            pa_operation_ref(op);
-            pendingOperations.push_back(op);
-
-            FlushLoop();
-        }
-
-        return info;
+        ASSERT(res >= 0, "pa_context_connect failed!");
     }
 
     inline void SetVolumeSink(double value)
@@ -162,6 +192,8 @@ namespace PulseAudio
         // I'm too lazy to implement the c api for this. Since it will only be called when needed and doesn't pipe, it shouldn't be a problem to
         // fallback for a command
         std::string cmd = "pamixer --set-volume " + std::to_string((uint32_t)(valClamped * 100));
+        info.sinkVolume = valClamped;
+        blockUpdate = true;
         system(cmd.c_str());
     }
 
@@ -171,6 +203,8 @@ namespace PulseAudio
         // I'm too lazy to implement the c api for this. Since it will only be called when needed and doesn't pipe, it shouldn't be a problem to
         // fallback for a command
         std::string cmd = "pamixer --default-source --set-volume " + std::to_string((uint32_t)(valClamped * 100));
+        info.sourceVolume = valClamped;
+        blockUpdate = true;
         system(cmd.c_str());
     }
 
