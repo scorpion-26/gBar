@@ -92,7 +92,8 @@ namespace System
         Current,
         Active
     };
-    WorkspaceStatus GetWorkspaceStatus(uint32_t monitor, uint32_t workspace);
+    void PollWorkspaces(uint32_t monitor, uint32_t numWorkspaces);
+    WorkspaceStatus GetWorkspaceStatus(uint32_t workspace);
     void GotoWorkspace(uint32_t workspace);
     // direction: + or -
     void GotoNextWorkspace(char direction);

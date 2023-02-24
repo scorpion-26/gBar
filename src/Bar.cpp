@@ -202,9 +202,10 @@ namespace Bar
         static std::array<Button*, 9> workspaces;
         TimerResult UpdateWorkspaces(Box&)
         {
+            System::PollWorkspaces((uint32_t)monitorID, workspaces.size());
             for (size_t i = 0; i < workspaces.size(); i++)
             {
-                switch (System::GetWorkspaceStatus((uint32_t)monitorID, i + 1))
+                switch (System::GetWorkspaceStatus(i + 1))
                 {
                 case System::WorkspaceStatus::Dead: workspaces[i]->SetClass("ws-dead"); break;
                 case System::WorkspaceStatus::Inactive: workspaces[i]->SetClass("ws-inactive"); break;

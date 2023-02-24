@@ -447,9 +447,13 @@ namespace System
     }
 
 #ifdef WITH_HYPRLAND
-    WorkspaceStatus GetWorkspaceStatus(uint32_t monitor, uint32_t workspace)
+    void PollWorkspaces(uint32_t monitor, uint32_t numWorkspaces)
     {
-        return Hyprland::GetStatus(monitor, workspace);
+        Hyprland::PollStatus(monitor, numWorkspaces);
+    }
+    WorkspaceStatus GetWorkspaceStatus(uint32_t workspace)
+    {
+        return Hyprland::GetStatus(workspace);
     }
     void GotoWorkspace(uint32_t workspace)
     {
