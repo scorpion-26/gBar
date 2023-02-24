@@ -63,7 +63,7 @@ void Widget::CreateAndAddWidget(Widget* widget, GtkWidget* parentWidget)
 
 void Widget::SetClass(const std::string& cssClass)
 {
-    if (m_Widget)
+    if (m_Widget && m_CssClass != cssClass)
     {
         auto style = gtk_widget_get_style_context(m_Widget);
         gtk_style_context_remove_class(style, m_CssClass.c_str());
@@ -287,10 +287,13 @@ Quad CairoArea::GetQuad()
 
 void Sensor::SetValue(double val)
 {
-    m_Val = val;
-    if (m_Widget)
+    if (val != m_Val)
     {
-        gtk_widget_queue_draw(m_Widget);
+        m_Val = val;
+        if (m_Widget)
+        {
+            gtk_widget_queue_draw(m_Widget);
+        }
     }
 }
 
@@ -492,11 +495,11 @@ void Revealer::SetRevealed(bool revealed)
 
 void Text::SetText(const std::string& text)
 {
-    m_Text = text;
-    if (m_Widget)
+    if (m_Widget && text != m_Text)
     {
         gtk_label_set_text((GtkLabel*)m_Widget, m_Text.c_str());
     }
+    m_Text = text;
 }
 
 void Text::Create()
