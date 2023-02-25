@@ -9,33 +9,33 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, hyprland, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, hyprland, ... }: flake-utils.lib.eachSystem ["x86_64-linux"] (system:
     let
       pkgs = import nixpkgs {
         inherit system;
       };
 
       gbar = (with pkgs; stdenv.mkDerivation {
+
+        name = "gBar";
+
+        src = ./.;
+
         nativeBuildInputs = [
-          nixpkgs.meson
-          nixpkgs.gcc
-          nixpkgs.ninja
-          nixpkgs.wayland
-          nixpkgs.bluez
-          nixpkgs.gtk3
-          nixpkgs.gtk-layer-shell
-          hyprland
+          pkg-config
+          meson
+          cmake
+          ninja
+        ];
+        buildInputs = [
+          wayland
+          bluez
+          gtk3
+          gtk-layer-shell
+          libpulseaudio
         ];
 
-        buildPhase = ''
-          meson build --buildtype=release -DWithNvidia=false
-          ninja -C build && sudo ninja -C build install
-        '';
-       
-        installPhase = ''
-          mkdir -p $out/bin
-          cp build/gbar $out/bin/gbar
-        '';
+
       });
     in rec {
       defaultApp = flake-utils.lib.mkApp {
