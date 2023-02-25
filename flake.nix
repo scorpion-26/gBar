@@ -9,7 +9,7 @@
     };
   };
 
-  outputs = { nixpkgs, flake-utils, stdenv, hyprland, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, hyprland, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
@@ -48,6 +48,7 @@
         ];
       };
     }
+
   );
 }
 
