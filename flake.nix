@@ -2,11 +2,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = { self, nixpkgs, flake-utils, hyprland, ... }: flake-utils.lib.eachSystem ["x86_64-linux"] (system:
@@ -17,7 +12,7 @@
 
       gbar = (with pkgs; stdenv.mkDerivation {
 
-        name = "gBar";
+        name = "gbar";
 
         src = ./.;
 
