@@ -29,6 +29,8 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
     ```
     ninja -C build && sudo ninja -C build install
     ```
+## Nix
+You can install the nix flake in a number of ways, either through your system/home flake or simply running nix build to get the binary directly.
 
 ## Building and installation (AUR)
 For Arch systems, gBar can be found on the AUR.
