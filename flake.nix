@@ -13,7 +13,6 @@
       gbar = (with pkgs; stdenv.mkDerivation {
 
         name = "gbar";
-
         src = ./.;
 
         nativeBuildInputs = [
@@ -24,26 +23,22 @@
         ];
         buildInputs = [
           wayland
+          wayland-protocols
+          wayland-scanner
           bluez
           gtk3
           gtk-layer-shell
           libpulseaudio
         ];
-
-
       });
-    in rec {
-      defaultApp = flake-utils.lib.mkApp {
-        drv = defaultPackage;
-      };
+    in {
       defaultPackage = gbar;
       devShell = pkgs.mkShell {
         buildInputs = [
           gbar
         ];
       };
+      homeManagerModules.default = import ./module.nix self;
     }
-
   );
 }
-

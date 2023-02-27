@@ -198,7 +198,7 @@ namespace Bar
             return TimerResult::Ok;
         }
 
-#ifdef WITH_HYPRLAND
+#ifdef WITH_WORKSPACES
         static std::array<Button*, 9> workspaces;
         TimerResult UpdateWorkspaces(Box&)
         {
@@ -547,7 +547,7 @@ namespace Bar
         parent.AddChild(std::move(eventBox));
     }
 
-#ifdef WITH_HYPRLAND
+#ifdef WITH_WORKSPACES
     void WidgetWorkspaces(Widget& parent)
     {
         auto margin = Widget::Create<Box>();
@@ -591,8 +591,8 @@ namespace Bar
             auto left = Widget::Create<Box>();
             left->SetSpacing({0, false});
             left->SetHorizontalTransform({-1, true, Alignment::Left});
-#ifdef WITH_HYPRLAND
-            if (RuntimeConfig::Get().hasHyprland)
+#ifdef WITH_WORKSPACES
+            if (RuntimeConfig::Get().hasWorkspaces)
             {
                 WidgetWorkspaces(*left);
             }

@@ -1,4 +1,4 @@
-# gBar 
+# gBar
 My personal blazingly fast and efficient status bar + widgets, in case anyone finds a use for it.
 
 *gBar: **G**TK **Bar***
@@ -19,13 +19,9 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
     
     *All optional dependencies enabled*
     ```
-    meson build --buildtype=release
+    meson setup build
     ```
-    *All optional dependencies are disabled*
-    ```
-    meson build --buildtype=release -DWithHyprland=false -DWithNvidia=false -DWithBlueZ=false
-    ```
-4. Build and install
+ 2. Build and install
     ```
     ninja -C build && sudo ninja -C build install
     ```
@@ -71,7 +67,7 @@ gBar bluetooth [monitor]
 
 ## Features / Widgets
 Bar: 
-- Workspaces (Hyprland only)
+- Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace, though workspace control relies on Hyprland)
 - Time
 - Bluetooth (BlueZ only)
 - Audio control

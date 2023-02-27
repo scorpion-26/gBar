@@ -34,6 +34,11 @@ WorkspaceScrollOnMonitor: true
 # When true: Scroll up -> Next workspace instead of previous workspace. Analogous with scroll down
 WorkspaceScrollInvert: false
 
+# Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
+# Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,
+# since the protocol is not as feature complete as Hyprland IPC.
+UseHyprlandIPC: false
+
 # Forces the time to be centered.
 # This can cause issues, if there is not enough space on screen (e.g. when opening the text)
 CenterTime: true

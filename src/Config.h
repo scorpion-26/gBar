@@ -20,6 +20,7 @@ public:
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
+    bool useHyprlandIPC = false; // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
@@ -33,7 +34,7 @@ public:
     static const Config& Get();
 };
 
-// Configs, that rely on specific files to be available(e.g. Hyprland running)
+// Configs, that rely on specific files to be available(e.g. BlueZ running)
 class RuntimeConfig
 {
 public:
@@ -48,10 +49,10 @@ public:
     bool hasAMD = false;
 #endif
 
-#ifdef WITH_HYPRLAND
-    bool hasHyprland = true;
+#ifdef WITH_WORKSPACES
+    bool hasWorkspaces = true;
 #else
-    bool hasHyprland = false;
+    bool hasWorkspaces = false;
 #endif
 
 #ifdef WITH_BLUEZ
