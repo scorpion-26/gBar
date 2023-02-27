@@ -6,8 +6,7 @@ project('gBar',
     default_options: ['c_std=c++17',
                       'warning_level=3',
                       'default_library=static',
-                      'buildtype=release',
-                      'b_lto=true'],
+                      'buildtype=release'],
 )
 
 gtk = dependency('gtk+-3.0')
