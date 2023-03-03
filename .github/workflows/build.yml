@@ -34,8 +34,6 @@ jobs:
   nix:
     name: Build using Nix
     runs-on: ubuntu-latest
-    container:
-      image: nixos/nix
     steps:
       - name: Download gBar
         uses: actions/checkout@v3.3.0
