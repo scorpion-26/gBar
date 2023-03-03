@@ -1,0 +1,46 @@
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  manual:
+    name: Build gBar manually
+    runs-on: ubuntu-latest
+    container: 
+      image: archlinux
+    steps:
+      - name: Setup Arch Keyring
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+      - name: Download pacman packages
+        run: |
+          pacman -Syu --noconfirm base-devel gcc git ninja meson gtk-layer-shell pulseaudio wayland
+      
+      - name: Download gBar
+        uses: actions/checkout@v2 
+        
+      - name: Run meson
+        run: |
+          meson setup build
+          
+      - name: Build gBar
+        run: |
+          ninja -C build
+  nix:
+    name: Build using Nix
+    runs-on: ubuntu-latest
+    container:
+      image: nixos/nix
+    steps:
+      - name: Download gBar
+        uses: actions/checkout@v2
+      - name: Build Nix flake
+        run: |
+          nix build --extra-experimental-features nix-command --extra-experimental-features flakes
+      
+          
