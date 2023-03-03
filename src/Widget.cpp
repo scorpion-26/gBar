@@ -524,11 +524,11 @@ void Button::Create()
 
 void Button::SetText(const std::string& text)
 {
-    m_Text = text;
-    if (m_Widget)
+    if (m_Widget && text != m_Text)
     {
         gtk_button_set_label((GtkButton*)m_Widget, m_Text.c_str());
     }
+    m_Text = text;
 }
 
 void Button::OnClick(Callback<Button>&& callback)
