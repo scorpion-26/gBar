@@ -43,6 +43,6 @@ jobs:
         
       - name: Build Nix flake
         run: |
-          nix build
+          nix build --print-build-logs
       
           
