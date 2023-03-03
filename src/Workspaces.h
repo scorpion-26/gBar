@@ -11,16 +11,17 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#ifdef WITH_HYPRLAND
-namespace Hyprland
+#ifdef WITH_WORKSPACES
+namespace Workspaces
 {
+#ifdef FORCE_HYPRLAND_IPC
     inline void Init()
     {
         if (!getenv("HYPRLAND_INSTANCE_SIGNATURE"))
         {
-            LOG("Hyprland not running, disabling workspaces");
+            LOG("Workspaces not running, disabling workspaces");
             // Not available
-            RuntimeConfig::Get().hasHyprland = false;
+            RuntimeConfig::Get().hasWorkspaces = false;
         }
     }
 
@@ -59,9 +60,9 @@ namespace Hyprland
 
     inline void PollStatus(uint32_t monitorID, uint32_t numWorkspaces)
     {
-        if (RuntimeConfig::Get().hasHyprland == false)
+        if (RuntimeConfig::Get().hasWorkspaces == false)
         {
-            LOG("Error: Polled workspace status, but Hyprland isn't open!");
+            LOG("Error: Polled workspace status, but Workspaces isn't open!");
             return;
         }
         workspaceStati.clear();
@@ -135,20 +136,32 @@ namespace Hyprland
 
     inline System::WorkspaceStatus GetStatus(uint32_t workspaceId)
     {
-        if (RuntimeConfig::Get().hasHyprland == false)
+        if (RuntimeConfig::Get().hasWorkspaces == false)
         {
-            LOG("Error: Queried for workspace status, but Hyprland isn't open!");
+            LOG("Error: Queried for workspace status, but Workspaces isn't open!");
             return System::WorkspaceStatus::Dead;
         }
         ASSERT(workspaceId > 0 && workspaceId <= workspaceStati.size(), "Invalid workspaceId, you need to poll the workspace first!");
         return workspaceStati[workspaceId - 1];
     }
 
+    inline void Shutdown() {}
+#else
+    void Init();
+
+    void PollStatus(uint32_t monitorID, uint32_t numWorkspaces);
+
+    System::WorkspaceStatus GetStatus(uint32_t workspaceId);
+
+    void Shutdown();
+#endif
+
+    // TODO: Use ext_workspaces for this
     inline void Goto(uint32_t workspace)
     {
-        if (RuntimeConfig::Get().hasHyprland == false)
+        if (RuntimeConfig::Get().hasWorkspaces == false)
         {
-            LOG("Error: Called Go to workspace, but Hyprland isn't open!");
+            LOG("Error: Called Go to workspace, but Workspaces isn't open!");
             return;
         }
 

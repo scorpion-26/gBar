@@ -33,7 +33,7 @@ public:
     static const Config& Get();
 };
 
-// Configs, that rely on specific files to be available(e.g. Hyprland running)
+// Configs, that rely on specific files to be available(e.g. BlueZ running)
 class RuntimeConfig
 {
 public:
@@ -48,10 +48,10 @@ public:
     bool hasAMD = false;
 #endif
 
-#ifdef WITH_HYPRLAND
-    bool hasHyprland = true;
+#ifdef WITH_WORKSPACES
+    bool hasWorkspaces = true;
 #else
-    bool hasHyprland = false;
+    bool hasWorkspaces = false;
 #endif
 
 #ifdef WITH_BLUEZ

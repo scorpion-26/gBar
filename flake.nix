@@ -24,6 +24,8 @@
         ];
         buildInputs = [
           wayland
+          wayland-protocols
+          wayland-scanner
           bluez
           gtk3
           gtk-layer-shell

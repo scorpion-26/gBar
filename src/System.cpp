@@ -3,7 +3,7 @@
 #include "NvidiaGPU.h"
 #include "AMDGPU.h"
 #include "PulseAudio.h"
-#include "Hyprland.h"
+#include "Workspaces.h"
 #include "Config.h"
 
 #include <cstdlib>
@@ -446,22 +446,22 @@ namespace System
         PulseAudio::SetVolumeSource(volume);
     }
 
-#ifdef WITH_HYPRLAND
+#ifdef WITH_WORKSPACES
     void PollWorkspaces(uint32_t monitor, uint32_t numWorkspaces)
     {
-        Hyprland::PollStatus(monitor, numWorkspaces);
+        Workspaces::PollStatus(monitor, numWorkspaces);
     }
     WorkspaceStatus GetWorkspaceStatus(uint32_t workspace)
     {
-        return Hyprland::GetStatus(workspace);
+        return Workspaces::GetStatus(workspace);
     }
     void GotoWorkspace(uint32_t workspace)
     {
-        return Hyprland::Goto(workspace);
+        return Workspaces::Goto(workspace);
     }
     void GotoNextWorkspace(char direction)
     {
-        return Hyprland::GotoNext(direction);
+        return Workspaces::GotoNext(direction);
     }
     std::string GetWorkspaceSymbol(int index)
     {
@@ -582,8 +582,8 @@ namespace System
         AMDGPU::Init();
 #endif
 
-#ifdef WITH_HYPRLAND
-        Hyprland::Init();
+#ifdef WITH_WORKSPACES
+        Workspaces::Init();
 #endif
 
 #ifdef WITH_BLUEZ
@@ -600,6 +600,10 @@ namespace System
         NvidiaGPU::Shutdown();
 #endif
         PulseAudio::Shutdown();
+
+#ifdef WITH_WORKSPACES
+        Workspaces::Shutdown();
+#endif
 
 #ifdef WITH_BLUEZ
         StopBTScan();

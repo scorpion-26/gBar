@@ -1,4 +1,4 @@
-# gBar 
+# gBar
 My personal blazingly fast and efficient status bar + widgets, in case anyone finds a use for it.
 
 *gBar: **G**TK **Bar***
@@ -71,7 +71,7 @@ gBar bluetooth [monitor]
 
 ## Features / Widgets
 Bar: 
-- Workspaces (Hyprland only)
+- Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace, though workspace control relies on Hyprland)
 - Time
 - Bluetooth (BlueZ only)
 - Audio control

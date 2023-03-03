@@ -83,7 +83,7 @@ namespace System
     void SetVolumeSink(double volume);
     void SetVolumeSource(double volume);
 
-#ifdef WITH_HYPRLAND
+#ifdef WITH_WORKSPACES
     enum class WorkspaceStatus
     {
         Dead,
