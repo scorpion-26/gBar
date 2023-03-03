@@ -22,7 +22,7 @@ jobs:
           pacman -Syu --noconfirm base-devel gcc git ninja meson gtk-layer-shell pulseaudio wayland
       
       - name: Download gBar
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v3.3.0 
         
       - name: Run meson
         run: |
@@ -38,7 +38,7 @@ jobs:
       image: nixos/nix
     steps:
       - name: Download gBar
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.3.0
       - name: Build Nix flake
         run: |
           nix build --extra-experimental-features nix-command --extra-experimental-features flakes
