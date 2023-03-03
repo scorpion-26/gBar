@@ -38,7 +38,9 @@ jobs:
       image: nixos/nix
     steps:
       - name: Download gBar
-        uses: actions/checkout@v3.3.0
+        run: |
+          git clone https://github.com/${{github.repository}}
+          cd gBar
       - name: Build Nix flake
         run: |
           nix build --extra-experimental-features nix-command --extra-experimental-features flakes
