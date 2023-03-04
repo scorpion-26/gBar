@@ -497,7 +497,7 @@ void Text::SetText(const std::string& text)
 {
     if (m_Widget && text != m_Text)
     {
-        gtk_label_set_text((GtkLabel*)m_Widget, m_Text.c_str());
+        gtk_label_set_text((GtkLabel*)m_Widget, text.c_str());
     }
     m_Text = text;
 }
