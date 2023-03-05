@@ -67,9 +67,14 @@ namespace Workspaces
         {
             if (*state == ZEXT_WORKSPACE_HANDLE_V1_STATE_ACTIVE)
             {
+                LOG("Wayland: Activate Workspace " << workspace.id);
                 group.lastActiveWorkspace = ws;
                 workspace.active = true;
             }
+        }
+        if (!workspace.active)
+        {
+            LOG("Wayland: Deactivate Workspace " << workspace.id);
         }
     }
     static void OnWorkspaceRemove(void*, zext_workspace_handle_v1* ws)
@@ -201,6 +206,31 @@ namespace Workspaces
             LOG("Compositor doesn't implement zext_workspace_manager_v1, disabling workspaces!");
             RuntimeConfig::Get().hasWorkspaces = false;
             return;
+        }
+
+        // Hack: manually activate workspace for each monitor
+        for (auto& monitor : monitors)
+        {
+            // Find group
+            auto& group = workspaceGroups[monitor.second.workspaceGroup];
+
+            // Find ws with monitor index + 1
+            auto workspaceIt = std::find_if(workspaces.begin(), workspaces.end(),
+                                            [&](const std::pair<zext_workspace_handle_v1*, WaylandWorkspace>& ws)
+                                            {
+                                                return ws.second.id == monitor.first + 1;
+                                            });
+            if (workspaceIt != workspaces.end())
+            {
+                LOG("Forcefully activate workspace " << workspaceIt->second.id)
+                if (workspaceIt->second.id == 1)
+                {
+                    // Activate first workspace
+                    workspaceIt->second.active = true;
+                }
+                // Make it visible
+                group.lastActiveWorkspace = workspaceIt->first;
+            }
         }
     }
 
