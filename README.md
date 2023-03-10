@@ -19,13 +19,9 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
     
     *All optional dependencies enabled*
     ```
-    meson build --buildtype=release
+    meson setup build
     ```
-    *All optional dependencies are disabled*
-    ```
-    meson build --buildtype=release -DWithHyprland=false -DWithNvidia=false -DWithBlueZ=false
-    ```
-4. Build and install
+ 2. Build and install
     ```
     ninja -C build && sudo ninja -C build install
     ```
