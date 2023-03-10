@@ -1,10 +1,12 @@
-# Deprecated, use WithWorkspaces instead
-option('WithHyprland', type: 'boolean', value : false)
+# Hyprland IPC
+option('WithHyprland', type: 'boolean', value : true)
+
+# Workspaces general, enables Wayland protocol
 option('WithWorkspaces', type: 'boolean', value : true)
+
 option('WithNvidia', type: 'boolean', value : true)
 option('WithAMD', type: 'boolean', value : true)
 option('WithBlueZ', type: 'boolean', value : true)
-option('ForceHyprlandIPC', type: 'boolean', value : false)
 
 # You shouldn't enable this, unless you know what you are doing!
 option('WithSys', type: 'boolean', value : false)

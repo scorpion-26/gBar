@@ -38,7 +38,7 @@ headers = [
 ]
 
 if get_option('WithHyprland')
-  add_global_arguments('-DWITH_WORKSPACES', language: 'cpp')
+  add_global_arguments('-DWITH_HYPRLAND', language: 'cpp')
   headers += 'src/Workspaces.h'
 endif
 if get_option('WithWorkspaces')
@@ -58,9 +58,6 @@ if get_option('WithBlueZ')
 endif
 if get_option('WithSys')
   add_global_arguments('-DWITH_SYS', language: 'cpp')
-endif
-if get_option('ForceHyprlandIPC')
-  add_global_arguments('-DFORCE_HYPRLAND_IPC', language: 'cpp')
 endif
 
 add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
