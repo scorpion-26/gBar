@@ -32,7 +32,10 @@ You can install it e.g.: with yay
 ```yay -S gbar-git```
 
 ## Building and installation (Nix)
-You can install the nix flake in a number of ways, either through your system/home flake or simply running nix build to get the binary directly.
+If you choose the Nix/NixOS installation there are a couple of ways to do it but they all require you to have flakes enabled.
+- Building it seperately and just running the binary, run nix build in the directory and use the binary from ./result/bin
+- Import the flake to inputs and then add `gBar.defaultPackage.x86_64-linux` to either environment.systemPackages or home.packages.
+- Use the home manager module. This is done by, as in the previous way, importing the flake and then adding `gBar.homeManagerModules.x86_64-linux.default` into your home-manager imorts section. This exposes the option programs.gBar to home manager and you can look at the module file to see available options.
 
 ## Running gBar
 *Open bar on monitor 0*

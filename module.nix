@@ -1,3 +1,5 @@
+# Based on Hyprland's home-manager and NixOS module
+
 self:
 { config
 , lib
