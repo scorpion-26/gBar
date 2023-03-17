@@ -122,9 +122,31 @@ void Widget::RemoveChild(size_t idx)
     if (m_Widget)
     {
         auto& child = *m_Childs[idx];
-        gtk_container_remove((GtkContainer*)child.m_Widget, m_Widget);
+        gtk_container_remove((GtkContainer*)m_Widget, child.m_Widget);
+        child.m_Widget = nullptr;
     }
     m_Childs.erase(m_Childs.begin() + idx);
+}
+void Widget::RemoveChild(Widget* widget)
+{
+    auto it = std::find_if(m_Childs.begin(), m_Childs.end(),
+                           [&](std::unique_ptr<Widget>& other)
+                           {
+                               return other.get() == widget;
+                           });
+    if (it != m_Childs.end())
+    {
+        if (m_Widget)
+        {
+            gtk_container_remove((GtkContainer*)m_Widget, it->get()->m_Widget);
+            it->get()->m_Widget = nullptr;
+        }
+        m_Childs.erase(it);
+    }
+    else
+    {
+        LOG("Invalid child!");
+    }
 }
 
 void Widget::SetVisible(bool visible)
@@ -473,6 +495,30 @@ void NetworkSensor::Draw(cairo_t* cr)
 
     gdk_rgba_free(colUp);
     gdk_rgba_free(colDown);
+}
+
+Texture::~Texture()
+{
+    if (m_Pixbuf)
+        g_free(m_Pixbuf);
+    if (m_Bytes)
+        g_free(m_Bytes);
+}
+
+void Texture::SetBuf(size_t width, size_t height, uint8_t* buf)
+{
+    m_Width = width;
+    m_Height = height;
+    m_Bytes = g_bytes_new(buf, m_Width * m_Height * 4);
+    m_Pixbuf = gdk_pixbuf_new_from_bytes((GBytes*)m_Bytes, GDK_COLORSPACE_RGB, true, 8, m_Width, m_Height, m_Width * 4);
+}
+
+void Texture::Draw(cairo_t* cr)
+{
+    // TODO: W + H
+    cairo_rectangle(cr, 0.f, 0.f, 32.f, 32.f);
+    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, 0, 0);
+    cairo_fill(cr);
 }
 
 void Revealer::SetTransition(Transition transition)

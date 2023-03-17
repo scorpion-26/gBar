@@ -5,6 +5,7 @@
 #include "PulseAudio.h"
 #include "Workspaces.h"
 #include "Config.h"
+#include "SNI.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -646,6 +647,8 @@ namespace System
 
         PulseAudio::Init();
 
+        SNI::Init();
+
         CheckNetwork();
     }
     void FreeResources()
@@ -662,6 +665,8 @@ namespace System
 #ifdef WITH_BLUEZ
         StopBTScan();
 #endif
+        SNI::Shutdown();
+
         Logging::Shutdown();
     }
 }

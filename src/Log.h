@@ -1,5 +1,6 @@
 #pragma once
 #include <sstream>
+#include <iostream>
 
 #ifdef USE_LOGFILE
 #define LOG(x)                   \

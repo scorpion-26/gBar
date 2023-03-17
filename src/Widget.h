@@ -116,6 +116,7 @@ public:
 
     void AddChild(std::unique_ptr<Widget>&& widget);
     void RemoveChild(size_t idx);
+    void RemoveChild(Widget* widget);
 
     std::vector<std::unique_ptr<Widget>>& GetWidgets() { return m_Childs; }
 
@@ -261,6 +262,24 @@ private:
     // Just manually creating a style context doesn't work for me.
     std::unique_ptr<Box> contextUp;
     std::unique_ptr<Box> contextDown;
+};
+
+class Texture : public CairoArea
+{
+public:
+    Texture() = default;
+    virtual ~Texture();
+
+    // Non-Owning, ARGB32
+    void SetBuf(size_t width, size_t height, uint8_t* buf);
+
+private:
+    void Draw(cairo_t* cr) override;
+
+    size_t m_Width;
+    size_t m_Height;
+    GBytes* m_Bytes;
+    GdkPixbuf* m_Pixbuf;
 };
 
 class Revealer : public Widget

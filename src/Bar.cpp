@@ -3,6 +3,7 @@
 #include "System.h"
 #include "Common.h"
 #include "Config.h"
+#include "SNI.h"
 #include <mutex>
 
 namespace Bar
@@ -646,6 +647,8 @@ namespace Bar
             right->SetSpacing({8, false});
             right->SetHorizontalTransform({-1, true, Alignment::Right});
             {
+                SNI::WidgetSNI(*right);
+
                 WidgetPackages(*right);
 
                 WidgetAudio(*right);

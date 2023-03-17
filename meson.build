@@ -23,6 +23,28 @@ ext_workspace_header = custom_target('generate-ext-workspace-header',
                                   output: ['ext-workspace-unstable-v1.h'],
                                   command: [wayland_scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
 
+# DBus protocols
+dbus_gen = find_program('gdbus-codegen')
+sni_item_src = custom_target('generate-sni-item-src',
+                             input: ['protocols/sni-item.xml'],
+                             output: ['sni-item.c'],
+                             command: [dbus_gen, '--c-namespace', 'sni', '--body', '--output', '@OUTPUT@', '@INPUT@'])
+
+sni_item_header = custom_target('generate-sni-item-header',
+                             input: ['protocols/sni-item.xml'],
+                             output: ['sni-item.h'],
+                             command: [dbus_gen, '--c-namespace', 'sni', '--header', '--output', '@OUTPUT@', '@INPUT@'])
+
+sni_watcher_src = custom_target('generate-sni-watcher-src',
+                             input: ['protocols/sni-watcher.xml'],
+                             output: ['sni-watcher.c'],
+                             command: [dbus_gen, '--c-namespace', 'sni', '--body', '--output', '@OUTPUT@', '@INPUT@'])
+
+sni_watcher_header = custom_target('generate-sni-watcher-header',
+                             input: ['protocols/sni-watcher.xml'],
+                             output: ['sni-watcher.h'],
+                             command: [dbus_gen, '--c-namespace', 'sni', '--header', '--output', '@OUTPUT@', '@INPUT@'])
+
 gtk = dependency('gtk+-3.0')
 gtk_layer_shell = dependency('gtk-layer-shell-0')
 
@@ -64,9 +86,16 @@ add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
 
 pulse = dependency('libpulse')
 
+# stb
+stb = include_directories('thirdparty')
+
 libgBar = library('gBar',
   [ ext_workspace_src,
     ext_workspace_header,
+    sni_item_src,
+    sni_item_header,
+    sni_watcher_src,
+    sni_watcher_header,
    'src/Window.cpp',
    'src/Widget.cpp',
    'src/System.cpp',
@@ -78,8 +107,10 @@ libgBar = library('gBar',
    'src/Config.cpp',
    'src/CSS.cpp',
    'src/Log.cpp',
+   'src/SNI.cpp',
   ],
   dependencies: [gtk, gtk_layer_shell, pulse, wayland_client],
+  include_directories: stb,
   install: true)
 
 pkg = import('pkgconfig')
