@@ -29,6 +29,7 @@
           gtk3
           gtk-layer-shell
           libpulseaudio
+          stb
         ];
       });
     in {

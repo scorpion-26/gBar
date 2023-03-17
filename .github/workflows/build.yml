@@ -20,14 +20,16 @@ jobs:
       - name: Download pacman packages
         run: |
           pacman -Syu --noconfirm base-devel gcc git ninja meson gtk-layer-shell pulseaudio wayland
-      
+
       - name: Download gBar
-        uses: actions/checkout@v3.3.0 
-        
+        uses: actions/checkout@v3.3.0
+        with:
+          submodules: recursive
+
       - name: Run meson
         run: |
           meson setup build
-          
+
       - name: Build gBar
         run: |
           ninja -C build
@@ -35,14 +37,14 @@ jobs:
     name: Build using Nix
     runs-on: ubuntu-latest
     steps:
-      - name: Download gBar
-        uses: actions/checkout@v3.3.0
-        
       - name: Install Nix
         uses: cachix/install-nix-action@v20
-        
+
+      - name: Download gBar
+        uses: actions/checkout@v3.3.0
+        with:
+          submodules: recursive
+
       - name: Build Nix flake
         run: |
           nix build --print-build-logs
-      
-          
