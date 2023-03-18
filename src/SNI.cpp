@@ -41,13 +41,14 @@ namespace SNI
         parentBox->RemoveChild(iconBox);
 
         auto container = Widget::Create<Box>();
+        container->SetSpacing({4, false});
         iconBox = container.get();
         for (auto& item : items)
         {
             if (item.iconData)
             {
                 auto texture = Widget::Create<Texture>();
-                texture->SetHorizontalTransform({32, true, Alignment::Fill});
+                texture->SetHorizontalTransform({0, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
                 iconBox->AddChild(std::move(texture));
             }
