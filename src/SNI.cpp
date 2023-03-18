@@ -198,6 +198,24 @@ namespace SNI
         return item;
     }
 
+    static void DBusNameVanished(GDBusConnection*, const char* name, void*)
+    {
+        auto it = std::find_if(items.begin(), items.end(),
+                               [&](const Item& item)
+                               {
+                                   return item.name == name;
+                               });
+        if (it != items.end())
+        {
+            items.erase(it);
+            InvalidateWidget();
+        }
+        else
+        {
+            LOG("SNI: Cannot remove unregistered bus name " << name);
+        }
+    }
+
     // Methods
     static void RegisterItem(sniWatcher*, GDBusMethodInvocation* invocation, const char* service)
     {
@@ -215,18 +233,21 @@ namespace SNI
             name = service;
             object = "/StatusNotifierItem";
         }
-        auto it = std::find_if(items.begin(), items.end(), [&](const Item& item)
-                {
-                    return item.name == name && item.object == object;
-                });
+        auto it = std::find_if(items.begin(), items.end(),
+                               [&](const Item& item)
+                               {
+                                   return item.name == name && item.object == object;
+                               });
         if (it != items.end())
         {
             LOG("Rejecting " << name << " " << object);
             return;
         }
-        // TODO: Add mechanism to remove items
         LOG("SNI: Registered Item " << name << " " << object);
         Item item = CreateItem(std::move(name), std::move(object));
+        // Add handler for removing
+        g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr, DBusNameVanished, nullptr, nullptr);
+
         items.push_back(std::move(item));
         InvalidateWidget();
     }
