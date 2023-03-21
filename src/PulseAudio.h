@@ -191,6 +191,7 @@ namespace PulseAudio
         double valClamped = std::clamp(value, 0., 1.);
         // I'm too lazy to implement the c api for this. Since it will only be called when needed and doesn't pipe, it shouldn't be a problem to
         // fallback for a command
+        LOG("Audio: Set volume of sink: " << valClamped);
         std::string cmd = "pamixer --set-volume " + std::to_string((uint32_t)(valClamped * 100));
         info.sinkVolume = valClamped;
         blockUpdate = true;
@@ -202,6 +203,7 @@ namespace PulseAudio
         double valClamped = std::clamp(value, 0., 1.);
         // I'm too lazy to implement the c api for this. Since it will only be called when needed and doesn't pipe, it shouldn't be a problem to
         // fallback for a command
+        LOG("Audio: Set volume of source: " << valClamped);
         std::string cmd = "pamixer --default-source --set-volume " + std::to_string((uint32_t)(valClamped * 100));
         info.sourceVolume = valClamped;
         blockUpdate = true;
