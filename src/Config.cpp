@@ -28,6 +28,14 @@ void ApplyProperty<uint32_t>(uint32_t& propertyToSet, const std::string_view& va
 }
 
 template<>
+void ApplyProperty<double>(double& propertyToSet, const std::string_view& value)
+{
+    // Why, C++?
+    std::string valStr = std::string(value);
+    propertyToSet = std::stod(valStr.c_str());
+}
+
+template<>
 void ApplyProperty<bool>(bool& propertyToSet, const std::string_view& value)
 {
     // Why, C++?
