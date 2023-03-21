@@ -20,7 +20,7 @@ public:
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
-    bool useHyprlandIPC = false; // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
+    bool useHyprlandIPC = false;          // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
@@ -29,6 +29,10 @@ public:
     uint32_t maxDownloadBytes = 10 * 1024 * 1024; // 10 MiB Top limit of the network widgets download. Everything above it is considered "over"
 
     uint32_t audioScrollSpeed = 5; // 5% each scroll
+
+    // Only affects outputs (i.e.: speakers, not microphones). This remaps the range of the volume; In percent
+    double audioMinVolume = 0.f;   // Map the minimum volume to this value
+    double audioMaxVolume = 100.f; // Map the maximum volume to this value
 
     static void Load();
     static const Config& Get();

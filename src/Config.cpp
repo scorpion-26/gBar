@@ -154,6 +154,9 @@ void Config::Load()
 
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
 
+        AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
+        AddConfigVar("AudioMaxVolume", config.audioMaxVolume, lineView, foundProperty);
+
         if (foundProperty == false)
         {
             LOG("Warning: unknown config var: " << lineView);

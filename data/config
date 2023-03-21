@@ -52,6 +52,11 @@ AudioRevealer: false
 # Sets the rate of change of the slider on each scroll. In Percent
 AudioScrollSpeed: 5
 
+# Limits the range of the audio slider. Only works for audio output.
+# Slider "empty" is AudioMinVolume, Slider "full" is AudioMaxVolume
+# AudioMinVolume: 30 # Audio can't get below 30%
+# AudioMaxVolume: 120 # Audio can't get above 120%
+
 # The network adapter to use. You can query /sys/class/net for all possible values
 NetworkAdapter: eno1
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "System.h"
 #include "Common.h"
+#include "Config.h"
 
 #include <cmath>
 #include <pulse/pulseaudio.h>
@@ -54,6 +55,29 @@ namespace PulseAudio
         return volRounded;
     }
 
+    inline double PAVolumeToDoubleWithMinMax(const pa_cvolume* volume)
+    {
+        double volRoundend = PAVolumeToDouble(volume);
+        // Clamp it to min/max
+        double minVolume = Config::Get().audioMinVolume / 100.;
+        double maxVolume = Config::Get().audioMaxVolume / 100.;
+        volRoundend = std::clamp(volRoundend, minVolume, maxVolume);
+        // Remap min/max to 0/1
+        double volRemapped = (volRoundend - minVolume) / (maxVolume - minVolume);
+        return volRemapped;
+    }
+
+    inline double DoubleToVolumeWithMinMax(double value)
+    {
+        // Clamp to 0/1
+        value = std::clamp(value, 0., 1.);
+        // Remap 0/1 to min/max
+        double minVolume = Config::Get().audioMinVolume / 100.;
+        double maxVolume = Config::Get().audioMaxVolume / 100.;
+        double volRemapped = value * (maxVolume - minVolume) + minVolume;
+        return volRemapped;
+    }
+
     inline void UpdateInfo()
     {
         LOG("PulseAudio: Update info");
@@ -80,7 +104,7 @@ namespace PulseAudio
 
                 System::AudioInfo* out = (System::AudioInfo*)audioInfo;
 
-                double vol = PAVolumeToDouble(&paInfo->volume);
+                double vol = PAVolumeToDoubleWithMinMax(&paInfo->volume);
                 out->sinkVolume = vol;
                 out->sinkMuted = paInfo->mute;
             };
@@ -188,12 +212,12 @@ namespace PulseAudio
 
     inline void SetVolumeSink(double value)
     {
-        double valClamped = std::clamp(value, 0., 1.);
+        double valClamped = DoubleToVolumeWithMinMax(value);
         // I'm too lazy to implement the c api for this. Since it will only be called when needed and doesn't pipe, it shouldn't be a problem to
         // fallback for a command
         LOG("Audio: Set volume of sink: " << valClamped);
-        std::string cmd = "pamixer --set-volume " + std::to_string((uint32_t)(valClamped * 100));
-        info.sinkVolume = valClamped;
+        std::string cmd = "pamixer --allow-boost --set-volume " + std::to_string((uint32_t)(valClamped * 100));
+        info.sinkVolume = std::clamp(value, 0., 1.); // We need to stay in 0/1 range
         blockUpdate = true;
         system(cmd.c_str());
     }
