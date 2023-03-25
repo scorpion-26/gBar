@@ -526,7 +526,7 @@ void Button::SetText(const std::string& text)
 {
     if (m_Widget && text != m_Text)
     {
-        gtk_button_set_label((GtkButton*)m_Widget, m_Text.c_str());
+        gtk_button_set_label((GtkButton*)m_Widget, text.c_str());
     }
     m_Text = text;
 }
