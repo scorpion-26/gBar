@@ -29,44 +29,13 @@ namespace SNI
     };
     std::vector<Item> items;
 
+    std::vector<Item> clientsToQuery;
+
     // Gtk stuff, TODO: Allow more than one instance
     // Simply removing the gtk_drawing_areas doesn't trigger proper redrawing
     //   HACK: Make an outer permanent and an inner box, which will be deleted and readded
     Widget* parentBox;
     Widget* iconBox;
-
-    // SNI implements the GTK-Thingies itself internally
-    static void InvalidateWidget()
-    {
-        parentBox->RemoveChild(iconBox);
-
-        auto container = Widget::Create<Box>();
-        container->SetSpacing({4, false});
-        iconBox = container.get();
-        for (auto& item : items)
-        {
-            if (item.iconData)
-            {
-                auto texture = Widget::Create<Texture>();
-                texture->SetHorizontalTransform({0, true, Alignment::Fill});
-                texture->SetBuf(item.w, item.h, item.iconData);
-                iconBox->AddChild(std::move(texture));
-            }
-        }
-        parentBox->AddChild(std::move(container));
-    }
-
-    void WidgetSNI(Widget& parent)
-    {
-        // Add parent box
-        auto box = Widget::Create<Box>();
-        auto container = Widget::Create<Box>();
-        iconBox = container.get();
-        parentBox = box.get();
-        InvalidateWidget();
-        box->AddChild(std::move(container));
-        parent.AddChild(std::move(box));
-    }
 
     static Item CreateItem(std::string&& name, std::string&& object)
     {
@@ -198,6 +167,13 @@ namespace SNI
         return item;
     }
 
+    static void ItemPropertyChanged(GDBusConnection*, const char* sender, const char* object, const char* interface, const char* signal,
+                                    GVariant* params, void*)
+    {
+        LOG("ItemPropertyChanged");
+    }
+
+    static void InvalidateWidget();
     static void DBusNameVanished(GDBusConnection*, const char* name, void*)
     {
         auto it = std::find_if(items.begin(), items.end(),
@@ -216,8 +192,65 @@ namespace SNI
         }
     }
 
+    static TimerResult UpdateWidgets(Box&)
+    {
+        for (auto& client : clientsToQuery)
+        {
+            LOG("SNI: Creating Item " << client.name << " " << client.object);
+            Item item = CreateItem(std::move(client.name), std::move(client.object));
+            // Add handler for removing
+            g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr, DBusNameVanished, nullptr,
+                                           nullptr);
+
+            // Add handler for icon change
+            g_dbus_connection_signal_subscribe(dbusConnection, item.name.c_str(), "org.kde.StatusNotifierItem", nullptr, nullptr, nullptr,
+                                               G_DBUS_SIGNAL_FLAGS_NONE, ItemPropertyChanged, nullptr, nullptr);
+            items.push_back(std::move(item));
+        }
+        if (clientsToQuery.size() > 0)
+        {
+            InvalidateWidget();
+        }
+        clientsToQuery.clear();
+        return TimerResult::Ok;
+    }
+
+    // SNI implements the GTK-Thingies itself internally
+    static void InvalidateWidget()
+    {
+        parentBox->RemoveChild(iconBox);
+
+        auto container = Widget::Create<Box>();
+        container->SetSpacing({4, false});
+        iconBox = container.get();
+        for (auto& item : items)
+        {
+            if (item.iconData)
+            {
+                auto texture = Widget::Create<Texture>();
+                texture->SetHorizontalTransform({0, true, Alignment::Fill});
+                texture->SetBuf(item.w, item.h, item.iconData);
+                iconBox->AddChild(std::move(texture));
+            }
+        }
+        parentBox->AddChild(std::move(container));
+    }
+
+    void WidgetSNI(Widget& parent)
+    {
+        // Add parent box
+        auto box = Widget::Create<Box>();
+        auto container = Widget::Create<Box>();
+        container->AddTimer<Box>(UpdateWidgets, 1000, TimerDispatchBehaviour::LateDispatch);
+        iconBox = container.get();
+        parentBox = box.get();
+        InvalidateWidget();
+        box->AddChild(std::move(container));
+        parent.AddChild(std::move(box));
+    }
+
     // Methods
-    static void RegisterItem(sniWatcher*, GDBusMethodInvocation* invocation, const char* service)
+    static bool RegisterItem(sniWatcher* watcher, GDBusMethodInvocation* invocation, const char* service)
     {
         std::string name;
         std::string object;
@@ -241,16 +274,15 @@ namespace SNI
         if (it != items.end())
         {
             LOG("Rejecting " << name << " " << object);
-            return;
+            return false;
         }
+        sni_watcher_emit_status_notifier_item_registered(watcher, service);
+        sni_watcher_complete_register_status_notifier_item(watcher, invocation);
         LOG("SNI: Registered Item " << name << " " << object);
-        Item item = CreateItem(std::move(name), std::move(object));
-        // Add handler for removing
-        g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr, DBusNameVanished, nullptr, nullptr);
-
-        items.push_back(std::move(item));
-        InvalidateWidget();
+        clientsToQuery.push_back({std::move(name), std::move(object)});
+        return true;
     }
+
     static void RegisterHost(sniWatcher*, GDBusMethodInvocation*, const char*)
     {
         LOG("TODO: Implement RegisterHost!");
@@ -303,6 +335,10 @@ namespace SNI
         std::string hostName = "org.kde.StatusNotifierHost-" + std::to_string(getpid());
         g_bus_own_name(G_BUS_TYPE_SESSION, hostName.c_str(), (GBusNameOwnerFlags)flags, +emptyCallback, +emptyCallback, +emptyCallback, nullptr,
                        nullptr);
+
+        // Host is always available
+        sni_watcher_set_is_status_notifier_host_registered(watcherSkeleton, true);
+        sni_watcher_emit_status_notifier_host_registered(watcherSkeleton);
     }
 
     void Shutdown() {}
