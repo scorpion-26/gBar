@@ -26,6 +26,8 @@ namespace SNI
         size_t w;
         size_t h;
         uint8_t* iconData = nullptr;
+
+        std::string tooltip;
     };
     std::vector<Item> items;
 
@@ -164,6 +166,22 @@ namespace SNI
             memcpy(item.iconData, pixels, width * height * 4);
             stbi_image_free(pixels);
         }
+
+        // Query tooltip(Steam e.g. doesn't have one)
+        GVariant* tooltip = getProperty("ToolTip");
+        if (tooltip)
+        {
+            GVariant* tooltipVar;
+            g_variant_get_child(tooltip, 0, "v", &tooltipVar);
+            const gchar* title;
+            // Both telegram and discord only set the "title" component
+            g_variant_get_child(tooltipVar, 2, "s", &title);
+            item.tooltip = title;
+            LOG("SNI: Title: " << item.tooltip);
+            g_variant_unref(tooltip);
+            g_variant_unref(tooltipVar);
+        }
+
         return item;
     }
 
@@ -250,6 +268,7 @@ namespace SNI
                 auto texture = Widget::Create<Texture>();
                 texture->SetHorizontalTransform({0, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
+                texture->SetTooltip(item.tooltip);
                 iconBox->AddChild(std::move(texture));
             }
         }
