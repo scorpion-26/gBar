@@ -173,6 +173,9 @@ void Widget::ApplyPropertiesToWidget()
     gtk_widget_set_valign(m_Widget, Utils::ToGtkAlign(m_VerticalTransform.alignment));
     gtk_widget_set_hexpand(m_Widget, m_HorizontalTransform.expand);
     gtk_widget_set_vexpand(m_Widget, m_VerticalTransform.expand);
+
+    if (m_OnCreate)
+        m_OnCreate(*this);
 }
 
 void Box::SetOrientation(Orientation orientation)

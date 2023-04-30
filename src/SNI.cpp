@@ -5,6 +5,7 @@
 #include <sni-watcher.h>
 #include <sni-item.h>
 #include <gio/gio.h>
+#include <libdbusmenu-gtk/menu.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -28,6 +29,10 @@ namespace SNI
         uint8_t* iconData = nullptr;
 
         std::string tooltip;
+
+        std::string menuObjectPath;
+
+        EventBox* gtkEvent;
     };
     std::vector<Item> items;
 
@@ -182,6 +187,22 @@ namespace SNI
             g_variant_unref(tooltipVar);
         }
 
+        // Query menu
+        GVariant* menuPath = getProperty("Menu");
+        if (menuPath)
+        {
+            GVariant* menuVariant;
+            g_variant_get_child(menuPath, 0, "v", &menuVariant);
+            const char* objectPath;
+            g_variant_get(menuVariant, "o", &objectPath);
+            LOG("SNI: Menu object path: " << objectPath);
+
+            item.menuObjectPath = objectPath;
+
+            g_variant_unref(menuVariant);
+            g_variant_unref(menuPath);
+        }
+
         return item;
     }
 
@@ -266,11 +287,36 @@ namespace SNI
         {
             if (item.iconData)
             {
+                auto eventBox = Widget::Create<EventBox>();
+                item.gtkEvent = eventBox.get();
+
+                eventBox->SetOnCreate(
+                    [&](Widget& w)
+                    {
+                        auto clickFn = [](GtkWidget*, GdkEventButton* event, void* data) -> gboolean
+                        {
+                            if (event->button == 1)
+                            {
+                                Item* item = (Item*)data;
+
+                                GtkMenu* menu = (GtkMenu*)dbusmenu_gtkmenu_new(item->name.data(), item->menuObjectPath.data());
+                                LOG(menu);
+                                gtk_menu_attach_to_widget(menu, item->gtkEvent->Get(), nullptr);
+                                gtk_menu_popup_at_pointer(menu, (GdkEvent*)event);
+                                LOG(item->menuObjectPath << " click");
+                            }
+                            return GDK_EVENT_STOP;
+                        };
+                        g_signal_connect(w.Get(), "button-release-event", G_CALLBACK(+clickFn), &item);
+                    });
+
                 auto texture = Widget::Create<Texture>();
                 texture->SetHorizontalTransform({0, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
                 texture->SetTooltip(item.tooltip);
-                iconBox->AddChild(std::move(texture));
+
+                eventBox->AddChild(std::move(texture));
+                iconBox->AddChild(std::move(eventBox));
             }
         }
         parentBox->AddChild(std::move(container));

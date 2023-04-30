@@ -157,6 +157,8 @@ public:
 
     void SetVisible(bool visible);
 
+    void SetOnCreate(Callback<Widget>&& onCreate) { m_OnCreate = onCreate; }
+
 protected:
     void PropagateToParent(GdkEvent* event);
     void ApplyPropertiesToWidget();
@@ -169,6 +171,8 @@ protected:
     std::string m_Tooltip;
     Transform m_HorizontalTransform; // X
     Transform m_VerticalTransform;   // Y
+
+    Callback<Widget> m_OnCreate;
 };
 
 class Box : public Widget
