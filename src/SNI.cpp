@@ -167,13 +167,8 @@ namespace SNI
         return item;
     }
 
-    static void ItemPropertyChanged(GDBusConnection*, const char* sender, const char* object, const char* interface, const char* signal,
-                                    GVariant* params, void*)
-    {
-        LOG("ItemPropertyChanged");
-    }
-
     static void InvalidateWidget();
+
     static void DBusNameVanished(GDBusConnection*, const char* name, void*)
     {
         auto it = std::find_if(items.begin(), items.end(),
@@ -192,6 +187,22 @@ namespace SNI
         }
     }
 
+    static void ItemPropertyChanged(GDBusConnection*, const char*, const char* object, const char*, const char*, GVariant*, void* name)
+    {
+        LOG("SNI: Reloading " << (const char*)name << " " << object);
+        // We don't care about *what* changed, just remove and reload
+        auto it = std::find_if(items.begin(), items.end(),
+                               [&](const Item& item)
+                               {
+                                   return item.name == (const char*)name;
+                               });
+        if (it != items.end())
+        {
+            items.erase(it);
+        }
+        clientsToQuery.push_back({std::string((const char*)name), std::string(object)});
+    }
+
     static TimerResult UpdateWidgets(Box&)
     {
         for (auto& client : clientsToQuery)
@@ -203,8 +214,17 @@ namespace SNI
                                            nullptr);
 
             // Add handler for icon change
-            g_dbus_connection_signal_subscribe(dbusConnection, item.name.c_str(), "org.kde.StatusNotifierItem", nullptr, nullptr, nullptr,
-                                               G_DBUS_SIGNAL_FLAGS_NONE, ItemPropertyChanged, nullptr, nullptr);
+            char* staticBuf = new char[item.name.size() + 1]{0x0};
+            memcpy(staticBuf, item.name.c_str(), item.name.size());
+            g_dbus_connection_signal_subscribe(
+                dbusConnection, item.name.c_str(), "org.kde.StatusNotifierItem", nullptr, nullptr, nullptr, G_DBUS_SIGNAL_FLAGS_NONE,
+                ItemPropertyChanged, staticBuf,
+                +[](void* ptr)
+                {
+                    LOG("SNI: Delete static name buffer for " << (char*)ptr);
+                    delete[] (char*)ptr;
+                });
+
             items.push_back(std::move(item));
         }
         if (clientsToQuery.size() > 0)
