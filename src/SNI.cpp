@@ -79,8 +79,8 @@ namespace SNI
             GVariantIter* data = nullptr;
             g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
 
-            LOG(width);
-            LOG(height);
+            LOG("SNI: Width: " << width);
+            LOG("SNI: Height: " << height);
             item.w = width;
             item.h = height;
             item.iconData = new uint8_t[width * height * 4];
@@ -196,6 +196,7 @@ namespace SNI
                                });
         if (it != items.end())
         {
+            LOG("SNI: " << name << " vanished!");
             items.erase(it);
             InvalidateWidget();
         }
