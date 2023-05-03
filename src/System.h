@@ -105,6 +105,8 @@ namespace System
     // Bytes per second download. dx is time since last call. Will always return 0 on first run
     double GetNetworkBpsDownload(double dt);
 
+    void GetOutdatedPackagesAsync(std::function<void(uint32_t)>&& returnVal);
+
     std::string GetTime();
 
     void Shutdown();

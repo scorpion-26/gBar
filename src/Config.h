@@ -14,6 +14,11 @@ public:
     std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
     std::string defaultWorkspaceSymbol = "";
 
+    // Script that returns how many packages are out-of-date. The script should only print a number!
+    // The default script runs checkupdates, and forcefully exits when checkupdates is not found, so gBar can disable the package widget.
+    // "checkupdates | wc -l" would always return 0 on stdout, which gBar accepts
+    std::string checkPackagesCommand = "pac=\"$(checkupdates)\"; if [ $? -eq 127 ] ; then exit 127; fi; echo $pac | wc -l";
+
     bool centerTime = true;
     bool audioRevealer = false;
     bool audioInput = false;
@@ -29,6 +34,8 @@ public:
     uint32_t maxDownloadBytes = 10 * 1024 * 1024; // 10 MiB Top limit of the network widgets download. Everything above it is considered "over"
 
     uint32_t audioScrollSpeed = 5; // 5% each scroll
+
+    uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
 
     // Only affects outputs (i.e.: speakers, not microphones). This remaps the range of the volume; In percent
     double audioMinVolume = 0.f;   // Map the minimum volume to this value
@@ -66,6 +73,8 @@ public:
 #endif
 
     bool hasNet = true;
+
+    bool hasPackagesScript = true;
 
     static RuntimeConfig& Get();
 };

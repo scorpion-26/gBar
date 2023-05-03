@@ -145,6 +145,12 @@ highlight {
     }
 }
 
+.package-outofdate {
+    font-size: 24px;
+    margin-right: -5px;
+    color: $red;
+}
+
 .bt-num {
     font-size: $textsize;
     color: $btblue;

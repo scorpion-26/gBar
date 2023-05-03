@@ -3,6 +3,7 @@
 #include "System.h"
 #include "Common.h"
 #include "Config.h"
+#include <mutex>
 
 namespace Bar
 {
@@ -133,6 +134,30 @@ namespace Bar
             System::OpenBTWidget();
         }
 #endif
+
+        static std::mutex packageTextLock;
+        static TimerResult UpdatePackages(Text& text)
+        {
+            System::GetOutdatedPackagesAsync(
+                [&](uint32_t numOutdatedPackages)
+                {
+                    packageTextLock.lock();
+                    if (numOutdatedPackages)
+                    {
+                        text.SetText("󰏔 ");
+                        text.SetClass("package-outofdate");
+                        text.SetTooltip("Updates available! (" + std::to_string(numOutdatedPackages) + " packages)");
+                    }
+                    else
+                    {
+                        text.SetText("");
+                        text.SetClass("package-empty");
+                        text.SetTooltip("");
+                    }
+                    packageTextLock.unlock();
+                });
+            return TimerResult::Ok;
+        }
 
         void OnChangeVolumeSink(Slider&, double value)
         {
@@ -385,6 +410,16 @@ namespace Bar
         parent.AddTimer<Widget>(DynCtx::UpdateAudio, DynCtx::updateTimeFast);
     }
 
+    void WidgetPackages(Widget& parent)
+    {
+        auto text = Widget::Create<Text>();
+        text->SetText("");
+        text->SetClass("package-empty");
+        text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval,
+                             TimerDispatchBehaviour::ImmediateDispatch);
+        parent.AddChild(std::move(text));
+    }
+
 #ifdef WITH_BLUEZ
     void WidgetBluetooth(Widget& parent)
     {
@@ -609,6 +644,9 @@ namespace Bar
             right->SetSpacing({8, false});
             right->SetHorizontalTransform({-1, true, Alignment::Right});
             {
+                // Needs to be rightmost, since an empty package string introduces additional padding
+                WidgetPackages(*right);
+
                 WidgetAudio(*right);
 
 #ifdef WITH_BLUEZ

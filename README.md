@@ -87,6 +87,7 @@ Bar:
 - GPU stats (Nvidia/AMD only): Utilisation, temperature, VRAM
 - Disk: Free/Total
 - Network: Current upload and download speed
+- Update checking (Non-Arch systems need to be configured manually)
 
 Bluetooth:
  - Scanning of nearby bluetooth devices

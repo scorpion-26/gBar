@@ -8,6 +8,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <iomanip>
@@ -532,6 +533,59 @@ namespace System
         // Apparently /sys/class/net/.../statistics/[t/r]x_bytes is valid for all net devices under Linux
         // https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net-statistics
         return GetNetworkBpsCommon(dt, prevDownloadBytes, "/sys/class/net/" + Config::Get().networkAdapter + "/statistics/rx_bytes");
+    }
+
+    void GetOutdatedPackagesAsync(std::function<void(uint32_t)>&& returnVal)
+    {
+        static std::mutex configMutex;
+        configMutex.lock();
+        if (!RuntimeConfig::Get().hasPackagesScript)
+        {
+            configMutex.unlock();
+            return; // Don't bother
+        }
+        configMutex.unlock();
+
+        std::thread(
+            [](std::function<void(uint32_t)> returnVal)
+            {
+                // We need a pipe, since there is no "libpacman". This should only be called every so often anyways
+                std::string number;
+                char buf[2056];
+                FILE* pipe = popen(Config::Get().checkPackagesCommand.c_str(), "r"); // Redirect stderr
+                ASSERT(pipe, "GetOutdatedPackages: Couldn't open pipe");
+                while (fgets(buf, sizeof(buf), pipe) != 0)
+                {
+                    number.append(buf);
+                }
+
+                ASSERT(feof(pipe), "GetOutdatedPackages: Cannot read to eof!");
+
+                int exitCode = pclose(pipe) / 256;
+                if (exitCode == 127)
+                {
+                    configMutex.lock();
+                    // Invalid script
+                    LOG("GetOutdatedPackages: Invalid command. Disabling package widget!");
+                    RuntimeConfig::Get().hasPackagesScript = false;
+                    configMutex.unlock();
+                    return;
+                }
+                try
+                {
+                    returnVal(std::stoul(buf));
+                }
+                catch (std::invalid_argument)
+                {
+                    configMutex.lock();
+                    LOG("GetOutdatedPackages: Invalid output of the package script. Disabling package widget!");
+                    RuntimeConfig::Get().hasPackagesScript = false;
+                    configMutex.unlock();
+                    return;
+                }
+            },
+            std::move(returnVal))
+            .detach();
     }
 
     std::string GetTime()

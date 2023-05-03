@@ -133,6 +133,7 @@ void Config::Load()
         AddConfigVar("ExitCommand", config.exitCommand, lineView, foundProperty);
         AddConfigVar("BatteryFolder", config.batteryFolder, lineView, foundProperty);
         AddConfigVar("DefaultWorkspaceSymbol", config.defaultWorkspaceSymbol, lineView, foundProperty);
+        AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
         for (int i = 1; i < 10; i++)
         {
             // Subtract 1 to index from 1 to 9 rather than 0 to 8
@@ -151,6 +152,8 @@ void Config::Load()
         AddConfigVar("MaxUploadBytes", config.maxUploadBytes, lineView, foundProperty);
         AddConfigVar("MinDownloadBytes", config.minDownloadBytes, lineView, foundProperty);
         AddConfigVar("MaxDownloadBytes", config.maxDownloadBytes, lineView, foundProperty);
+
+        AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
 
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
 

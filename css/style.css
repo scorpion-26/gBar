@@ -101,6 +101,12 @@ highlight {
   background-color: #bd93f9;
 }
 
+.package-outofdate {
+  font-size: 24px;
+  margin-right: -5px;
+  color: #ff5555;
+}
+
 .bt-num {
   font-size: 16px;
   color: #1793D1;
