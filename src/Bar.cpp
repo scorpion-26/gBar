@@ -103,13 +103,13 @@ namespace Bar
             else if (info.devices.empty())
             {
                 btIconText->SetClass("bt-label-on");
-                btIconText->SetText("");
+                btIconText->SetText("󰂯");
                 btDevText->SetText("");
             }
             else
             {
                 btIconText->SetClass("bt-label-connected");
-                btIconText->SetText("");
+                btIconText->SetText("󰂱");
                 std::string btDev;
                 std::string tooltip;
                 for (auto& dev : info.devices)

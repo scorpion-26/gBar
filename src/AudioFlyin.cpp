@@ -47,11 +47,11 @@ namespace AudioFlyin
                     muted = info.sinkMuted;
                     if (info.sinkMuted)
                     {
-                        icon->SetText("ﱝ");
+                        icon->SetText("󰝟");
                     }
                     else
                     {
-                        icon->SetText("墳");
+                        icon->SetText("󰕾 ");
                     }
                 }
             }

@@ -416,19 +416,19 @@ namespace System
     {
         if (dev.type == "input-keyboard")
         {
-            return " ";
+            return "󰌌 ";
         }
         else if (dev.type == "input-mouse")
         {
-            return " ";
+            return "󰍽 ";
         }
         else if (dev.type == "audio-headset")
         {
-            return " ";
+            return "󰋋 ";
         }
         else if (dev.type == "input-gaming")
         {
-            return "調 ";
+            return "󰖺 ";
         }
         return " ";
     }
