@@ -1,6 +1,9 @@
 #include "SNI.h"
 #include "Log.h"
 #include "Widget.h"
+#include "Config.h"
+
+#ifdef WITH_SNI
 
 #include <sni-watcher.h>
 #include <sni-item.h>
@@ -245,6 +248,11 @@ namespace SNI
 
     static TimerResult UpdateWidgets(Box&)
     {
+        if (RuntimeConfig::Get().hasSNI == false || Config::Get().enableSNI == false)
+        {
+            // Don't bother
+            return TimerResult::Delete;
+        }
         for (auto& client : clientsToQuery)
         {
             LOG("SNI: Creating Item " << client.name << " " << client.object);
@@ -324,6 +332,10 @@ namespace SNI
 
     void WidgetSNI(Widget& parent)
     {
+        if (RuntimeConfig::Get().hasSNI == false || Config::Get().enableSNI == false)
+        {
+            return;
+        }
         // Add parent box
         auto box = Widget::Create<Box>();
         auto container = Widget::Create<Box>();
@@ -386,13 +398,19 @@ namespace SNI
 
     void Init()
     {
+        if (RuntimeConfig::Get().hasSNI == false || Config::Get().enableSNI == false)
+        {
+            return;
+        }
+
         auto busAcquired = [](GDBusConnection* connection, const char*, void*)
         {
             GError* err = nullptr;
             g_dbus_interface_skeleton_export((GDBusInterfaceSkeleton*)watcherSkeleton, connection, "/StatusNotifierWatcher", &err);
             if (err)
             {
-                LOG("Failed to connect to dbus! Error: " << err->message);
+                LOG("SNI: Failed to connect to dbus! Disabling SNI. Error: " << err->message);
+                RuntimeConfig::Get().hasSNI = false;
                 g_error_free(err);
                 return;
             }
@@ -409,9 +427,10 @@ namespace SNI
             sni_watcher_set_is_status_notifier_host_registered(watcherSkeleton, true);
         };
         auto emptyCallback = [](GDBusConnection*, const char*, void*) {};
-        auto lostName = [](GDBusConnection*, const char*, void*)
+        auto lostName = [](GDBusConnection*, const char* msg, void*)
         {
-            LOG("Lost name!");
+            LOG("SNI: Lost Name! Disabling SNI!");
+            RuntimeConfig::Get().hasSNI = false;
         };
         auto flags = G_BUS_NAME_OWNER_FLAGS_REPLACE | G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT;
         g_bus_own_name(G_BUS_TYPE_SESSION, "org.kde.StatusNotifierWatcher", (GBusNameOwnerFlags)flags, +busAcquired, +emptyCallback, +lostName,
@@ -429,3 +448,4 @@ namespace SNI
 
     void Shutdown() {}
 }
+#endif

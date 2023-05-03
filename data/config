@@ -71,6 +71,9 @@ NetworkAdapter: eno1
 # Disables the network widget when set to false
 NetworkWidget: true
 
+# Enables tray icons
+EnableSNI: true
+
 # These set the range for the network widget. The widget changes colors at six intervals:
 #    - Below Min...Bytes ("under")
 #    - Between ]0%;25%]. 0% = Min...Bytes; 100% = Max...Bytes ("low")

@@ -647,7 +647,9 @@ namespace System
 
         PulseAudio::Init();
 
+#ifdef WITH_SNI
         SNI::Init();
+#endif
 
         CheckNetwork();
     }
@@ -665,7 +667,9 @@ namespace System
 #ifdef WITH_BLUEZ
         StopBTScan();
 #endif
+#ifdef WITH_SNI
         SNI::Shutdown();
+#endif
 
         Logging::Shutdown();
     }

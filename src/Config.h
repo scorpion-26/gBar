@@ -27,6 +27,7 @@ public:
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
     bool useHyprlandIPC = false;          // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
+    bool enableSNI = true;                // Enable tray icon
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
@@ -71,6 +72,12 @@ public:
     bool hasBlueZ = true;
 #else
     bool hasBlueZ = false;
+#endif
+
+#if defined WITH_SNI && defined HAS_STB
+    bool hasSNI = true;
+#else
+    bool hasSNI = false;
 #endif
 
     bool hasNet = true;

@@ -147,6 +147,7 @@ void Config::Load()
         AddConfigVar("WorkspaceScrollOnMonitor", config.workspaceScrollOnMonitor, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollInvert", config.workspaceScrollInvert, lineView, foundProperty);
         AddConfigVar("UseHyprlandIPC", config.useHyprlandIPC, lineView, foundProperty);
+        AddConfigVar("EnableSNI", config.enableSNI, lineView, foundProperty);
 
         AddConfigVar("MinUploadBytes", config.minUploadBytes, lineView, foundProperty);
         AddConfigVar("MaxUploadBytes", config.maxUploadBytes, lineView, foundProperty);

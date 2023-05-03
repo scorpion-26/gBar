@@ -2,7 +2,7 @@ project('gBar',
     ['c', 'cpp'],
     version: '0.0.1',
     license: 'MIT',
-    meson_version: '>=0.49.0',
+    meson_version: '>=0.53.0',
     default_options: ['cpp_std=c++17',
                       'warning_level=3',
                       'default_library=static',
@@ -23,31 +23,10 @@ ext_workspace_header = custom_target('generate-ext-workspace-header',
                                   output: ['ext-workspace-unstable-v1.h'],
                                   command: [wayland_scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
 
-# DBus protocols
-dbus_gen = find_program('gdbus-codegen')
-sni_item_src = custom_target('generate-sni-item-src',
-                             input: ['protocols/sni-item.xml'],
-                             output: ['sni-item.c'],
-                             command: [dbus_gen, '--c-namespace', 'sni', '--body', '--output', '@OUTPUT@', '@INPUT@'])
-
-sni_item_header = custom_target('generate-sni-item-header',
-                             input: ['protocols/sni-item.xml'],
-                             output: ['sni-item.h'],
-                             command: [dbus_gen, '--c-namespace', 'sni', '--header', '--output', '@OUTPUT@', '@INPUT@'])
-
-sni_watcher_src = custom_target('generate-sni-watcher-src',
-                             input: ['protocols/sni-watcher.xml'],
-                             output: ['sni-watcher.c'],
-                             command: [dbus_gen, '--c-namespace', 'sni', '--body', '--output', '@OUTPUT@', '@INPUT@'])
-
-sni_watcher_header = custom_target('generate-sni-watcher-header',
-                             input: ['protocols/sni-watcher.xml'],
-                             output: ['sni-watcher.h'],
-                             command: [dbus_gen, '--c-namespace', 'sni', '--header', '--output', '@OUTPUT@', '@INPUT@'])
-libdbusmenu = dependency('dbusmenu-gtk3-0.4')
-
 gtk = dependency('gtk+-3.0')
 gtk_layer_shell = dependency('gtk-layer-shell-0')
+
+pulse = dependency('libpulse')
 
 headers = [
   'src/Common.h',
@@ -59,6 +38,25 @@ headers = [
   'src/Config.h',
   'src/CSS.h'
 ]
+
+sources = [
+    ext_workspace_src,
+    ext_workspace_header,
+   'src/Window.cpp',
+   'src/Widget.cpp',
+   'src/System.cpp',
+   'src/Bar.cpp',
+   'src/Workspaces.cpp',
+   'src/AudioFlyin.cpp',
+   'src/BluetoothDevices.cpp',
+   'src/Plugin.cpp',
+   'src/Config.cpp',
+   'src/CSS.cpp',
+   'src/Log.cpp',
+   'src/SNI.cpp',
+   ]
+
+dependencies = [gtk, gtk_layer_shell, pulse, wayland_client ]
 
 if get_option('WithHyprland')
   add_global_arguments('-DWITH_HYPRLAND', language: 'cpp')
@@ -82,35 +80,54 @@ endif
 if get_option('WithSys')
   add_global_arguments('-DWITH_SYS', language: 'cpp')
 endif
+if get_option('WithSNI')
+  add_global_arguments('-DWITH_SNI', language: 'cpp')
+
+  # DBus protocols
+  dbus_gen = find_program('gdbus-codegen')
+  sni_item_src = custom_target('generate-sni-item-src',
+                               input: ['protocols/sni-item.xml'],
+                               output: ['sni-item.c'],
+                               command: [dbus_gen, '--c-namespace', 'sni', '--body', '--output', '@OUTPUT@', '@INPUT@'])
+
+  sni_item_header = custom_target('generate-sni-item-header',
+                               input: ['protocols/sni-item.xml'],
+                               output: ['sni-item.h'],
+                               command: [dbus_gen, '--c-namespace', 'sni', '--header', '--output', '@OUTPUT@', '@INPUT@'])
+
+  sni_watcher_src = custom_target('generate-sni-watcher-src',
+                               input: ['protocols/sni-watcher.xml'],
+                               output: ['sni-watcher.c'],
+                               command: [dbus_gen, '--c-namespace', 'sni', '--body', '--output', '@OUTPUT@', '@INPUT@'])
+
+  sni_watcher_header = custom_target('generate-sni-watcher-header',
+                               input: ['protocols/sni-watcher.xml'],
+                               output: ['sni-watcher.h'],
+                               command: [dbus_gen, '--c-namespace', 'sni', '--header', '--output', '@OUTPUT@', '@INPUT@'])
+  libdbusmenu = dependency('dbusmenu-gtk3-0.4')
+
+  sources += sni_item_src
+  sources += sni_item_header
+  sources += sni_watcher_src
+  sources += sni_watcher_header
+  
+  dependencies += libdbusmenu
+endif
 
 add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
 
-pulse = dependency('libpulse')
-
 # stb
+fs = import('fs')
 stb = include_directories('thirdparty')
+if fs.exists('thirdparty/stb/stb_image.h')
+  add_global_arguments('-DHAS_STB', language: 'cpp')
+endif
+
+
 
 libgBar = library('gBar',
-  [ ext_workspace_src,
-    ext_workspace_header,
-    sni_item_src,
-    sni_item_header,
-    sni_watcher_src,
-    sni_watcher_header,
-   'src/Window.cpp',
-   'src/Widget.cpp',
-   'src/System.cpp',
-   'src/Bar.cpp',
-   'src/Workspaces.cpp',
-   'src/AudioFlyin.cpp',
-   'src/BluetoothDevices.cpp',
-   'src/Plugin.cpp',
-   'src/Config.cpp',
-   'src/CSS.cpp',
-   'src/Log.cpp',
-   'src/SNI.cpp',
-  ],
-  dependencies: [gtk, gtk_layer_shell, pulse, wayland_client, libdbusmenu],
+  sources,
+  dependencies: dependencies,
   include_directories: stb,
   install: true)
 
