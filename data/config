@@ -55,7 +55,7 @@ AudioScrollSpeed: 5
 # Command that is run to check if there are out-of-date packages.
 # The script should return *ONLY* a number. If it doesn't output a number, updates are no longer checked.
 # Default value is applicable for Arch Linux. (See src/Config.h for explanation on the default command)
-CheckPackagesCommand: pac="$(checkupdates)"; if [ $? -eq 127 ] ; then exit 127; fi; echo -n $pac | wc -l
+CheckPackagesCommand: pac="$(checkupdates)"; if [ $? -eq 127 ] ; then exit 127; fi; echo -n "$pac" | wc -l
 
 # How often to check for updates. In seconds
 CheckUpdateInterval: 300
