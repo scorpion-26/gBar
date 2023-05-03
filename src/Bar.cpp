@@ -145,12 +145,14 @@ namespace Bar
                     if (numOutdatedPackages)
                     {
                         text.SetText("󰏔 ");
+                        text.SetVisible(true);
                         text.SetClass("package-outofdate");
                         text.SetTooltip("Updates available! (" + std::to_string(numOutdatedPackages) + " packages)");
                     }
                     else
                     {
                         text.SetText("");
+                        text.SetVisible(false);
                         text.SetClass("package-empty");
                         text.SetTooltip("");
                     }
@@ -414,9 +416,9 @@ namespace Bar
     {
         auto text = Widget::Create<Text>();
         text->SetText("");
+        text->SetVisible(false);
         text->SetClass("package-empty");
-        text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval,
-                             TimerDispatchBehaviour::ImmediateDispatch);
+        text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval, TimerDispatchBehaviour::ImmediateDispatch);
         parent.AddChild(std::move(text));
     }
 
@@ -644,7 +646,6 @@ namespace Bar
             right->SetSpacing({8, false});
             right->SetHorizontalTransform({-1, true, Alignment::Right});
             {
-                // Needs to be rightmost, since an empty package string introduces additional padding
                 WidgetPackages(*right);
 
                 WidgetAudio(*right);
