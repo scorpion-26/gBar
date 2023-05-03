@@ -17,7 +17,7 @@ public:
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // The default script runs checkupdates, and forcefully exits when checkupdates is not found, so gBar can disable the package widget.
     // "checkupdates | wc -l" would always return 0 on stdout, which gBar accepts
-    std::string checkPackagesCommand = "pac=\"$(checkupdates)\"; if [ $? -eq 127 ] ; then exit 127; fi; echo $pac | wc -l";
+    std::string checkPackagesCommand = "pac=\"$(checkupdates)\"; if [ $? -eq 127 ] ; then exit 127; fi; echo -n $pac | wc -l";
 
     bool centerTime = true;
     bool audioRevealer = false;
