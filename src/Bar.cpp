@@ -98,7 +98,7 @@ namespace Bar
             if (info.defaultController.empty())
             {
                 btIconText->SetClass("bt-label-off");
-                btIconText->SetText("");
+                btIconText->SetText("󰂲");
                 btDevText->SetText("");
             }
             else if (info.devices.empty())
@@ -523,7 +523,7 @@ namespace Bar
                     {
                         auto exitButton = Widget::Create<Button>();
                         exitButton->SetClass("exit-button");
-                        exitButton->SetText("");
+                        exitButton->SetText("󰗼");
                         exitButton->OnClick(
                             [](Button&)
                             {
@@ -541,7 +541,7 @@ namespace Bar
 
                         auto sleepButton = Widget::Create<Button>();
                         sleepButton->SetClass("sleep-button");
-                        sleepButton->SetText("");
+                        sleepButton->SetText("󰏤");
                         sleepButton->OnClick(
                             [](Button&)
                             {
@@ -550,7 +550,7 @@ namespace Bar
 
                         auto rebootButton = Widget::Create<Button>();
                         rebootButton->SetClass("reboot-button");
-                        rebootButton->SetText("累");
+                        rebootButton->SetText("󰑐");
                         rebootButton->OnClick(
                             [](Button&)
                             {
