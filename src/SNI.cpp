@@ -39,7 +39,7 @@ namespace SNI
     };
     std::vector<Item> items;
 
-    std::vector<Item> clientsToQuery;
+    std::unordered_map<std::string, Item> clientsToQuery;
 
     // Gtk stuff, TODO: Allow more than one instance
     // Simply removing the gtk_drawing_areas doesn't trigger proper redrawing
@@ -232,18 +232,23 @@ namespace SNI
 
     static void ItemPropertyChanged(GDBusConnection*, const char*, const char* object, const char*, const char*, GVariant*, void* name)
     {
+        std::string nameStr = (const char*)name;
         LOG("SNI: Reloading " << (const char*)name << " " << object);
         // We don't care about *what* changed, just remove and reload
         auto it = std::find_if(items.begin(), items.end(),
                                [&](const Item& item)
                                {
-                                   return item.name == (const char*)name;
+                                   return item.name == nameStr;
                                });
         if (it != items.end())
         {
             items.erase(it);
         }
-        clientsToQuery.push_back({std::string((const char*)name), std::string(object)});
+        else
+        {
+            LOG("SNI: Coudn't remove item " << nameStr << " when reloading");
+        }
+        clientsToQuery[nameStr] = {nameStr, std::string(object)};
     }
 
     static TimerResult UpdateWidgets(Box&)
@@ -253,7 +258,7 @@ namespace SNI
             // Don't bother
             return TimerResult::Delete;
         }
-        for (auto& client : clientsToQuery)
+        for (auto& [name, client] : clientsToQuery)
         {
             LOG("SNI: Creating Item " << client.name << " " << client.object);
             Item item = CreateItem(std::move(client.name), std::move(client.object));
@@ -286,6 +291,7 @@ namespace SNI
     // SNI implements the GTK-Thingies itself internally
     static void InvalidateWidget()
     {
+        LOG("SNI: Clearing old children");
         parentBox->RemoveChild(iconBox);
 
         auto container = Widget::Create<Box>();
@@ -318,6 +324,7 @@ namespace SNI
                         g_signal_connect(w.Get(), "button-release-event", G_CALLBACK(+clickFn), &item);
                     });
 
+                LOG("SNI: Add " << item.name << " to widget");
                 auto texture = Widget::Create<Texture>();
                 texture->SetHorizontalTransform({0, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
@@ -377,7 +384,7 @@ namespace SNI
         sni_watcher_emit_status_notifier_item_registered(watcher, service);
         sni_watcher_complete_register_status_notifier_item(watcher, invocation);
         LOG("SNI: Registered Item " << name << " " << object);
-        clientsToQuery.push_back({std::move(name), std::move(object)});
+        clientsToQuery[name] = {name, std::move(object)};
         return true;
     }
 
