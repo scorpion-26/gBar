@@ -119,10 +119,7 @@ add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
 # stb
 fs = import('fs')
 stb = include_directories('thirdparty')
-if fs.exists('thirdparty/stb/stb_image.h')
-  add_global_arguments('-DHAS_STB', language: 'cpp')
-endif
-
+add_global_arguments('-DHAS_STB', language: 'cpp')
 
 
 libgBar = library('gBar',

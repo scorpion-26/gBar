@@ -15,13 +15,17 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 - meson, gcc/clang, ninja
 
 ## Building and installation (Manually)
-1. Configure with meson
+1. Clone gBar recursively
+    ```
+    git clone https://github.com/scorpion-26/gBar --recursive
+    ```
+2. Configure with meson
     
     *All optional dependencies enabled*
     ```
     meson setup build
     ```
- 2. Build and install
+3. Build and install
     ```
     ninja -C build && sudo ninja -C build install
     ```
