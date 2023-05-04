@@ -4,6 +4,9 @@ option('WithHyprland', type: 'boolean', value : true)
 # Workspaces general, enables Wayland protocol
 option('WithWorkspaces', type: 'boolean', value : true)
 
+# Tray icons, requires stb git submodule
+option('WithSNI', type: 'boolean', value : true)
+
 option('WithNvidia', type: 'boolean', value : true)
 option('WithAMD', type: 'boolean', value : true)
 option('WithBlueZ', type: 'boolean', value : true)

@@ -122,9 +122,31 @@ void Widget::RemoveChild(size_t idx)
     if (m_Widget)
     {
         auto& child = *m_Childs[idx];
-        gtk_container_remove((GtkContainer*)child.m_Widget, m_Widget);
+        gtk_container_remove((GtkContainer*)m_Widget, child.m_Widget);
+        child.m_Widget = nullptr;
     }
     m_Childs.erase(m_Childs.begin() + idx);
+}
+void Widget::RemoveChild(Widget* widget)
+{
+    auto it = std::find_if(m_Childs.begin(), m_Childs.end(),
+                           [&](std::unique_ptr<Widget>& other)
+                           {
+                               return other.get() == widget;
+                           });
+    if (it != m_Childs.end())
+    {
+        if (m_Widget)
+        {
+            gtk_container_remove((GtkContainer*)m_Widget, it->get()->m_Widget);
+            it->get()->m_Widget = nullptr;
+        }
+        m_Childs.erase(it);
+    }
+    else
+    {
+        LOG("Invalid child!");
+    }
 }
 
 void Widget::SetVisible(bool visible)
@@ -151,6 +173,9 @@ void Widget::ApplyPropertiesToWidget()
     gtk_widget_set_valign(m_Widget, Utils::ToGtkAlign(m_VerticalTransform.alignment));
     gtk_widget_set_hexpand(m_Widget, m_HorizontalTransform.expand);
     gtk_widget_set_vexpand(m_Widget, m_VerticalTransform.expand);
+
+    if (m_OnCreate)
+        m_OnCreate(*this);
 }
 
 void Box::SetOrientation(Orientation orientation)
@@ -473,6 +498,38 @@ void NetworkSensor::Draw(cairo_t* cr)
 
     gdk_rgba_free(colUp);
     gdk_rgba_free(colDown);
+}
+
+Texture::~Texture()
+{
+    if (m_Pixbuf)
+        g_free(m_Pixbuf);
+    if (m_Bytes)
+        g_free(m_Bytes);
+}
+
+void Texture::SetBuf(size_t width, size_t height, uint8_t* buf)
+{
+    m_Width = width;
+    m_Height = height;
+    m_Bytes = g_bytes_new(buf, m_Width * m_Height * 4);
+    m_Pixbuf = gdk_pixbuf_new_from_bytes((GBytes*)m_Bytes, GDK_COLORSPACE_RGB, true, 8, m_Width, m_Height, m_Width * 4);
+}
+
+void Texture::Draw(cairo_t* cr)
+{
+    GtkAllocation dim;
+    gtk_widget_get_allocation(m_Widget, &dim);
+
+    double height = m_ForcedHeight != 0 ? m_ForcedHeight : dim.height;
+    double scale = (double)height / (double)m_Height;
+    double width = (double)m_Width * scale;
+
+    gtk_widget_set_size_request(m_Widget, width + 2, height);
+    cairo_scale(cr, scale, scale);
+    cairo_rectangle(cr, (dim.width - width) / 2.0, m_Padding + (dim.height - height) / 2.0, m_Width, m_Height);
+    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, (dim.width - width) / 2.0, m_Padding + (dim.height - height) / 2.0);
+    cairo_fill(cr);
 }
 
 void Revealer::SetTransition(Transition transition)

@@ -28,6 +28,14 @@ void ApplyProperty<uint32_t>(uint32_t& propertyToSet, const std::string_view& va
 }
 
 template<>
+void ApplyProperty<int32_t>(int32_t& propertyToSet, const std::string_view& value)
+{
+    // Why, C++?
+    std::string valStr = std::string(value);
+    propertyToSet = atoi(valStr.c_str());
+}
+
+template<>
 void ApplyProperty<double>(double& propertyToSet, const std::string_view& value)
 {
     // Why, C++?
@@ -51,6 +59,30 @@ void ApplyProperty<bool>(bool& propertyToSet, const std::string_view& value)
     {
         LOG("Invalid value for bool property: " << value);
     }
+}
+
+template<>
+void ApplyProperty<std::pair<std::string, uint32_t>>(std::pair<std::string, uint32_t>& propertyToSet, const std::string_view& value)
+{
+    // TODO: Ignore escaped delimiter (e.g. \, is the same as ,)
+    const char delim = ',';
+    const char* whitespace = " \t";
+    size_t delimPos = value.find(delim);
+    if (delimPos == std::string::npos)
+    {
+        propertyToSet = {std::string(value), 0};
+        return;
+    }
+    std::string_view before = value.substr(0, delimPos);
+    std::string_view after = value.substr(delimPos + 1);
+
+    // Strip whitespaces for before
+    size_t beginBefore = before.find_first_not_of(whitespace);
+    size_t endBefore = before.find_last_not_of(whitespace);
+    before = before.substr(beginBefore, endBefore - beginBefore + 1);
+
+    ApplyProperty(propertyToSet.first, before);
+    ApplyProperty(propertyToSet.second, after);
 }
 
 template<typename T>
@@ -147,6 +179,7 @@ void Config::Load()
         AddConfigVar("WorkspaceScrollOnMonitor", config.workspaceScrollOnMonitor, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollInvert", config.workspaceScrollInvert, lineView, foundProperty);
         AddConfigVar("UseHyprlandIPC", config.useHyprlandIPC, lineView, foundProperty);
+        AddConfigVar("EnableSNI", config.enableSNI, lineView, foundProperty);
 
         AddConfigVar("MinUploadBytes", config.minUploadBytes, lineView, foundProperty);
         AddConfigVar("MaxUploadBytes", config.maxUploadBytes, lineView, foundProperty);
@@ -159,6 +192,21 @@ void Config::Load()
 
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
         AddConfigVar("AudioMaxVolume", config.audioMaxVolume, lineView, foundProperty);
+
+        std::pair<std::string, uint32_t> buf;
+        bool hasntFoundProperty = !foundProperty;
+        AddConfigVar("SNIIconSize", buf, lineView, foundProperty);
+        if (foundProperty && hasntFoundProperty)
+        {
+            // This was found
+            config.sniIconSizes[buf.first] = buf.second;
+        }
+        hasntFoundProperty = !foundProperty;
+        AddConfigVar("SNIPaddingTop", buf, lineView, foundProperty);
+        if (foundProperty && hasntFoundProperty)
+        {
+            config.sniPaddingTop[buf.first] = buf.second;
+        }
 
         if (foundProperty == false)
         {

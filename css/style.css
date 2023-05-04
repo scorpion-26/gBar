@@ -3,6 +3,10 @@
   font-family: "CaskaydiaCove Nerd Font";
 }
 
+.popup {
+  color: #50fa7b;
+}
+
 .bar, tooltip {
   background-color: #282a36;
   border-radius: 16px;

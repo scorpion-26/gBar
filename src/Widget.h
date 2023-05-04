@@ -116,6 +116,7 @@ public:
 
     void AddChild(std::unique_ptr<Widget>&& widget);
     void RemoveChild(size_t idx);
+    void RemoveChild(Widget* widget);
 
     std::vector<std::unique_ptr<Widget>>& GetWidgets() { return m_Childs; }
 
@@ -156,6 +157,8 @@ public:
 
     void SetVisible(bool visible);
 
+    void SetOnCreate(Callback<Widget>&& onCreate) { m_OnCreate = onCreate; }
+
 protected:
     void PropagateToParent(GdkEvent* event);
     void ApplyPropertiesToWidget();
@@ -168,6 +171,8 @@ protected:
     std::string m_Tooltip;
     Transform m_HorizontalTransform; // X
     Transform m_VerticalTransform;   // Y
+
+    Callback<Widget> m_OnCreate;
 };
 
 class Box : public Widget
@@ -261,6 +266,29 @@ private:
     // Just manually creating a style context doesn't work for me.
     std::unique_ptr<Box> contextUp;
     std::unique_ptr<Box> contextDown;
+};
+
+class Texture : public CairoArea
+{
+public:
+    Texture() = default;
+    virtual ~Texture();
+
+    // Non-Owning, ARGB32
+    void SetBuf(size_t width, size_t height, uint8_t* buf);
+
+    void ForceHeight(size_t height) { m_ForcedHeight = height; };
+    void AddPaddingTop(int32_t topPadding) { m_Padding = topPadding; };
+
+private:
+    void Draw(cairo_t* cr) override;
+
+    size_t m_Width;
+    size_t m_Height;
+    size_t m_ForcedHeight = 0;
+    int32_t m_Padding = 0;
+    GBytes* m_Bytes;
+    GdkPixbuf* m_Pixbuf;
 };
 
 class Revealer : public Widget

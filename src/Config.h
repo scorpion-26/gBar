@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <unordered_map>
 
 class Config
 {
@@ -27,6 +28,7 @@ public:
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
     bool useHyprlandIPC = false;          // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
+    bool enableSNI = true;                // Enable tray icon
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
@@ -37,6 +39,10 @@ public:
     uint32_t audioScrollSpeed = 5; // 5% each scroll
 
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
+
+    // SNIIconSize: ["Title String"], ["Size"]
+    std::unordered_map<std::string, uint32_t> sniIconSizes;
+    std::unordered_map<std::string, int32_t> sniPaddingTop;
 
     // Only affects outputs (i.e.: speakers, not microphones). This remaps the range of the volume; In percent
     double audioMinVolume = 0.f;   // Map the minimum volume to this value
@@ -71,6 +77,12 @@ public:
     bool hasBlueZ = true;
 #else
     bool hasBlueZ = false;
+#endif
+
+#if defined WITH_SNI && defined HAS_STB
+    bool hasSNI = true;
+#else
+    bool hasSNI = false;
 #endif
 
     bool hasNet = true;

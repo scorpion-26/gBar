@@ -71,6 +71,20 @@ NetworkAdapter: eno1
 # Disables the network widget when set to false
 NetworkWidget: true
 
+# Enables tray icons
+EnableSNI: true
+
+# SNIIconSize sets the icon size for a SNI icon.
+# SNIPaddingTop Can be used to push the Icon down. Negative values are allowed
+# For both: The first parameter is a filter of the tooltip(The text that pops up, when the icon is hovered) of the icon
+
+# Scale everything down to 25 pixels ('*' as filter means everything)
+SNIIconSize: *, 25
+# Explicitly make OBS a bit smaller than default
+SNIIconSize: OBS, 23
+# Nudges the Discord icon a bit down
+# SNIPaddingTop: Discord, 5
+
 # These set the range for the network widget. The widget changes colors at six intervals:
 #    - Below Min...Bytes ("under")
 #    - Between ]0%;25%]. 0% = Min...Bytes; 100% = Max...Bytes ("low")
