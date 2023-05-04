@@ -277,11 +277,16 @@ public:
     // Non-Owning, ARGB32
     void SetBuf(size_t width, size_t height, uint8_t* buf);
 
+    void ForceHeight(size_t height) { m_ForcedHeight = height; };
+    void AddPaddingTop(int32_t topPadding) { m_Padding = topPadding; };
+
 private:
     void Draw(cairo_t* cr) override;
 
     size_t m_Width;
     size_t m_Height;
+    size_t m_ForcedHeight = 0;
+    int32_t m_Padding = 0;
     GBytes* m_Bytes;
     GdkPixbuf* m_Pixbuf;
 };

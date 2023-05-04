@@ -520,13 +520,15 @@ void Texture::Draw(cairo_t* cr)
 {
     GtkAllocation dim;
     gtk_widget_get_allocation(m_Widget, &dim);
-    double ratio = (double)m_Width / (double)m_Height;
-    gtk_widget_set_size_request(m_Widget, dim.height * ratio, dim.height);
 
-    double scale = (double)dim.height / (double)m_Height;
+    double height = m_ForcedHeight != 0 ? m_ForcedHeight : dim.height;
+    double scale = (double)height / (double)m_Height;
+    double width = (double)m_Width * scale;
+
+    gtk_widget_set_size_request(m_Widget, width + 2, height);
     cairo_scale(cr, scale, scale);
-    cairo_rectangle(cr, 0.f, 0.f, m_Width, m_Height);
-    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, 0, 0);
+    cairo_rectangle(cr, (dim.width - width) / 2.0, m_Padding + (dim.height - height) / 2.0, m_Width, m_Height);
+    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, (dim.width - width) / 2.0, m_Padding + (dim.height - height) / 2.0);
     cairo_fill(cr);
 }
 

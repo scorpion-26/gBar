@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <unordered_map>
 
 class Config
 {
@@ -38,6 +39,10 @@ public:
     uint32_t audioScrollSpeed = 5; // 5% each scroll
 
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
+
+    // SNIIconSize: ["Title String"], ["Size"]
+    std::unordered_map<std::string, uint32_t> sniIconSizes;
+    std::unordered_map<std::string, int32_t> sniPaddingTop;
 
     // Only affects outputs (i.e.: speakers, not microphones). This remaps the range of the volume; In percent
     double audioMinVolume = 0.f;   // Map the minimum volume to this value

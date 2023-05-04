@@ -326,6 +326,33 @@ namespace SNI
 
                 LOG("SNI: Add " << item.name << " to widget");
                 auto texture = Widget::Create<Texture>();
+                bool wasExplicitOverride = false;
+                for (auto& [filter, size] : Config::Get().sniIconSizes)
+                {
+                    if (item.tooltip.find(filter) != std::string::npos)
+                    {
+                        wasExplicitOverride = true;
+                        texture->ForceHeight(size);
+                    }
+                    else if (filter == "*" && !wasExplicitOverride)
+                    {
+                        texture->ForceHeight(size);
+                    }
+                }
+                wasExplicitOverride = false;
+                for (auto& [filter, padding] : Config::Get().sniPaddingTop)
+                {
+                    if (item.tooltip.find(filter) != std::string::npos)
+                    {
+                        LOG("Padding " << padding);
+                        wasExplicitOverride = true;
+                        texture->AddPaddingTop(padding);
+                    }
+                    else if (filter == "*" && !wasExplicitOverride)
+                    {
+                        texture->AddPaddingTop(padding);
+                    }
+                }
                 texture->SetHorizontalTransform({0, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
                 texture->SetTooltip(item.tooltip);
