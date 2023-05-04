@@ -169,8 +169,8 @@ Please install a Nerd Font from https://www.nerdfonts.com (I use Caskaydia Cove 
 
 ### The tray doesn't show
 Some apps sometimes don't actively query for tray applications. A fix for this is to start gBar before the tray app
-If it still doesn't show, please open an issue with your application
-The tray icons are confirmed to work with Discord, Telegram, OBS and KeePassXC
+If it still doesn't show, please open an issue with your application.
+The tray icons are confirmed to work with Discord, Telegram, OBS, Steam and KeePassXC
 
 ### Clicking on the tray opens a glitchy transparent menu
 This is semi-intentional and a known bug (See https://github.com/scorpion-26/gBar/pull/12#issuecomment-1529143790 for an explanation). You can make it opaque by setting the background-color property of .popup in style.css/style.scss
