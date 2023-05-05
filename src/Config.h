@@ -17,9 +17,8 @@ public:
     std::string defaultWorkspaceSymbol = "";
 
     // Script that returns how many packages are out-of-date. The script should only print a number!
-    // The default script runs checkupdates, and forcefully exits when checkupdates is not found, so gBar can disable the package widget.
-    // "checkupdates | wc -l" would always return 0 on stdout, which gBar accepts
-    std::string checkPackagesCommand = "pac=\"$(checkupdates)\"; if [ $? -eq 127 ] ; then exit 127; fi; echo -n \"$pac\" | wc -l";
+    // See data/update.sh for a human-readable version
+    std::string checkPackagesCommand = "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
 
     bool centerTime = true;
     bool audioRevealer = false;

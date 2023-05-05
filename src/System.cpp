@@ -563,10 +563,10 @@ namespace System
                 ASSERT(feof(pipe), "GetOutdatedPackages: Cannot read to eof!");
 
                 int exitCode = pclose(pipe) / 256;
-                if (exitCode == 127)
+                if (exitCode != 0)
                 {
                     configMutex.lock();
-                    // Invalid script
+                    // Invalid script/error
                     LOG("GetOutdatedPackages: Invalid command. Disabling package widget!");
                     RuntimeConfig::Get().hasPackagesScript = false;
                     configMutex.unlock();
