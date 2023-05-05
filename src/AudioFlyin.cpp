@@ -51,7 +51,7 @@ namespace AudioFlyin
                     }
                     else
                     {
-                        icon->SetText("󰕾 ");
+                        icon->SetText("󰕾");
                     }
                 }
             }
