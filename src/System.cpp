@@ -92,17 +92,27 @@ namespace System
     {
         std::ifstream fullChargeFile(Config::Get().batteryFolder + "/charge_full");
         std::ifstream currentChargeFile(Config::Get().batteryFolder + "/charge_now");
-        if (!fullChargeFile.is_open() || !currentChargeFile.is_open())
+        if (fullChargeFile.is_open() && currentChargeFile.is_open())
         {
-            return -1.f;
+            std::string fullChargeStr;
+            std::string currentChargeStr;
+            std::getline(fullChargeFile, fullChargeStr);
+            std::getline(currentChargeFile, currentChargeStr);
+            uint32_t intFullCharge = atoi(fullChargeStr.c_str());
+            uint32_t intCurrentCharge = atoi(currentChargeStr.c_str());
+            return ((double)intCurrentCharge / (double)intFullCharge);
         }
-        std::string fullChargeStr;
-        std::string currentChargeStr;
-        std::getline(fullChargeFile, fullChargeStr);
-        std::getline(currentChargeFile, currentChargeStr);
-        uint32_t intFullCharge = atoi(fullChargeStr.c_str());
-        uint32_t intCurrentCharge = atoi(currentChargeStr.c_str());
-        return ((double)intCurrentCharge / (double)intFullCharge);
+
+        // Try capacity
+        std::ifstream capacityFile(Config::Get().batteryFolder + "/capacity");
+        if (capacityFile.is_open())
+        {
+            std::string capacityStr;
+            std::getline(capacityFile, capacityStr);
+            uint32_t intCapacity = atoi(capacityStr.c_str());
+            return (double)intCapacity / 100.0;
+        }
+        return -1;
     }
 
     RAMInfo GetRAMInfo()
