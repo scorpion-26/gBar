@@ -46,6 +46,10 @@
   margin-right: 6px;
 }
 
+.system-confirm {
+  color: #50fa7b;
+}
+
 trough {
   border-radius: 3px;
   border-width: 1px;

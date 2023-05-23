@@ -505,6 +505,34 @@ namespace Bar
 
     void WidgetPower(Widget& parent)
     {
+        // TODO: Abstract this (Currently not DRY)
+        static bool activatedExit = false;
+        static bool activatedLock = false;
+        static bool activatedSuspend = false;
+        static bool activatedReboot = false;
+        static bool activatedShutdown = false;
+
+        auto setActivate = [](Button& button, bool& activeBool, bool activate)
+        {
+            if (activate)
+            {
+                button.AddClass("system-confirm");
+                button.AddTimer<Button>(
+                    [&](Button& button)
+                    {
+                        button.RemoveClass("system-confirm");
+                        activeBool = false;
+                        return TimerResult::Delete;
+                    },
+                    2000, TimerDispatchBehaviour::LateDispatch);
+            }
+            else
+            {
+                button.RemoveClass("system-confirm");
+            }
+            activeBool = activate;
+        };
+
         auto eventBox = Widget::Create<EventBox>();
         eventBox->SetHoverFn(DynCtx::PowerBoxEvent);
         {
@@ -525,36 +553,68 @@ namespace Bar
                         exitButton->SetClass("exit-button");
                         exitButton->SetText("󰗼");
                         exitButton->OnClick(
-                            [](Button&)
+                            [setActivate](Button& but)
                             {
-                                System::ExitWM();
+                                if (activatedExit)
+                                {
+                                    System::ExitWM();
+                                    setActivate(but, activatedExit, false);
+                                }
+                                else
+                                {
+                                    setActivate(but, activatedExit, true);
+                                }
                             });
 
                         auto lockButton = Widget::Create<Button>();
                         lockButton->SetClass("sleep-button");
                         lockButton->SetText("");
                         lockButton->OnClick(
-                            [](Button&)
+                            [setActivate](Button& but)
                             {
-                                System::Lock();
+                                if (activatedLock)
+                                {
+                                    System::Lock();
+                                    setActivate(but, activatedLock, false);
+                                }
+                                else
+                                {
+                                    setActivate(but, activatedLock, true);
+                                }
                             });
 
                         auto sleepButton = Widget::Create<Button>();
                         sleepButton->SetClass("sleep-button");
                         sleepButton->SetText("󰏤");
                         sleepButton->OnClick(
-                            [](Button&)
+                            [setActivate](Button& but)
                             {
-                                System::Suspend();
+                                if (activatedSuspend)
+                                {
+                                    System::Suspend();
+                                    setActivate(but, activatedSuspend, false);
+                                }
+                                else
+                                {
+                                    setActivate(but, activatedSuspend, true);
+                                }
                             });
 
                         auto rebootButton = Widget::Create<Button>();
                         rebootButton->SetClass("reboot-button");
                         rebootButton->SetText("󰑐");
                         rebootButton->OnClick(
-                            [](Button&)
+                            [setActivate](Button& but)
                             {
-                                System::Reboot();
+                                if (activatedReboot)
+                                {
+                                    System::Reboot();
+                                    setActivate(but, activatedReboot, false);
+                                }
+                                else
+                                {
+                                    setActivate(but, activatedReboot, true);
+                                }
                             });
 
                         powerBoxExpand->AddChild(std::move(exitButton));
@@ -571,9 +631,17 @@ namespace Bar
                 powerButton->SetText(" ");
                 powerButton->SetHorizontalTransform({24, true, Alignment::Fill});
                 powerButton->OnClick(
-                    [](Button&)
+                    [setActivate](Button& but)
                     {
-                        System::Shutdown();
+                        if (activatedShutdown)
+                        {
+                            System::Shutdown();
+                            setActivate(but, activatedShutdown, false);
+                        }
+                        else
+                        {
+                            setActivate(but, activatedShutdown, true);
+                        }
                     });
 
                 powerBox->AddChild(std::move(revealer));
