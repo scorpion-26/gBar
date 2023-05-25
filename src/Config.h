@@ -15,6 +15,7 @@ public:
     std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
     std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
     std::string defaultWorkspaceSymbol = "";
+    std::string DateTimeStyle = "%a %D - %H:%M:%S %Z"; // A sane default
 
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // See data/update.sh for a human-readable version

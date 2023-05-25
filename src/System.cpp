@@ -604,7 +604,9 @@ namespace System
         time_t stdTime = time(NULL);
         tm* localTime = localtime(&stdTime);
         std::stringstream str;
-        str << std::put_time(localTime, "%a %D - %H:%M:%S %Z");
+        std::string dateTimeStyle = Config::Get().DateTimeStyle;
+        const char* charPtr_dateTimeStyle = dateTimeStyle.c_str();
+        str << std::put_time(localTime, charPtr_dateTimeStyle);
         return str.str();
     }
 
