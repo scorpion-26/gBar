@@ -43,6 +43,9 @@ UseHyprlandIPC: false
 # This can cause issues, if there is not enough space on screen (e.g. when opening the text)
 CenterTime: true
 
+# Set datetime style
+# DateTimeStyle: %a %D - %H:%M:%S %Z
+
 # Adds a audio input(aka. microphone) widget
 AudioInput: false
 
