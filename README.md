@@ -12,6 +12,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 - GTK 3.0
 - gtk-layer-shell
 - PulseAudio server (PipeWire works too!)
+- pamixer
 - meson, gcc/clang, ninja
 
 ## Building and installation (Manually)
