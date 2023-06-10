@@ -298,10 +298,10 @@ namespace BluetoothDevices
         WidgetHeader(*mainWidget);
         WidgetBody(*mainWidget);
 
-        window = Window(std::move(mainWidget), monitor);
         window.SetExclusive(false);
         window.SetMargin(Anchor::Top, 8);
         window.SetAnchor(Anchor::Right | Anchor::Top);
+        window.SetMainWidget(std::move(mainWidget));
     }
 }
 #endif

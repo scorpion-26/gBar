@@ -41,7 +41,8 @@ int main(int argc, char** argv)
         monitor = atoi(argv[2]);
     }
 
-    Window window;
+    Window window(monitor);
+    window.Init(argc, argv);
     ASSERT(argc >= 2, "Too little arguments!");
     if (strcmp(argv[1], "bar") == 0)
     {
@@ -74,7 +75,7 @@ int main(int argc, char** argv)
         Plugin::LoadWidgetFromPlugin(argv[1], window, monitor);
     }
 
-    window.Run(argc, argv);
+    window.Run();
 
     System::FreeResources();
     if (flyin)

@@ -16,12 +16,13 @@ class Window
 {
 public:
     Window() = default;
-    Window(std::unique_ptr<Widget>&& mainWidget, int32_t monitor);
+    Window(int32_t monitor);
     Window(Window&& window) noexcept = default;
     Window& operator=(Window&& other) noexcept = default;
     ~Window();
 
-    void Run(int argc, char** argv);
+    void Init(int argc, char** argv);
+    void Run();
 
     void Close();
 
@@ -29,12 +30,14 @@ public:
     void SetMargin(Anchor anchor, int32_t margin);
     void SetExclusive(bool exclusive) { m_Exclusive = exclusive; }
 
+    void SetMainWidget(std::unique_ptr<Widget>&& mainWidget);
+
 private:
     void UpdateMargin();
 
     void LoadCSS(GtkCssProvider* provider);
 
-    GtkWindow* m_Window;
+    GtkWindow* m_Window = nullptr;
     GtkApplication* m_App = nullptr;
 
     std::unique_ptr<Widget> m_MainWidget;
@@ -43,5 +46,6 @@ private:
     std::array<std::pair<Anchor, int32_t>, 4> m_Margin;
     bool m_Exclusive = true;
 
-    int32_t m_Monitor;
+    int32_t m_MonitorID;
+    GdkMonitor* m_Monitor = nullptr;
 };

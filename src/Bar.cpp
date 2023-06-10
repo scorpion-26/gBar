@@ -739,7 +739,7 @@ namespace Bar
             mainWidget->AddChild(std::move(time));
             mainWidget->AddChild(std::move(right));
         }
-        window = Window(std::move(mainWidget), monitor);
         window.SetAnchor(Anchor::Left | Anchor::Right | Anchor::Top);
+        window.SetMainWidget(std::move(mainWidget));
     }
 }

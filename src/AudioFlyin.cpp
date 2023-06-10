@@ -149,8 +149,8 @@ namespace AudioFlyin
         padding = Widget::Create<Box>();
         mainWidget->AddChild(std::move(padding));
 
-        window = Window(std::move(mainWidget), monitor);
         window.SetExclusive(false);
         window.SetAnchor(Anchor::Bottom);
+        window.SetMainWidget(std::move(mainWidget));
     }
 }

@@ -8,7 +8,7 @@
 #include <gtk/gtk.h>
 #include <gtk-layer-shell.h>
 
-Window::Window(std::unique_ptr<Widget>&& mainWidget, int32_t monitor) : m_MainWidget(std::move(mainWidget)), m_Monitor(monitor) {}
+Window::Window(int32_t monitor) : m_MonitorID(monitor) {}
 
 Window::~Window()
 {
@@ -19,7 +19,7 @@ Window::~Window()
     }
 }
 
-void Window::Run(int argc, char** argv)
+void Window::Init(int argc, char** argv)
 {
     gtk_init(&argc, &argv);
 
@@ -28,6 +28,23 @@ void Window::Run(int argc, char** argv)
 
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), (GtkStyleProvider*)CSS::GetProvider(), GTK_STYLE_PROVIDER_PRIORITY_USER);
 
+    GdkDisplay* defaultDisplay = gdk_display_get_default();
+    ASSERT(defaultDisplay != nullptr, "Cannot get display!");
+    if (m_MonitorID != -1)
+    {
+        m_Monitor = gdk_display_get_monitor(defaultDisplay, m_MonitorID);
+        ASSERT(m_Monitor, "Cannot get monitor!");
+    }
+    else
+    {
+        m_Monitor = gdk_display_get_primary_monitor(defaultDisplay);
+    }
+}
+
+void Window::Run()
+{
+    ASSERT(m_MainWidget, "Main Widget not set!");
+
     m_Window = (GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
     gtk_layer_init_for_window(m_Window);
@@ -35,15 +52,7 @@ void Window::Run(int argc, char** argv)
     if (m_Exclusive)
         gtk_layer_auto_exclusive_zone_enable(m_Window);
 
-    GdkDisplay* defaultDisplay = gdk_display_get_default();
-    ASSERT(defaultDisplay != nullptr, "Cannot get display!");
-    GdkMonitor* selectedMon = nullptr;
-    if (m_Monitor != -1)
-    {
-        selectedMon = gdk_display_get_monitor(defaultDisplay, m_Monitor);
-        ASSERT(selectedMon != nullptr, "Cannot get monitor!");
-        gtk_layer_set_monitor(m_Window, selectedMon);
-    }
+    gtk_layer_set_monitor(m_Window, m_Monitor);
 
     if (FLAG_CHECK(m_Anchor, Anchor::Left))
     {
@@ -98,6 +107,11 @@ void Window::UpdateMargin()
             gtk_layer_set_margin(m_Window, GTK_LAYER_SHELL_EDGE_BOTTOM, margin);
         }
     }
+}
+
+void Window::SetMainWidget(std::unique_ptr<Widget>&& mainWidget)
+{
+    m_MainWidget = std::move(mainWidget);
 }
 
 void Window::SetMargin(Anchor anchor, int32_t margin)
