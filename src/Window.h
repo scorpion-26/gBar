@@ -32,6 +32,8 @@ public:
 
     void SetMainWidget(std::unique_ptr<Widget>&& mainWidget);
 
+    int GetWidth() const;
+
 private:
     void UpdateMargin();
 

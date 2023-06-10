@@ -138,3 +138,10 @@ void Window::SetMargin(Anchor anchor, int32_t margin)
         UpdateMargin();
     }
 }
+
+int Window::GetWidth() const
+{
+    GdkRectangle rect{};
+    gdk_monitor_get_geometry(m_Monitor, &rect);
+    return rect.width;
+}
