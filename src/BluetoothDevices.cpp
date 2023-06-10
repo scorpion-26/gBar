@@ -37,7 +37,7 @@ namespace BluetoothDevices
         {
             DeviceState& state = device.state;
 
-            // Clear failed bit 
+            // Clear failed bit
             state &= ~DeviceState::Failed;
             button.RemoveClass("failed");
 
@@ -48,17 +48,18 @@ namespace BluetoothDevices
                 button.RemoveClass("inactive");
                 state |= DeviceState::RequestConnect;
 
-                System::ConnectBTDevice(device.device, [&dev = device, &but = button](bool success, System::BluetoothDevice&)
-                        {
-                            deviceMutex.lock();
-                            if (!success)
-                            {
-                                dev.state &= ~DeviceState::RequestConnect;
-                                dev.state |= DeviceState::Failed;
-                                but.AddClass("failed");
-                            }
-                            deviceMutex.unlock();
-                        });
+                System::ConnectBTDevice(device.device,
+                                        [&dev = device, &but = button](bool success, System::BluetoothDevice&)
+                                        {
+                                            deviceMutex.lock();
+                                            if (!success)
+                                            {
+                                                dev.state &= ~DeviceState::RequestConnect;
+                                                dev.state |= DeviceState::Failed;
+                                                but.AddClass("failed");
+                                            }
+                                            deviceMutex.unlock();
+                                        });
             }
             else if (FLAG_CHECK(state, DeviceState::Connected) && !FLAG_CHECK(state, DeviceState::RequestDisconnect))
             {
@@ -66,17 +67,18 @@ namespace BluetoothDevices
                 button.RemoveClass("active");
                 state |= DeviceState::RequestDisconnect;
 
-                System::DisconnectBTDevice(device.device, [&dev = device, &but = button](bool success, System::BluetoothDevice&)
-                        {
-                            deviceMutex.lock();
-                            if (!success)
-                            {
-                                dev.state &= ~DeviceState::RequestDisconnect;
-                                dev.state |= DeviceState::Failed;
-                                but.AddClass("failed");
-                            }
-                            deviceMutex.unlock();
-                        });
+                System::DisconnectBTDevice(device.device,
+                                           [&dev = device, &but = button](bool success, System::BluetoothDevice&)
+                                           {
+                                               deviceMutex.lock();
+                                               if (!success)
+                                               {
+                                                   dev.state &= ~DeviceState::RequestDisconnect;
+                                                   dev.state |= DeviceState::Failed;
+                                                   but.AddClass("failed");
+                                               }
+                                               deviceMutex.unlock();
+                                           });
             }
         }
 
