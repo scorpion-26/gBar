@@ -189,6 +189,8 @@ void Config::Load()
 
         AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
 
+        AddConfigVar("TimeSpace", config.timeSpace, lineView, foundProperty);
+
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
 
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);

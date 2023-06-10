@@ -657,7 +657,7 @@ namespace Bar
     void WidgetWorkspaces(Widget& parent)
     {
         auto margin = Widget::Create<Box>();
-        margin->SetHorizontalTransform({12, true, Alignment::Left});
+        margin->SetHorizontalTransform({12, false, Alignment::Left});
         parent.AddChild(std::move(margin));
         auto eventBox = Widget::Create<EventBox>();
         eventBox->SetScrollFn(DynCtx::ScrollWorkspaces);
@@ -691,12 +691,26 @@ namespace Bar
         monitorID = monitor;
 
         auto mainWidget = Widget::Create<Box>();
-        mainWidget->SetSpacing({0, Config::Get().centerTime});
+        mainWidget->SetSpacing({0, false});
         mainWidget->SetClass("bar");
         {
+            // Calculate how much space we need have for the left widget.
+            // The center widget will come directly after that.
+            // This ensures that the center widget is centered.
+            int windowCenter = window.GetWidth() / 2;
+            int endLeftWidgets = windowCenter - Config::Get().timeSpace / 2;
+
+            if (!Config::Get().centerTime)
+            {
+                // Don't care if time is centered or not.
+                endLeftWidgets = -1;
+            }
+
             auto left = Widget::Create<Box>();
             left->SetSpacing({0, false});
-            left->SetHorizontalTransform({-1, true, Alignment::Left});
+            // For centerTime the width of the left widget handles the centering.
+            // For not centerTime we want to set it as much right as possible. So let this expand as much as possible.
+            left->SetHorizontalTransform({endLeftWidgets, !Config::Get().centerTime, Alignment::Left});
 #ifdef WITH_WORKSPACES
             if (RuntimeConfig::Get().hasWorkspaces)
             {
@@ -704,11 +718,16 @@ namespace Bar
             }
 #endif
 
-            auto time = Widget::Create<Text>();
-            time->SetHorizontalTransform({-1, true, Alignment::Center});
-            time->SetClass("time-text");
-            time->SetText("Uninitialized");
-            time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
+            auto center = Widget::Create<Box>();
+            center->SetHorizontalTransform({(int)Config::Get().timeSpace, false, Alignment::Left});
+            {
+                auto time = Widget::Create<Text>();
+                time->SetHorizontalTransform({-1, true, Alignment::Center});
+                time->SetClass("time-text");
+                time->SetText("Uninitialized");
+                time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
+                center->AddChild(std::move(time));
+            }
 
             auto right = Widget::Create<Box>();
             right->SetClass("right");
@@ -736,7 +755,7 @@ namespace Bar
             }
 
             mainWidget->AddChild(std::move(left));
-            mainWidget->AddChild(std::move(time));
+            mainWidget->AddChild(std::move(center));
             mainWidget->AddChild(std::move(right));
         }
         window.SetAnchor(Anchor::Left | Anchor::Right | Anchor::Top);

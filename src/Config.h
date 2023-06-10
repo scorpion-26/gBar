@@ -40,6 +40,8 @@ public:
 
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
 
+    uint32_t timeSpace = 300; // How much time should be reserved for the time widget.
+
     // SNIIconSize: ["Title String"], ["Size"]
     std::unordered_map<std::string, uint32_t> sniIconSizes;
     std::unordered_map<std::string, int32_t> sniPaddingTop;
