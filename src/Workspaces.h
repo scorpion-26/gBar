@@ -30,7 +30,7 @@ namespace Workspaces
             LOG("Error: Called Go to workspace, but Workspaces isn't open!");
             return;
         }
-
+        LOG("Switching workspace: hyprctl dispatch workspace " << workspace);
         system(("hyprctl dispatch workspace " + std::to_string(workspace)).c_str());
     }
 
@@ -43,6 +43,7 @@ namespace Workspaces
             scrollOp = 'm';
         }
         std::string cmd = std::string("hyprctl dispatch workspace ") + scrollOp + direction + "1";
+        LOG("Switching workspace: " << cmd.c_str());
         system(cmd.c_str());
     }
 }
