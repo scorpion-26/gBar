@@ -6,6 +6,7 @@
 #include "Workspaces.h"
 #include "Config.h"
 #include "SNI.h"
+#include "Wayland.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -639,6 +640,8 @@ namespace System
 
         Config::Load();
 
+        Wayland::Init();
+
 #ifdef WITH_NVIDIA
         NvidiaGPU::Init();
 #endif
@@ -680,6 +683,8 @@ namespace System
 #ifdef WITH_SNI
         SNI::Shutdown();
 #endif
+
+        Wayland::Shutdown();
 
         Logging::Shutdown();
     }

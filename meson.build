@@ -35,6 +35,7 @@ headers = [
   'src/PulseAudio.h',
   'src/Widget.h',
   'src/Window.h',
+  'src/Wayland.h',
   'src/Config.h',
   'src/CSS.h'
 ]
@@ -44,6 +45,7 @@ sources = [
     ext_workspace_header,
    'src/Window.cpp',
    'src/Widget.cpp',
+   'src/Wayland.cpp',
    'src/System.cpp',
    'src/Bar.cpp',
    'src/Workspaces.cpp',

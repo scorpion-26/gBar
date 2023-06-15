@@ -36,7 +36,7 @@ namespace System
     VRAMInfo GetVRAMInfo();
 #endif
 
-    struct DiskInfo 
+    struct DiskInfo
     {
         double totalGiB;
         double usedGiB;
