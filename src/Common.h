@@ -2,6 +2,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
+#include <filesystem>
 
 #include "Log.h"
 
@@ -81,6 +82,20 @@ namespace Utils
 
         snprintf(buf, sizeof(buf), fmt, bytes, "B");
         return buf;
+    }
+
+    inline std::string FindFileWithName(const std::string& directory, const std::string& name, const std::string& extension)
+    {
+        for (auto& path : std::filesystem::recursive_directory_iterator(directory))
+        {
+            if (path.is_directory())
+                continue;
+            if (path.path().filename().string().find(name) != std::string::npos && path.path().extension().string() == extension)
+            {
+                return path.path().string();
+            }
+        }
+        return "";
     }
 }
 

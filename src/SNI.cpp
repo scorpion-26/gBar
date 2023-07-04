@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Widget.h"
 #include "Config.h"
+#include "Common.h"
 
 #ifdef WITH_SNI
 
@@ -136,7 +137,16 @@ namespace SNI
 
                 const char* themePath = g_variant_get_string(themePathStr, nullptr);
                 const char* iconName = g_variant_get_string(iconNameStr, nullptr);
-                iconPath = std::string(themePath) + "/" + iconName + ".png"; // TODO: Find out if this is always png
+                if (strlen(themePath) == 0)
+                {
+                    // Nothing defined, look in /usr/share/icons
+                    // network-manager-applet does this
+                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName, ".png");
+                }
+                else
+                {
+                    iconPath = std::string(themePath) + "/" + iconName + ".png"; // TODO: Find out if this is always png
+                }
 
                 g_variant_unref(themePathVariant);
                 g_variant_unref(themePathStr);
