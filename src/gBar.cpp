@@ -11,22 +11,24 @@
 #include <cstdio>
 #include <unistd.h>
 
-const char* audioTmpFileOpen = "/tmp/gBar__audio";
+const char* audioTmpFilePath = "/tmp/gBar__audio";
+const char* bluetoothTmpFilePath = "/tmp/gBar__bluetooth";
 
-static bool flyin = false;
+static bool tmpFileOpen = false;
+
 void OpenAudioFlyin(Window& window, int32_t monitor, AudioFlyin::Type type)
 {
-    flyin = true;
-    if (access(audioTmpFileOpen, F_OK) != 0)
+    tmpFileOpen = true;
+    if (access(audioTmpFilePath, F_OK) != 0)
     {
-        FILE* audioTempFile = fopen(audioTmpFileOpen, "w");
+        FILE* audioTempFile = fopen(audioTmpFilePath, "w");
         AudioFlyin::Create(window, monitor, type);
         fclose(audioTempFile);
     }
     else
     {
         // Already open, close
-        LOG("Audio flyin already open");
+        LOG("Audio flyin already open (/tmp/gBar__audio exists)! Exiting...");
         exit(0);
     }
 }
@@ -61,7 +63,19 @@ int main(int argc, char** argv)
     {
         if (RuntimeConfig::Get().hasBlueZ)
         {
-            BluetoothDevices::Create(window, monitor);
+            if (access(bluetoothTmpFilePath, F_OK) != 0)
+            {
+                tmpFileOpen = true;
+                FILE* bluetoothTmpFile = fopen(bluetoothTmpFilePath, "w");
+                BluetoothDevices::Create(window, monitor);
+                fclose(bluetoothTmpFile);
+            }
+            else
+            {
+                // Already open, close
+                LOG("Bluetooth widget already open (/tmp/gBar__bluetooth exists)! Exiting...");
+                exit(0);
+            }
         }
         else
         {
@@ -78,9 +92,11 @@ int main(int argc, char** argv)
     window.Run();
 
     System::FreeResources();
-    if (flyin)
+    if (tmpFileOpen)
     {
-        remove(audioTmpFileOpen);
+        remove(audioTmpFilePath);
+        LOG("Remove bt");
+        remove(bluetoothTmpFilePath);
     }
     return 0;
 }
