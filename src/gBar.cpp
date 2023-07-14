@@ -33,8 +33,20 @@ void OpenAudioFlyin(Window& window, int32_t monitor, AudioFlyin::Type type)
     }
 }
 
+void CloseTmpFiles(int sig)
+{
+    if (tmpFileOpen)
+    {
+        remove(audioTmpFilePath);
+        remove(bluetoothTmpFilePath);
+    }
+    if (sig != 0)
+        exit(1);
+}
+
 int main(int argc, char** argv)
 {
+    signal(SIGINT, CloseTmpFiles);
     System::Init();
 
     int32_t monitor = -1;
@@ -92,11 +104,6 @@ int main(int argc, char** argv)
     window.Run();
 
     System::FreeResources();
-    if (tmpFileOpen)
-    {
-        remove(audioTmpFilePath);
-        LOG("Remove bt");
-        remove(bluetoothTmpFilePath);
-    }
+    CloseTmpFiles(0);
     return 0;
 }
