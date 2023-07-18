@@ -112,6 +112,7 @@ namespace AudioFlyin
         DynCtx::slider = slider.get();
 
         auto icon = Widget::Create<Text>();
+        icon->SetHorizontalTransform({-1, true, Alignment::Fill, 0, 8});
         if (DynCtx::type == Type::Speaker)
         {
             icon->SetClass("audio-icon");
