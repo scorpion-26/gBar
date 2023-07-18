@@ -145,3 +145,10 @@ int Window::GetWidth() const
     gdk_monitor_get_geometry(m_Monitor, &rect);
     return rect.width;
 }
+
+int Window::GetHeight() const
+{
+    GdkRectangle rect{};
+    gdk_monitor_get_geometry(m_Monitor, &rect);
+    return rect.height;
+}
