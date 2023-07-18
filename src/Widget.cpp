@@ -470,6 +470,11 @@ void NetworkSensor::Draw(cairo_t* cr)
     gtk_style_context_get(gtk_widget_get_style_context(contextUp->Get()), GTK_STATE_FLAG_NORMAL, GTK_STYLE_PROPERTY_COLOR, &colUp, NULL);
     gtk_style_context_get(gtk_widget_get_style_context(contextDown->Get()), GTK_STATE_FLAG_NORMAL, GTK_STYLE_PROPERTY_COLOR, &colDown, NULL);
 
+    // Rotate around center of Quad
+    cairo_translate(cr, q.x + q.size / 2, q.y + q.size / 2);
+    cairo_rotate(cr, m_Angle * M_PI / 180.0);
+    cairo_translate(cr, -(q.x + q.size / 2), -(q.y + q.size / 2));
+
     // Upload
     cairo_set_source_rgb(cr, colUp->red, colUp->green, colUp->blue);
 
@@ -563,9 +568,19 @@ void Text::SetText(const std::string& text)
     m_Text = text;
 }
 
+void Text::SetAngle(double angle)
+{
+    if (m_Widget && angle != m_Angle)
+    {
+        gtk_label_set_angle((GtkLabel*)m_Widget, angle);
+    }
+    m_Angle = angle;
+}
+
 void Text::Create()
 {
     m_Widget = gtk_label_new(m_Text.c_str());
+    gtk_label_set_angle((GtkLabel*)m_Widget, m_Angle);
     ApplyPropertiesToWidget();
 }
 
@@ -580,6 +595,15 @@ void Button::Create()
         return GDK_EVENT_STOP;
     };
     g_signal_connect(m_Widget, "clicked", G_CALLBACK(+clickFn), this);
+    gtk_container_foreach((GtkContainer*)m_Widget,
+                          [](GtkWidget* child, void* userData)
+                          {
+                              if (GTK_IS_LABEL(child))
+                              {
+                                  gtk_label_set_angle((GtkLabel*)child, *(double*)userData);
+                              }
+                          },
+                          &m_Angle);
     ApplyPropertiesToWidget();
 }
 
@@ -590,6 +614,23 @@ void Button::SetText(const std::string& text)
         gtk_button_set_label((GtkButton*)m_Widget, text.c_str());
     }
     m_Text = text;
+}
+
+void Button::SetAngle(double angle)
+{
+    if (m_Widget && angle != m_Angle)
+    {
+        gtk_container_foreach((GtkContainer*)m_Widget,
+                              [](GtkWidget* child, void* userData)
+                              {
+                                  if (GTK_IS_LABEL(child))
+                                  {
+                                      gtk_label_set_angle((GtkLabel*)child, *(double*)userData);
+                                  }
+                              },
+                              &angle);
+    }
+    m_Angle = angle;
 }
 
 void Button::OnClick(Callback<Button>&& callback)
