@@ -173,6 +173,10 @@ void Widget::ApplyPropertiesToWidget()
     gtk_widget_set_valign(m_Widget, Utils::ToGtkAlign(m_VerticalTransform.alignment));
     gtk_widget_set_hexpand(m_Widget, m_HorizontalTransform.expand);
     gtk_widget_set_vexpand(m_Widget, m_VerticalTransform.expand);
+    gtk_widget_set_margin_start(m_Widget, m_HorizontalTransform.marginBefore);
+    gtk_widget_set_margin_end(m_Widget, m_HorizontalTransform.marginAfter);
+    gtk_widget_set_margin_top(m_Widget, m_VerticalTransform.marginBefore);
+    gtk_widget_set_margin_bottom(m_Widget, m_VerticalTransform.marginAfter);
 
     if (m_OnCreate)
         m_OnCreate(*this);

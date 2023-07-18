@@ -18,6 +18,10 @@ struct Transform
     int size = -1;
     bool expand = true;
     Alignment alignment = Alignment::Fill;
+    // Left/Top
+    int marginBefore = 0;
+    // Right/Bottom
+    int marginAfter = 0;
 };
 
 enum class Orientation
