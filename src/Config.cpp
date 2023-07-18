@@ -44,6 +44,17 @@ void ApplyProperty<double>(double& propertyToSet, const std::string_view& value)
 }
 
 template<>
+void ApplyProperty<char>(char& propertyToSet, const std::string_view& value)
+{
+    if (value.size() > 1)
+    {
+        LOG("Invalid size for char property: " << value);
+        return;
+    }
+    propertyToSet = value[0];
+}
+
+template<>
 void ApplyProperty<bool>(bool& propertyToSet, const std::string_view& value)
 {
     // Why, C++?
