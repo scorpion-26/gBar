@@ -257,6 +257,8 @@ public:
     void SetUp(double val);
     void SetDown(double val);
 
+    void SetAngle(double angle) { m_Angle = angle; };
+
 private:
     void Draw(cairo_t* cr) override;
 
@@ -265,6 +267,8 @@ private:
 
     Range limitUp;
     Range limitDown;
+
+    double m_Angle;
 
     // What I do here is a little bit gross, but I need a working style context
     // Just manually creating a style context doesn't work for me.
@@ -315,11 +319,13 @@ public:
     virtual ~Text() = default;
 
     void SetText(const std::string& text);
+    void SetAngle(double angle);
 
     virtual void Create() override;
 
 private:
     std::string m_Text;
+    double m_Angle;
 };
 
 class Button : public Widget
@@ -329,6 +335,7 @@ public:
     virtual ~Button() = default;
 
     void SetText(const std::string& text);
+    void SetAngle(double angle);
 
     virtual void Create() override;
 
@@ -336,6 +343,7 @@ public:
 
 private:
     std::string m_Text;
+    double m_Angle;
     Callback<Button> m_OnClick;
 };
 
