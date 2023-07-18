@@ -140,6 +140,12 @@ gBar implements all of the information gathering(CPU, RAM, GPU, Disk, ...) in na
 
 And lastly: Implementing it myself is fun and a great excuse to learn something new!
 
+### Can you implement feature XYZ? / I've found a bug. Can you fix it?
+This project is meant to be for my personal use, though I want it to be easily used by others without bugs or a complicated setup. This means the following:
+ -  If you found a bug, please open an issue and I'll try to fix it as quickly as I can.
+ -  If you're missing a particular feature, please open issue as well and I'll see what I can do, although I can't guarantee anything. Small requests or features I'll find useful too will probably be implemented in a timely fashion though.
+
+
 ### What scheme are you using?
 The colors are from the Dracula theme: https://draculatheme.com
 
@@ -158,15 +164,15 @@ First, find where the data is located for gBar. Possible locations:
  This will override the default behaviour. If you have sass installed, you can modify the scss file and then regenerate the css file accordingly. Else modify the css file directly.
 
 
-### The Audio widget doesn't open
-Delete /tmp/gBar__audio.
-This happens, when you kill the widget before it closes automatically after a few seconds.
+### The Audio/Bluetooth widget doesn't open
+Delete ```/tmp/gBar__audio```/```/tmp/gBar__bluetooth```.
+This happens, when you kill the widget before it closes properly (Automatically after a few seconds for the audio widget, or the close button for the bluetooth widget). Ctrl-C in the terminal (SIGINT) is fine though.
 
 ### CPU Temperature is wrong / Lock doesn't work / Exiting WM does not work
 See *Configuration for your system*
 
 ### The icons are not showing!
-Please install a Nerd Font from https://www.nerdfonts.com (I use Caskaydia Cove NF), and change style.css/style.scss accordingly (Refer to 'I want to customize the colors' for that). You _will_ a Nerd Font with version 2.3.0 or newer (For more details see [this comment](https://github.com/scorpion-26/gBar/issues/5#issuecomment-1442037005))
+Please install a Nerd Font from https://www.nerdfonts.com (I use Caskaydia Cove NF), and change style.css/style.scss accordingly (Refer to 'I want to customize the colors' for that). You _will_ need a Nerd Font with version 2.3.0 or newer (For more details see [this comment](https://github.com/scorpion-26/gBar/issues/5#issuecomment-1442037005))
 
 ### The tray doesn't show
 Some apps sometimes don't actively query for tray applications. A fix for this is to start gBar before the tray app
