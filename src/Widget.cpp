@@ -304,7 +304,7 @@ Quad CairoArea::GetQuad()
         q.x = 0;
         q.y = ((double)dim.height - (double)dim.width) / 2;
     }
-    else if (dim.width < dim.height)
+    else if (dim.height < dim.width)
     {
         // Height greater than width; Fill in y and add margin at the sides
         q.size = dim.height;
