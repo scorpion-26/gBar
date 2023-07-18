@@ -13,7 +13,6 @@
 }
 
 .right {
-  margin-right: 10px;
   border-radius: 16px;
 }
 
@@ -23,7 +22,6 @@
 
 .reboot-button {
   font-size: 28px;
-  margin-right: 6px;
   color: #6272a4;
 }
 
@@ -42,10 +40,6 @@
   color: #ff5555;
 }
 
-.power-box-expand {
-  margin-right: 6px;
-}
-
 .system-confirm {
   color: #50fa7b;
 }
@@ -55,7 +49,6 @@ trough {
   border-width: 1px;
   border-style: none;
   background-color: #44475a;
-  margin-top: 2px;
   min-width: 4px;
   min-height: 4px;
 }
@@ -74,13 +67,13 @@ highlight {
   border-radius: 3px;
   border-width: 1px;
   border-style: none;
+  min-width: 6px;
   min-height: 6px;
 }
 
 .audio-icon {
   font-size: 24px;
   color: #ffb86c;
-  margin-right: 12px;
 }
 
 .audio-volume trough {
@@ -96,7 +89,6 @@ highlight {
 .mic-icon {
   font-size: 24px;
   color: #bd93f9;
-  margin-right: 0px;
 }
 
 .mic-volume trough {
@@ -110,34 +102,29 @@ highlight {
 }
 
 .package-outofdate {
+  margin: -5px -5px -5px -5px;
   font-size: 24px;
-  margin-right: -5px;
-  margin-left: -5px;
   color: #ff5555;
 }
 
 .bt-num {
   font-size: 16px;
   color: #1793D1;
-  margin-left: -6px;
 }
 
 .bt-label-on {
   font-size: 20px;
   color: #1793D1;
-  margin-right: 6px;
 }
 
 .bt-label-off {
   font-size: 24px;
   color: #1793D1;
-  margin-right: 6px;
 }
 
 .bt-label-connected {
   font-size: 28px;
   color: #1793D1;
-  margin-right: 6px;
 }
 
 .disk-util-progress {
@@ -148,7 +135,6 @@ highlight {
 
 .disk-data-text {
   color: #bd93f9;
-  margin-right: 6px;
   font-size: 16px;
 }
 
@@ -159,7 +145,6 @@ highlight {
 
 .vram-data-text {
   color: #ffb86c;
-  margin-right: 6px;
   font-size: 16px;
 }
 
@@ -170,7 +155,6 @@ highlight {
 
 .ram-data-text {
   color: #f1fa8c;
-  margin-right: 6px;
   font-size: 16px;
 }
 
@@ -181,7 +165,6 @@ highlight {
 
 .gpu-data-text {
   color: #8be9fd;
-  margin-right: 6px;
   font-size: 16px;
 }
 
@@ -193,7 +176,6 @@ highlight {
 
 .cpu-data-text {
   color: #50fa7b;
-  margin-right: 6px;
   font-size: 16px;
 }
 
@@ -205,13 +187,11 @@ highlight {
 
 .battery-data-text {
   color: #ff79c6;
-  margin-right: 6px;
   font-size: 16px;
 }
 
 .network-data-text {
   color: #50fa7b;
-  margin-right: 6px;
   font-size: 16px;
 }
 

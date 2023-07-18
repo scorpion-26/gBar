@@ -42,6 +42,8 @@ public:
 
     uint32_t timeSpace = 300; // How much time should be reserved for the time widget.
 
+    char location = 'T'; // The Location of the bar. Can be L,R,T,B
+
     // SNIIconSize: ["Title String"], ["Size"]
     std::unordered_map<std::string, uint32_t> sniIconSizes;
     std::unordered_map<std::string, int32_t> sniPaddingTop;

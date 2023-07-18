@@ -38,7 +38,6 @@ $textsize: 16px;
 }
 
 .right {
-    margin-right: 10px;
     border-radius: 16px;
 }
 
@@ -48,27 +47,22 @@ $textsize: 16px;
 
 .reboot-button {
     font-size: 28px;
-    //margin: -6px 6px -6px 0px;
-    margin-right: 6px;
     
     color: $darkblue;
 }
 .sleep-button {
     font-size: 28px;
-    //margin: -6px 0px -6px 0px;
 
     color: $darkblue;
 }
 .exit-button {
     font-size: 28px;
-    //margin: -6px 0px -6px 0px;
 
     color: $darkblue;
 }
 
 .power-button {
     font-size: 28px;
-    //margin: -16px -24px -16px 0px;
 
     color: $red;
 }
@@ -77,7 +71,6 @@ $textsize: 16px;
 }
 
 .power-box-expand {
-    margin-right: 6px;
 }
 
 .system-confirm {
@@ -90,7 +83,7 @@ trough {
     border-width: 1px;
     border-style: none;
     background-color: $inactive;
-    margin-top: 2px;
+    // margin-top: 2px;
     min-width: 4px;
     min-height: 4px;
 }
@@ -110,13 +103,15 @@ highlight {
     border-radius: 3px;
     border-width: 1px;
     border-style: none;
+    // For vertical we need width, for horizontal we need height
+    // Both can coexist though
+    min-width: 6px;
     min-height: 6px;
 }
 
 .audio-icon {
     font-size: 24px;
     color: $orange;
-    margin-right: 12px;
 }
 
 .audio-volume {
@@ -136,7 +131,7 @@ highlight {
 .mic-icon {
     font-size: 24px;
     color: $purple;
-    margin-right: 0px;
+    // margin-right: 0px;
 }
 
 .mic-volume {
@@ -154,31 +149,26 @@ highlight {
 }
 
 .package-outofdate {
+    margin: -5px -5px -5px -5px;
     font-size: 24px;
-    margin-right: -5px;
-    margin-left: -5px;
     color: $red;
 }
 
 .bt-num {
     font-size: $textsize;
     color: $btblue;
-    margin-left: -6px;
 }
 .bt-label-on {
     font-size: 20px;
     color: $btblue;
-    margin-right: 6px;
 }
 .bt-label-off {
     font-size: 24px;
     color: $btblue;
-    margin-right: 6px;
 }
 .bt-label-connected {
     font-size: 28px;
     color: $btblue;
-    margin-right: 6px;
 }
 
 .disk-util-progress {
@@ -188,7 +178,6 @@ highlight {
 }
 .disk-data-text {
     color: $purple;
-    margin-right: 6px;
     font-size: $textsize;
 }
 
@@ -198,7 +187,6 @@ highlight {
 }
 .vram-data-text {
     color: $orange;
-    margin-right: 6px;
     font-size: $textsize;
 }
 
@@ -208,7 +196,6 @@ highlight {
 }
 .ram-data-text {
     color: $yellow;
-    margin-right: 6px;
     font-size: $textsize;
 }
 
@@ -218,7 +205,6 @@ highlight {
 }
 .gpu-data-text {
     color: $cyan;
-    margin-right: 6px;
     font-size: $textsize;
 }
 
@@ -229,7 +215,6 @@ highlight {
 }
 .cpu-data-text {
     color: $green;
-    margin-right: 6px;
     font-size: $textsize;
 }
 
@@ -240,13 +225,11 @@ highlight {
 }
 .battery-data-text {
     color: $pink;
-    margin-right: 6px;
     font-size: $textsize;
 }
 
 .network-data-text {
     color: $green;
-    margin-right: 6px;
     font-size: $textsize;
 }
 

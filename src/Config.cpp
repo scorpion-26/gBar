@@ -207,6 +207,8 @@ void Config::Load()
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
         AddConfigVar("AudioMaxVolume", config.audioMaxVolume, lineView, foundProperty);
 
+        AddConfigVar("Location", config.location, lineView, foundProperty);
+
         std::pair<std::string, uint32_t> buf;
         bool hasntFoundProperty = !foundProperty;
         AddConfigVar("SNIIconSize", buf, lineView, foundProperty);
