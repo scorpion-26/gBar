@@ -45,7 +45,7 @@ UseHyprlandIPC: false
 Location: T
 
 # Forces the time to be centered.
-# This can cause the right issue to clip outside, if there is not enough space on screen (e.g. when opening the text)
+# This can cause the right widget to clip outside, if there is not enough space on screen (e.g. when opening the text)
 # Setting this to false will definitely fix this issue, but it won't look very good, since it will be off-center.
 # So try to decrease "TimeSpace" first, before setting this configuration to false.
 CenterTime: true
