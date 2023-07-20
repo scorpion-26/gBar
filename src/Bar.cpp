@@ -269,74 +269,17 @@ namespace Bar
 #endif
     }
 
-    inline void SetTransform(Widget& widget, const Transform& primary, const Transform& secondary = {})
-    {
-        if (Config::Get().location == 'T' || Config::Get().location == 'B')
-        {
-            widget.SetHorizontalTransform(primary);
-            widget.SetVerticalTransform(secondary);
-        }
-        else if (Config::Get().location == 'R' || Config::Get().location == 'L')
-        {
-            widget.SetVerticalTransform(primary);
-            widget.SetHorizontalTransform(secondary);
-        }
-    }
-
-    inline TransitionType GetTransitionType()
-    {
-        switch (Config::Get().location)
-        {
-        case 'T':
-        case 'B': return TransitionType::SlideLeft;
-        case 'L':
-        case 'R': return TransitionType::SlideUp;
-        default: LOG("Invalid location char \"" << Config::Get().location << "\"!") return TransitionType::SlideLeft;
-        }
-    }
-
-    inline Orientation GetOrientation()
-    {
-        switch (Config::Get().location)
-        {
-        case 'T':
-        case 'B': return Orientation::Horizontal;
-        case 'L':
-        case 'R': return Orientation::Vertical;
-        default: LOG("Invalid location char \"" << Config::Get().location << "\"!") return Orientation::Horizontal;
-        }
-    }
-
-    inline double GetAngle()
-    {
-        if (Config::Get().location == 'T' || Config::Get().location == 'B')
-        {
-            return 0;
-        }
-        else if (Config::Get().location == 'L')
-        {
-            return 270; // 90 is buggy (Clipped text)
-        }
-        else if (Config::Get().location == 'R')
-        {
-            return 270;
-        }
-
-        LOG("Invalid location char \"" << Config::Get().location << "\"!");
-        return 0;
-    }
-
     void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorClass, const std::string& textClass, Text*& textPtr)
     {
         auto eventBox = Widget::Create<EventBox>();
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({0, false});
-            SetTransform(*box, {-1, true, Alignment::Right});
-            box->SetOrientation(GetOrientation());
+            Utils::SetTransform(*box, {-1, true, Alignment::Right});
+            box->SetOrientation(Utils::GetOrientation());
             {
                 auto revealer = Widget::Create<Revealer>();
-                revealer->SetTransition({GetTransitionType(), 500});
+                revealer->SetTransition({Utils::GetTransitionType(), 500});
                 // Add event to eventbox for the revealer to open
                 eventBox->SetHoverFn(
                     [textRevealer = revealer.get()](EventBox&, bool hovered)
@@ -346,8 +289,8 @@ namespace Bar
                 {
                     auto text = Widget::Create<Text>();
                     text->SetClass(textClass);
-                    text->SetAngle(GetAngle());
-                    SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
+                    text->SetAngle(Utils::GetAngle());
+                    Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
                     textPtr = text.get();
                     revealer->AddChild(std::move(text));
                 }
@@ -364,7 +307,7 @@ namespace Bar
                 }
                 sensor->SetStyle({angle});
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
-                SetTransform(*sensor, {24, true, Alignment::Fill});
+                Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
 
                 box->AddChild(std::move(revealer));
                 box->AddChild(std::move(sensor));
@@ -386,8 +329,8 @@ namespace Bar
         auto widgetAudioSlider = [](Widget& parent, AudioType type)
         {
             auto slider = Widget::Create<Slider>();
-            slider->SetOrientation(GetOrientation());
-            SetTransform(*slider, {100, true, Alignment::Fill});
+            slider->SetOrientation(Utils::GetOrientation());
+            Utils::SetTransform(*slider, {100, true, Alignment::Fill});
             slider->SetInverted(true);
             switch (type)
             {
@@ -412,11 +355,11 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, false});
-            SetTransform(*box, {-1, true, Alignment::Right});
-            box->SetOrientation(GetOrientation());
+            Utils::SetTransform(*box, {-1, true, Alignment::Right});
+            box->SetOrientation(Utils::GetOrientation());
             {
                 auto icon = Widget::Create<Text>();
-                icon->SetAngle(GetAngle());
+                icon->SetAngle(Utils::GetAngle());
                 switch (type)
                 {
                 case AudioType::Input:
@@ -427,7 +370,7 @@ namespace Bar
                 case AudioType::Output:
                     icon->SetClass("audio-icon");
                     icon->SetText("󰕾 ");
-                    SetTransform(*icon, {-1, true, Alignment::Fill, 0, 6});
+                    Utils::SetTransform(*icon, {-1, true, Alignment::Fill, 0, 6});
                     DynCtx::audioIcon = icon.get();
                     break;
                 }
@@ -436,7 +379,7 @@ namespace Bar
                 {
                     EventBox& eventBox = (EventBox&)parent;
                     auto revealer = Widget::Create<Revealer>();
-                    revealer->SetTransition({GetTransitionType(), 500});
+                    revealer->SetTransition({Utils::GetTransitionType(), 500});
                     // Add event to eventbox for the revealer to open
                     eventBox.SetHoverFn(
                         [slideRevealer = revealer.get()](EventBox&, bool hovered)
@@ -492,7 +435,7 @@ namespace Bar
         text->SetText("");
         text->SetVisible(false);
         text->SetClass("package-empty");
-        text->SetAngle(GetAngle());
+        text->SetAngle(Utils::GetAngle());
         text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval, TimerDispatchBehaviour::ImmediateDispatch);
         parent.AddChild(std::move(text));
     }
@@ -502,17 +445,17 @@ namespace Bar
     {
         auto box = Widget::Create<Box>();
         box->SetSpacing({0, false});
-        box->SetOrientation(GetOrientation());
+        box->SetOrientation(Utils::GetOrientation());
         {
             auto devText = Widget::Create<Text>();
-            devText->SetAngle(GetAngle());
+            devText->SetAngle(Utils::GetAngle());
             DynCtx::btDevText = devText.get();
             devText->SetClass("bt-num");
 
             auto iconText = Widget::Create<Button>();
             iconText->OnClick(DynCtx::OnBTClick);
-            iconText->SetAngle(GetAngle());
-            SetTransform(*iconText, {-1, true, Alignment::Fill, 0, 6});
+            iconText->SetAngle(Utils::GetAngle());
+            Utils::SetTransform(*iconText, {-1, true, Alignment::Fill, 0, 6});
             DynCtx::btIconText = iconText.get();
 
             box->AddChild(std::move(devText));
@@ -530,11 +473,11 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({0, false});
-            SetTransform(*box, {-1, true, Alignment::Right});
-            box->SetOrientation(GetOrientation());
+            Utils::SetTransform(*box, {-1, true, Alignment::Right});
+            box->SetOrientation(Utils::GetOrientation());
             {
                 auto revealer = Widget::Create<Revealer>();
-                revealer->SetTransition({GetTransitionType(), 500});
+                revealer->SetTransition({Utils::GetTransitionType(), 500});
                 // Add event to eventbox for the revealer to open
                 eventBox->SetHoverFn(
                     [textRevealer = revealer.get()](EventBox&, bool hovered)
@@ -544,8 +487,8 @@ namespace Bar
                 {
                     auto text = Widget::Create<Text>();
                     text->SetClass("network-data-text");
-                    text->SetAngle(GetAngle());
-                    SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
+                    text->SetAngle(Utils::GetAngle());
+                    Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
                     DynCtx::networkText = text.get();
                     revealer->AddChild(std::move(text));
                 }
@@ -553,9 +496,9 @@ namespace Bar
                 auto sensor = Widget::Create<NetworkSensor>();
                 sensor->SetLimitUp({(double)Config::Get().minUploadBytes, (double)Config::Get().maxUploadBytes});
                 sensor->SetLimitDown({(double)Config::Get().minDownloadBytes, (double)Config::Get().maxDownloadBytes});
-                sensor->SetAngle(GetAngle());
+                sensor->SetAngle(Utils::GetAngle());
                 sensor->AddTimer<NetworkSensor>(DynCtx::UpdateNetwork, DynCtx::updateTime);
-                SetTransform(*sensor, {24, true, Alignment::Fill});
+                Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
 
                 box->AddChild(std::move(revealer));
                 box->AddChild(std::move(sensor));
@@ -620,24 +563,24 @@ namespace Bar
         {
             auto powerBox = Widget::Create<Box>();
             powerBox->SetClass("power-box");
-            SetTransform(*powerBox, {-1, false, Alignment::Right});
+            Utils::SetTransform(*powerBox, {-1, false, Alignment::Right});
             powerBox->SetSpacing({0, false});
-            powerBox->SetOrientation(GetOrientation());
+            powerBox->SetOrientation(Utils::GetOrientation());
             {
                 auto revealer = Widget::Create<Revealer>();
                 DynCtx::powerBoxRevealer = revealer.get();
-                revealer->SetTransition({GetTransitionType(), 500});
+                revealer->SetTransition({Utils::GetTransitionType(), 500});
                 {
                     auto powerBoxExpand = Widget::Create<Box>();
                     powerBoxExpand->SetClass("power-box-expand");
                     powerBoxExpand->SetSpacing({8, true});
-                    powerBoxExpand->SetOrientation(GetOrientation());
-                    SetTransform(*powerBoxExpand, {-1, true, Alignment::Fill, 0, 6});
+                    powerBoxExpand->SetOrientation(Utils::GetOrientation());
+                    Utils::SetTransform(*powerBoxExpand, {-1, true, Alignment::Fill, 0, 6});
                     {
                         auto exitButton = Widget::Create<Button>();
                         exitButton->SetClass("exit-button");
                         exitButton->SetText("󰗼");
-                        exitButton->SetAngle(GetAngle());
+                        exitButton->SetAngle(Utils::GetAngle());
                         exitButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -655,7 +598,7 @@ namespace Bar
                         auto lockButton = Widget::Create<Button>();
                         lockButton->SetClass("sleep-button");
                         lockButton->SetText("");
-                        lockButton->SetAngle(GetAngle());
+                        lockButton->SetAngle(Utils::GetAngle());
                         lockButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -673,7 +616,7 @@ namespace Bar
                         auto sleepButton = Widget::Create<Button>();
                         sleepButton->SetClass("sleep-button");
                         sleepButton->SetText("󰏤");
-                        sleepButton->SetAngle(GetAngle());
+                        sleepButton->SetAngle(Utils::GetAngle());
                         sleepButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -691,8 +634,8 @@ namespace Bar
                         auto rebootButton = Widget::Create<Button>();
                         rebootButton->SetClass("reboot-button");
                         rebootButton->SetText("󰑐");
-                        rebootButton->SetAngle(GetAngle());
-                        SetTransform(*rebootButton, {-1, true, Alignment::Fill, 0, 6});
+                        rebootButton->SetAngle(Utils::GetAngle());
+                        Utils::SetTransform(*rebootButton, {-1, true, Alignment::Fill, 0, 6});
                         rebootButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -719,8 +662,8 @@ namespace Bar
                 auto powerButton = Widget::Create<Button>();
                 powerButton->SetClass("power-button");
                 powerButton->SetText(" ");
-                powerButton->SetAngle(GetAngle());
-                SetTransform(*powerButton, {24, true, Alignment::Fill});
+                powerButton->SetAngle(Utils::GetAngle());
+                Utils::SetTransform(*powerButton, {24, true, Alignment::Fill});
                 powerButton->OnClick(
                     [setActivate](Button& but)
                     {
@@ -752,13 +695,13 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, true});
-            box->SetOrientation(GetOrientation());
-            SetTransform(*box, {-1, true, Alignment::Left, 12, 0});
+            box->SetOrientation(Utils::GetOrientation());
+            Utils::SetTransform(*box, {-1, true, Alignment::Left, 12, 0});
             {
                 for (size_t i = 0; i < DynCtx::workspaces.size(); i++)
                 {
                     auto workspace = Widget::Create<Button>();
-                    SetTransform(*workspace, {8, false, Alignment::Fill});
+                    Utils::SetTransform(*workspace, {8, false, Alignment::Fill});
                     workspace->OnClick(
                         [i](Button&)
                         {
@@ -780,7 +723,7 @@ namespace Bar
         monitorID = monitor;
 
         auto mainWidget = Widget::Create<Box>();
-        mainWidget->SetOrientation(GetOrientation());
+        mainWidget->SetOrientation(Utils::GetOrientation());
         mainWidget->SetSpacing({0, false});
         mainWidget->SetClass("bar");
         {
@@ -799,10 +742,10 @@ namespace Bar
 
             auto left = Widget::Create<Box>();
             left->SetSpacing({0, false});
-            left->SetOrientation(GetOrientation());
+            left->SetOrientation(Utils::GetOrientation());
             // For centerTime the width of the left widget handles the centering.
             // For not centerTime we want to set it as much right as possible. So let this expand as much as possible.
-            SetTransform(*left, {endLeftWidgets, !Config::Get().centerTime, Alignment::Left});
+            Utils::SetTransform(*left, {endLeftWidgets, !Config::Get().centerTime, Alignment::Left});
 #ifdef WITH_WORKSPACES
             if (RuntimeConfig::Get().hasWorkspaces)
             {
@@ -811,12 +754,12 @@ namespace Bar
 #endif
 
             auto center = Widget::Create<Box>();
-            center->SetOrientation(GetOrientation());
-            SetTransform(*center, {(int)Config::Get().timeSpace, false, Alignment::Left});
+            center->SetOrientation(Utils::GetOrientation());
+            Utils::SetTransform(*center, {(int)Config::Get().timeSpace, false, Alignment::Left});
             {
                 auto time = Widget::Create<Text>();
-                SetTransform(*time, {-1, true, Alignment::Center});
-                time->SetAngle(GetAngle());
+                Utils::SetTransform(*time, {-1, true, Alignment::Center});
+                time->SetAngle(Utils::GetAngle());
                 time->SetClass("time-text");
                 time->SetText("Uninitialized");
                 time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
@@ -826,8 +769,8 @@ namespace Bar
             auto right = Widget::Create<Box>();
             right->SetClass("right");
             right->SetSpacing({8, false});
-            right->SetOrientation(GetOrientation());
-            SetTransform(*right, {-1, true, Alignment::Right, 0, 10});
+            right->SetOrientation(Utils::GetOrientation());
+            Utils::SetTransform(*right, {-1, true, Alignment::Right, 0, 10});
             {
 #ifdef WITH_SNI
                 SNI::WidgetSNI(*right);

@@ -1,4 +1,6 @@
 #pragma once
+#include "Config.h"
+#include "Log.h"
 #include <gtk/gtk.h>
 #include <vector>
 #include <memory>
@@ -287,6 +289,7 @@ public:
 
     void ForceHeight(size_t height) { m_ForcedHeight = height; };
     void AddPaddingTop(int32_t topPadding) { m_Padding = topPadding; };
+    void SetAngle(double angle) { m_Angle = angle; }
 
 private:
     void Draw(cairo_t* cr) override;
@@ -294,6 +297,7 @@ private:
     size_t m_Width;
     size_t m_Height;
     size_t m_ForcedHeight = 0;
+    double m_Angle;
     int32_t m_Padding = 0;
     GBytes* m_Bytes;
     GdkPixbuf* m_Pixbuf;
@@ -370,3 +374,63 @@ private:
     double m_ScrollSpeed = 5. / 100.; // 5%
     std::function<void(Slider&, double)> m_OnValueChange;
 };
+
+namespace Utils
+{
+    inline void SetTransform(Widget& widget, const Transform& primary, const Transform& secondary = {})
+    {
+        if (Config::Get().location == 'T' || Config::Get().location == 'B')
+        {
+            widget.SetHorizontalTransform(primary);
+            widget.SetVerticalTransform(secondary);
+        }
+        else if (Config::Get().location == 'R' || Config::Get().location == 'L')
+        {
+            widget.SetVerticalTransform(primary);
+            widget.SetHorizontalTransform(secondary);
+        }
+    }
+
+    inline Orientation GetOrientation()
+    {
+        switch (Config::Get().location)
+        {
+        case 'T':
+        case 'B': return Orientation::Horizontal;
+        case 'L':
+        case 'R': return Orientation::Vertical;
+        default: LOG("Invalid location char \"" << Config::Get().location << "\"!") return Orientation::Horizontal;
+        }
+    }
+
+    inline double GetAngle()
+    {
+        if (Config::Get().location == 'T' || Config::Get().location == 'B')
+        {
+            return 0;
+        }
+        else if (Config::Get().location == 'L')
+        {
+            return 270; // 90 is buggy (Clipped text)
+        }
+        else if (Config::Get().location == 'R')
+        {
+            return 270;
+        }
+
+        LOG("Invalid location char \"" << Config::Get().location << "\"!");
+        return 0;
+    }
+
+    inline TransitionType GetTransitionType()
+    {
+        switch (Config::Get().location)
+        {
+        case 'T':
+        case 'B': return TransitionType::SlideLeft;
+        case 'L':
+        case 'R': return TransitionType::SlideUp;
+        default: LOG("Invalid location char \"" << Config::Get().location << "\"!") return TransitionType::SlideLeft;
+        }
+    }
+}

@@ -527,17 +527,21 @@ void Texture::SetBuf(size_t width, size_t height, uint8_t* buf)
 
 void Texture::Draw(cairo_t* cr)
 {
-    GtkAllocation dim;
-    gtk_widget_get_allocation(m_Widget, &dim);
+    Quad q = GetQuad();
 
-    double height = m_ForcedHeight != 0 ? m_ForcedHeight : dim.height;
-    double scale = (double)height / (double)m_Height;
-    double width = (double)m_Width * scale;
+    // TODO: Non-quad sizes
+    double scaleX = q.size / m_Width;
+    double scaleY = q.size / m_Height;
 
-    gtk_widget_set_size_request(m_Widget, width + 2, height);
-    cairo_scale(cr, scale, scale);
-    cairo_rectangle(cr, (dim.width - width) / 2.0, m_Padding + (dim.height - height) / 2.0, m_Width, m_Height);
-    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, (dim.width - width) / 2.0, m_Padding + (dim.height - height) / 2.0);
+    // Rotate around center of Quad
+    cairo_rectangle(cr, q.x, q.y + m_Padding, q.size, q.size);
+
+    cairo_translate(cr, q.x + q.size / 2, q.y + m_Padding + q.size / 2);
+    cairo_rotate(cr, m_Angle * M_PI / 180.0);
+    cairo_translate(cr, -(q.x + q.size / 2), -(q.y + m_Padding + q.size / 2));
+    cairo_scale(cr, scaleX, scaleY);
+
+    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, q.x, (q.y + m_Padding) * (1.f / scaleY));
     cairo_fill(cr);
 }
 

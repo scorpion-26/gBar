@@ -306,6 +306,8 @@ namespace SNI
 
         auto container = Widget::Create<Box>();
         container->SetSpacing({4, false});
+        container->SetOrientation(Utils::GetOrientation());
+        Utils::SetTransform(*container, {-1, true, Alignment::Fill, 0, 8});
         iconBox = container.get();
         for (auto& item : items)
         {
@@ -337,16 +339,17 @@ namespace SNI
                 LOG("SNI: Add " << item.name << " to widget");
                 auto texture = Widget::Create<Texture>();
                 bool wasExplicitOverride = false;
-                for (auto& [filter, size] : Config::Get().sniIconSizes)
+                int size = 24;
+                for (auto& [filter, iconSize] : Config::Get().sniIconSizes)
                 {
                     if (item.tooltip.find(filter) != std::string::npos)
                     {
                         wasExplicitOverride = true;
-                        texture->ForceHeight(size);
+                        size = iconSize;
                     }
                     else if (filter == "*" && !wasExplicitOverride)
                     {
-                        texture->ForceHeight(size);
+                        size = iconSize;
                     }
                 }
                 wasExplicitOverride = false;
@@ -354,7 +357,6 @@ namespace SNI
                 {
                     if (item.tooltip.find(filter) != std::string::npos)
                     {
-                        LOG("Padding " << padding);
                         wasExplicitOverride = true;
                         texture->AddPaddingTop(padding);
                     }
@@ -363,9 +365,10 @@ namespace SNI
                         texture->AddPaddingTop(padding);
                     }
                 }
-                texture->SetHorizontalTransform({0, true, Alignment::Fill});
+                Utils::SetTransform(*texture, {size, true, Alignment::Fill}, {size, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
                 texture->SetTooltip(item.tooltip);
+                texture->SetAngle(Utils::GetAngle() - 180.0);
 
                 eventBox->AddChild(std::move(texture));
                 iconBox->AddChild(std::move(eventBox));
