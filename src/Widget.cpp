@@ -533,15 +533,28 @@ void Texture::Draw(cairo_t* cr)
     double scaleX = q.size / m_Width;
     double scaleY = q.size / m_Height;
 
+    double paddingX, paddingY;
+    if (m_Angle == 90)
+    {
+        // Hack for sideways bars
+        paddingX = -m_Padding;
+        paddingY = 0;
+    }
+    else
+    {
+        paddingX = 0;
+        paddingY = m_Padding;
+    }
     // Rotate around center of Quad
-    cairo_rectangle(cr, q.x, q.y + m_Padding, q.size, q.size);
-
-    cairo_translate(cr, q.x + q.size / 2, q.y + m_Padding + q.size / 2);
+    cairo_translate(cr, q.x + paddingX + q.size / 2, q.y + paddingY + q.size / 2);
     cairo_rotate(cr, m_Angle * M_PI / 180.0);
-    cairo_translate(cr, -(q.x + q.size / 2), -(q.y + m_Padding + q.size / 2));
+    cairo_translate(cr, -(q.x + paddingX + q.size / 2), -(q.y + paddingY + q.size / 2));
+
+    cairo_rectangle(cr, q.x + paddingX, q.y + paddingY, q.size, q.size);
+
     cairo_scale(cr, scaleX, scaleY);
 
-    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, q.x, (q.y + m_Padding) * (1.f / scaleY));
+    gdk_cairo_set_source_pixbuf(cr, m_Pixbuf, (q.x + paddingX) * (1.0 / scaleY), (q.y + paddingY) * (1.0 / scaleY));
     cairo_fill(cr);
 }
 
