@@ -368,7 +368,7 @@ namespace SNI
                 Utils::SetTransform(*texture, {size, true, Alignment::Fill}, {size, true, Alignment::Fill});
                 texture->SetBuf(item.w, item.h, item.iconData);
                 texture->SetTooltip(item.tooltip);
-                texture->SetAngle(Utils::GetAngle() - 180.0);
+                texture->SetAngle(Utils::GetAngle() == 270 ? 90 : 0);
 
                 eventBox->AddChild(std::move(texture));
                 iconBox->AddChild(std::move(eventBox));
