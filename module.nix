@@ -41,77 +41,102 @@ in {
                 SuspendCommand = mkOption {
                     type = types.str;
                     default = "systemctl suspend";
-                    description = "";
+                    description = "The command to execute on suspend";
                 };
                 LockCommand = mkOption {
                     type = types.nullOr types.str;
                     default = "~/.config/scripts/sys.sh lock";
-                    description = "";
+                    description = "The command to execute on lock";
                 };
                 ExitCommand = mkOption {
                     type = types.str;
                     default = "killall Hyprland";
-                    description = "";
+                    description = "The command to execute on exit";
                 };
                 BatteryFolder = mkOption {
                     type = types.nullOr types.str;
                     default = "/sys/class/power_supply/BAT1";
-                    description = "";
+                    description = "The folder, where the battery sensors reside";
+                };
+                WorkspaceSymbols = mkOption {
+                    type = types.nullOr (types.listOf types.str);
+                    default = [];
+                    description = "A list of strings where the position in the list is the icon to change, overrides the default symbol";
                 };
                 DefaultWorkspaceSymbol = mkOption {
                     type = types.str;
                     default = "";
-                    description = "";
+                    description = "The default symbol for the workspaces";
                 };
                 WorkspaceScrollOnMonitor = mkOption {
                     type = types.bool;
                     default = true;
-                    description = "";
+                    description = "Scroll through the workspaces of the current monitor instead of all workspaces";
                 };
                 WorkspaceScrollInvert = mkOption {
                     type = types.bool;
                     default = false;
-                    description = "";
+                    description = "When true: Scroll up -> Next workspace instead of previous workspace. Analogous with scroll down";
                 };
                 UseHyprlandIPC = mkOption {
                     type = types.bool;
                     default = false;
-                    description = "";
+                    description = ''
+                        Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
+                        Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,
+                        since the protocol is not as feature complete as Hyprland IPC.
+                    '';
                 };
                 Location = mkOption {
                     type = types.enum ["T" "B" "L" "R"];
                     default = "T";
-                    description = "";
+                    description = "The location of the bar, enumerates to one capitalised letter as above";
                 };
                 CenterTime = mkOption {
                     type = types.bool;
                     default = true;
-                    description = "";
+                    description = ''
+                        Forces the time to be centered.
+                        This can cause the right widget to clip outside, if there is not enough space on screen (e.g. when opening the text)
+                        Setting this to false will definitely fix this issue, but it won't look very good, since it will be off-center.
+                        So try to decrease "TimeSpace" first, before setting this configuration to false.
+                    '';
                 };
                 TimeSpace = mkOption {
                     type = types.nullOr types.int;
                     default = 300;
-                    description = "";
+                    description = ''
+                        How much space should be reserved for the time widget. Setting this too high can cause the right widget to clip outside.
+                        Therefore try to set it as low as possible if you experience clipping.
+                        Although keep in mind, that a value that is too low can cause the widget to be be off-center,
+                        which can also cause clipping.
+                        If you can't find an optimal value, consider setting 'CenterTime' to false
+                    '';
+                };
+                DateTimeStyle = mkOption {
+                    type = types.nullOr types.str;
+                    default = "";
+                    description = "Set datetime style";
                 };
                 AudioInput = mkOption {
                     type = types.bool;
                     default = false;
-                    description = "";
+                    description = "Adds a microphone volume widget";
                 };
                 AudioRevealer = mkOption {
                     type = types.bool;
                     default = false;
-                    description = "";
+                    description = "Sets the audio slider to be on reveal (Just like the sensors) when true. Only affects the bar.";
                 };
                 AudioScrollSpeed = mkOption {
                     type = types.nullOr types.int;
                     default = 5;
-                    description = "";
+                    description = "Sets the rate of change of the slider on each scroll. In Percent";
                 };
                 AudioMinVolume = mkOption {
                     type = types.nullOr types.int;
                     default = 0;
-                    description = "";
+                    description = "Limits the range of the audio slider. Only works for audio output. Slider 'empty' is AudioMinVolume, Slider 'full' is AudioMaxVolume";
                 };
                 AudioMaxVolume = mkOption {
                     type = types.nullOr types.int;
@@ -121,28 +146,35 @@ in {
                 NetworkAdapter = mkOption {
                     type = types.nullOr types.str;
                     default = "eno1";
-                    description = "";
+                    description = "The network adapter to use. You can query /sys/class/net for all possible values";
                 };
                 NetworkWidget = mkOption {
                     type = types.bool;
                     default = true;
-                    description = "";
+                    description = "Disables the network widget when set to false";
                 };
                 EnableSNI = mkOption {
                     type = types.bool;
                     default = true;
-                    description = "";
+                    description = "Enable tray icons";
                 };
                 SNIIconSize = mkOption {
                     type = types.nullOr (types.attrsOf types.int);
                     default = {};
-                    description = "";
+                    description = "sets the icon size for a SNI icon, an attribute set where, for example you can put Discord = 23 as an attribute and thus make discord slightly smaller Set to * to apply to all";
                 };
                 SNIIconPaddingTop = mkOption {
                     type = types.nullOr (types.attrsOf types.int);
                     default = {};
-                    description = "";
+                    description = "Can be used to push the Icon down. Negative values are allowed same as IconSize with an attribute set";
                 };
+                # These set the range for the network widget. The widget changes colors at six intervals:
+                #    - Below Min...Bytes ("under")
+                #    - Between ]0%;25%]. 0% = Min...Bytes; 100% = Max...Bytes ("low")
+                #    - Between ]25%;50%]. 0% = Min...Bytes; 100% = Max...Bytes ("mid-low")
+                #    - Between ]50%;75%]. 0% = Min...Bytes; 100% = Max...Bytes ("mid-high")
+                #    - Between ]75%;100%]. 0% = Min...Bytes; 100% = Max...Bytes ("high")
+                #    - Above Max...Bytes ("over")
                 MinDownloadBytes = mkOption {
                     type = types.nullOr types.int;
                     default = 0;
@@ -161,11 +193,6 @@ in {
                 MaxUploadBytes = mkOption {
                     type = types.nullOr types.int;
                     default = 5242880;
-                    description = "";
-                };
-                WorkspaceSymbols = mkOption {
-                    type = types.nullOr (types.listOf types.str);
-                    default = [];
                     description = "";
                 };
             };
