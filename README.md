@@ -40,7 +40,7 @@ You can install it e.g.: with yay
 If you choose the Nix/NixOS installation there are a couple of ways to do it but they all require you to have flakes enabled.
 - Building it seperately and just running the binary, run nix build in the directory and use the binary from ./result/bin
 - Import the flake to inputs and then add `gBar.defaultPackage.x86_64-linux` to either environment.systemPackages or home.packages.
-- Use the home manager module. This is done by, as in the previous way, importing the flake and then adding `gBar.homeManagerModules.x86_64-linux.default` into your home-manager imorts section. This exposes the option programs.gBar to home manager and you can look at the module file to see available options.
+- Use the home manager module. This is done by, as in the previous way, importing the flake and then adding `gBar.homeManagerModules.x86_64-linux.default` into your home-manager imorts section. This exposes the option programs.gBar to home manager and you can look at the module file to see available options, but in short under `programs.gBar.config` you can put all options from the standard configs names (some exceptions) in there and it works like expected, some options have a refined configuration syntax.
 
 ## Running gBar
 *Open bar on monitor 0*
