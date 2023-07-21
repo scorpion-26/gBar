@@ -89,7 +89,7 @@ in {
                     description = "";
                 };
                 TimeSpace = mkOption {
-                    type = types.nullOr types.str;
+                    type = types.nullOr types.int;
                     default = null;
                     description = "";
                 };
@@ -161,7 +161,7 @@ in {
       type = types.nullOr types.lines;
       default = '' '';
       description = ''
-        Configuration to write to ~/.config/gBar/config, if you want to use your own config then set this to null and home manager wont write anything
+        Configuration to write to ~/.config/gBar/config, if you want to use your own config then set this to null and home manager wont write anything, neither the config
       '';
     };
 
@@ -169,7 +169,7 @@ in {
       type = types.nullOr types.lines;
       default = null;
       description = ''
-        Configuration to write to ~/.config/gBar/config, if none nothing happens
+        Configuration to write to ~/.config/gBar/style.css, if none nothing happens
       '';
     };
   };
