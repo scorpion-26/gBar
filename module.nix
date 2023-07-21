@@ -45,7 +45,7 @@ in {
                 };
                 LockCommand = mkOption {
                     type = types.nullOr types.str;
-                    default = null;
+                    default = "~/.config/scripts/sys.sh lock";
                     description = "";
                 };
                 ExitCommand = mkOption {
@@ -55,7 +55,7 @@ in {
                 };
                 BatteryFolder = mkOption {
                     type = types.nullOr types.str;
-                    default = null;
+                    default = "/sys/class/power_supply/BAT1";
                     description = "";
                 };
                 DefaultWorkspaceSymbol = mkOption {
@@ -90,7 +90,7 @@ in {
                 };
                 TimeSpace = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 300;
                     description = "";
                 };
                 AudioInput = mkOption {
@@ -105,22 +105,22 @@ in {
                 };
                 AudioScrollSpeed = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 5;
                     description = "";
                 };
                 AudioMinVolume = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 0;
                     description = "";
                 };
                 AudioMaxVolume = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 100;
                     description = "";
                 };
                 NetworkAdapter = mkOption {
                     type = types.nullOr types.str;
-                    default = null;
+                    default = "eno1";
                     description = "";
                 };
                 NetworkWidget = mkOption {
@@ -133,24 +133,39 @@ in {
                     default = true;
                     description = "";
                 };
+                SNIIconSize = mkOption {
+                    type = types.nullOr (types.attrsOf types.int);
+                    default = {};
+                    description = "";
+                };
+                SNIIconPaddingTop = mkOption {
+                    type = types.nullOr (types.attrsOf types.int);
+                    default = {};
+                    description = "";
+                };
                 MinDownloadBytes = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 0;
                     description = "";
                 };
                 MaxDownloadBytes = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 10485760;
                     description = "";
                 };
                 MinUploadBytes = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 0;
                     description = "";
                 };
                 MaxUploadBytes = mkOption {
                     type = types.nullOr types.int;
-                    default = null;
+                    default = 5242880;
+                    description = "";
+                };
+                WorkspaceSymbols = mkOption {
+                    type = types.nullOr (types.listOf types.str);
+                    default = [];
                     description = "";
                 };
             };
@@ -179,9 +194,13 @@ in {
       applyVal = x:
           let anyToString = a: if isBool a then boolToString a else toString a;
           in attrsets.mapAttrs (name: value:
-                      name + ": " + (anyToString value)) (filterAttrs (n: v: v != null) x);
+                      name + ": " + (anyToString value)) (filterAttrs (n2: v2: (isInt v2 || isString v2 || isBool v2))x);
+      extractLists = l:
+          (imap1 (i: v: "WorkspaceSymbol-${toString i}: " + v) l.WorkspaceSymbols) ++
+          (mapAttrsToList (n: v: "SNIIconSize: ${n}, ${toString v}") l.SNIIconSize) ++
+          (mapAttrsToList (n: v: "SNIIconPaddingTop: ${n}, ${toString v}") l.SNIIconPaddingTop);
 
-      gBarConfig = concatMapStrings (x: x + "\n") (attrValues (applyVal cfg.config));
+      gBarConfig = (concatMapStrings (x: x + "\n") (attrValues (applyVal cfg.config)))+(concatMapStrings (x: x+"\n") (extractLists cfg.config));
 
   in mkIf cfg.enable {
     home.packages = optional (cfg.package != null) cfg.package;
