@@ -115,7 +115,7 @@ in {
                 };
                 DateTimeStyle = mkOption {
                     type = types.nullOr types.str;
-                    default = "";
+                    default = "%a %D - %H:%M:%S %Z";
                     description = "Set datetime style";
                 };
                 AudioInput = mkOption {
@@ -159,12 +159,12 @@ in {
                     description = "Enable tray icons";
                 };
                 SNIIconSize = mkOption {
-                    type = types.nullOr (types.attrsOf types.int);
+                    type = types.attrsOf types.int;
                     default = {};
                     description = "sets the icon size for a SNI icon, an attribute set where, for example you can put Discord = 23 as an attribute and thus make discord slightly smaller Set to * to apply to all";
                 };
                 SNIIconPaddingTop = mkOption {
-                    type = types.nullOr (types.attrsOf types.int);
+                    type = types.attrsOf types.int;
                     default = {};
                     description = "Can be used to push the Icon down. Negative values are allowed same as IconSize with an attribute set";
                 };
