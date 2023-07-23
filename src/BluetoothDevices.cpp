@@ -299,8 +299,37 @@ namespace BluetoothDevices
         WidgetBody(*mainWidget);
 
         window.SetExclusive(false);
-        window.SetMargin(Anchor::Top, 8);
-        window.SetAnchor(Anchor::Right | Anchor::Top);
+        Anchor anchor;
+        Anchor marginAnchor;
+        switch (Config::Get().location)
+        {
+        case 'T':
+            anchor = Anchor::Right | Anchor::Top;
+            marginAnchor = Anchor::Top;
+            break;
+        case 'B':
+            anchor = Anchor::Bottom | Anchor::Right;
+            marginAnchor = Anchor::Bottom;
+            break;
+        case 'L':
+            anchor = Anchor::Left | Anchor::Bottom;
+            marginAnchor = Anchor::Left;
+            // TODO: Config
+            window.SetMargin(Anchor::Bottom, 150);
+            break;
+        case 'R':
+            anchor = Anchor::Right | Anchor::Bottom;
+            marginAnchor = Anchor::Right;
+            // TODO: Config
+            window.SetMargin(Anchor::Bottom, 150);
+            break;
+        default:
+            LOG("Invalid location char \"" << Config::Get().location << "\"!");
+            anchor = Anchor::Right | Anchor::Top;
+            marginAnchor = Anchor::Top;
+        }
+        window.SetMargin(marginAnchor, 8);
+        window.SetAnchor(anchor);
         window.SetMainWidget(std::move(mainWidget));
     }
 }
