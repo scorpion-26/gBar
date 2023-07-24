@@ -15,6 +15,7 @@
 #include <stb/stb_image.h>
 
 #include <fstream>
+#include <cstdio>
 
 namespace SNI
 {
@@ -122,6 +123,35 @@ namespace SNI
         }
         else
         {
+            auto findIconWithoutPath = [](const char* iconName) -> std::string
+            {
+                std::string iconPath;
+                const char* dataDirs = getenv("XDG_DATA_DIRS");
+                // Nothing defined, look in $XDG_DATA_DIRS/icons
+                // network-manager-applet does this e.g.
+                if (dataDirs)
+                {
+                    for (auto& dataDir : Utils::Split(dataDirs, ':'))
+                    {
+                        LOG("SNI: Searching icon " << iconName << " in " << dataDir << "/icons");
+                        std::string path = Utils::FindFileWithName(dataDir + "/icons", iconName, ".png");
+                        if (path != "")
+                        {
+                            iconPath = path;
+                            break;
+                        }
+                    }
+                }
+                if (iconPath == "")
+                {
+                    // Fallback to /usr/share/icons
+                    LOG("SNI: Searching icon " << iconName << " in "
+                                               << "/usr/share/icons");
+                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName, ".png");
+                }
+                return iconPath;
+            };
+
             // Get icon theme path
             GVariant* themePathVariant = getProperty("IconThemePath"); // Not defined by freedesktop, I think ayatana does this...
             GVariant* iconNameVariant = getProperty("IconName");
@@ -139,9 +169,7 @@ namespace SNI
                 const char* iconName = g_variant_get_string(iconNameStr, nullptr);
                 if (strlen(themePath) == 0)
                 {
-                    // Nothing defined, look in /usr/share/icons
-                    // network-manager-applet does this
-                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName, ".png");
+                    iconPath = findIconWithoutPath(iconName);
                 }
                 else
                 {
@@ -159,7 +187,12 @@ namespace SNI
                 g_variant_get(iconNameVariant, "(v)", &iconNameStr);
 
                 const char* iconName = g_variant_get_string(iconNameStr, nullptr);
-                iconPath = std::string(iconName);
+                iconPath = findIconWithoutPath(iconName);
+                if (iconPath == "")
+                {
+                    // Try our luck with just using iconName, maybe its just an absolute path
+                    iconPath = iconName;
+                }
 
                 g_variant_unref(iconNameVariant);
                 g_variant_unref(iconNameStr);
@@ -167,6 +200,12 @@ namespace SNI
             else
             {
                 LOG("SNI: Unknown path!");
+                return item;
+            }
+
+            if (iconPath == "")
+            {
+                LOG("SNI: Cannot find icon path for " << name);
                 return item;
             }
 

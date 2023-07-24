@@ -2,6 +2,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
+#include <vector>
 #include <filesystem>
 
 #include "Log.h"
@@ -84,8 +85,27 @@ namespace Utils
         return buf;
     }
 
+    static std::vector<std::string> Split(const std::string& str, char delim)
+    {
+        std::stringstream strstr(str);
+        std::string curElem;
+        std::vector<std::string> result;
+        while (std::getline(strstr, curElem, delim))
+        {
+            if (!curElem.empty())
+            {
+                result.emplace_back(curElem);
+            }
+        }
+        return result;
+    }
+
     inline std::string FindFileWithName(const std::string& directory, const std::string& name, const std::string& extension)
     {
+        if (!std::filesystem::exists(directory))
+        {
+            return "";
+        }
         for (auto& path : std::filesystem::recursive_directory_iterator(directory))
         {
             if (path.is_directory())
