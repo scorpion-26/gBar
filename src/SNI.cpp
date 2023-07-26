@@ -279,16 +279,20 @@ namespace SNI
         }
     }
 
-    static void ItemPropertyChanged(GDBusConnection*, const char*, const char* object, const char*, const char*, GVariant*, void* name)
+    static void ItemPropertyChanged(GDBusConnection*, const char* senderName, const char* object, const char*, const char*, GVariant*, void* name)
     {
         std::string nameStr = (const char*)name;
-        LOG("SNI: Reloading " << (const char*)name << " " << object);
+        LOG("SNI: Reloading " << (const char*)name << " " << object << " (Sender: " << senderName << ")");
         // We don't care about *what* changed, just remove and reload
         auto it = std::find_if(items.begin(), items.end(),
                                [&](const Item& item)
                                {
                                    return item.name == nameStr;
                                });
+        // We can't trust the object path given to us, since ItemPropertyChanged is called multiple times with the same name, but with different
+        // object paths.
+        std::string itemObjectPath = it->object;
+        LOG("SNI: Actual object path: " << itemObjectPath)
         if (it != items.end())
         {
             items.erase(it);
@@ -297,7 +301,7 @@ namespace SNI
         {
             LOG("SNI: Coudn't remove item " << nameStr << " when reloading");
         }
-        clientsToQuery[nameStr] = {nameStr, std::string(object)};
+        clientsToQuery[nameStr] = {nameStr, itemObjectPath};
     }
 
     static TimerResult UpdateWidgets(Box&)
