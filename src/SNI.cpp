@@ -16,6 +16,7 @@
 
 #include <fstream>
 #include <cstdio>
+#include <unordered_set>
 
 namespace SNI
 {
@@ -42,6 +43,7 @@ namespace SNI
     std::vector<Item> items;
 
     std::unordered_map<std::string, Item> clientsToQuery;
+    std::unordered_set<std::string> reloadedNames;
 
     // Gtk stuff, TODO: Allow more than one instance
     // Simply removing the gtk_drawing_areas doesn't trigger proper redrawing
@@ -281,6 +283,13 @@ namespace SNI
 
     static void ItemPropertyChanged(GDBusConnection*, const char* senderName, const char* object, const char*, const char*, GVariant*, void* name)
     {
+        if (reloadedNames.insert(senderName).second == false)
+        {
+            // senderName has already requested a change, ignore
+            LOG("SNI: " << senderName << " already signaled property change");
+            return;
+        }
+
         std::string nameStr = (const char*)name;
         LOG("SNI: Reloading " << (const char*)name << " " << object << " (Sender: " << senderName << ")");
         // We don't care about *what* changed, just remove and reload
@@ -346,6 +355,9 @@ namespace SNI
     {
         LOG("SNI: Clearing old children");
         parentBox->RemoveChild(iconBox);
+
+        // Allow further updates from the icon
+        reloadedNames.clear();
 
         auto container = Widget::Create<Box>();
         container->SetSpacing({4, false});
