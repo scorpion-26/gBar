@@ -364,6 +364,14 @@ namespace SNI
         container->SetOrientation(Utils::GetOrientation());
         Utils::SetTransform(*container, {-1, true, Alignment::Fill, 0, 8});
         iconBox = container.get();
+
+        // Sort items, so they don't jump around randomly
+        std::sort(items.begin(), items.end(),
+                  [](const Item& a, const Item& b)
+                  {
+                      return a.name < b.name;
+                  });
+
         for (auto& item : items)
         {
             if (item.iconData)
