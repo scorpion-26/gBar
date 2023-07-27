@@ -134,7 +134,7 @@ namespace Workspaces
 
                 std::string ws = workspaces.substr(begWSNum, endWSNum - begWSNum);
                 int32_t wsId = std::atoi(ws.c_str());
-                if (wsId >= 1 && wsId < (int32_t)numWorkspaces)
+                if (wsId >= 1 && wsId <= (int32_t)numWorkspaces)
                 {
                     // WS is at least inactive
                     workspaceStati[wsId - 1] = System::WorkspaceStatus::Inactive;
@@ -168,7 +168,7 @@ namespace Workspaces
                 size_t endFocused = monitors.find('\n', begFocused);
                 bool focused = std::string_view(monitors).substr(begFocused, endFocused - begFocused) == "yes";
 
-                if (wsId >= 1 && wsId < (int32_t)numWorkspaces)
+                if (wsId >= 1 && wsId <= (int32_t)numWorkspaces)
                 {
                     if ((uint32_t)monIdx == monitorID)
                     {
