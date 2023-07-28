@@ -325,6 +325,15 @@ namespace SNI
 
     static TimerResult UpdateWidgets(Box&)
     {
+        // Flush connection, so we hopefully don't deadlock with any client
+        GError* err = nullptr;
+        g_dbus_connection_flush_sync(dbusConnection, nullptr, &err);
+        if (err)
+        {
+            LOG("SNI: g_dbus_connection_call_sync failed: " << err->message);
+            g_error_free(err);
+        }
+
         if (RuntimeConfig::Get().hasSNI == false || Config::Get().enableSNI == false)
         {
             // Don't bother
