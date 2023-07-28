@@ -39,6 +39,8 @@ namespace SNI
         std::string menuObjectPath;
 
         EventBox* gtkEvent;
+
+        int watcherID;
     };
     std::vector<Item> items;
 
@@ -272,13 +274,20 @@ namespace SNI
         if (it != items.end())
         {
             LOG("SNI: " << name << " vanished!");
+            g_bus_unwatch_name(it->watcherID);
             items.erase(it);
             InvalidateWidget();
+            return;
         }
-        else
+
+        auto toRegisterIt = clientsToQuery.find(name);
+        if (toRegisterIt != clientsToQuery.end())
         {
-            LOG("SNI: Cannot remove unregistered bus name " << name);
+            clientsToQuery.erase(toRegisterIt);
         }
+
+        LOG("SNI: Cannot remove unregistered bus name " << name);
+        return;
     }
 
     static void ItemPropertyChanged(GDBusConnection*, const char* senderName, const char* object, const char*, const char*, GVariant*, void* name)
@@ -304,6 +313,7 @@ namespace SNI
         LOG("SNI: Actual object path: " << itemObjectPath)
         if (it != items.end())
         {
+            g_bus_unwatch_name(it->watcherID);
             items.erase(it);
         }
         else
@@ -325,8 +335,8 @@ namespace SNI
             LOG("SNI: Creating Item " << client.name << " " << client.object);
             Item item = CreateItem(std::move(client.name), std::move(client.object));
             // Add handler for removing
-            g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr, DBusNameVanished, nullptr,
-                                           nullptr);
+            item.watcherID = g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr,
+                                                            DBusNameVanished, nullptr, nullptr);
 
             // Add handler for icon change
             char* staticBuf = new char[item.name.size() + 1]{0x0};
