@@ -85,7 +85,7 @@ namespace Utils
         return buf;
     }
 
-    static std::vector<std::string> Split(const std::string& str, char delim)
+    inline std::vector<std::string> Split(const std::string& str, char delim)
     {
         std::stringstream strstr(str);
         std::string curElem;

@@ -69,8 +69,9 @@ struct Range
     double min, max;
 };
 
-struct SliderRange : Range
+struct SliderRange
 {
+    double min, max;
     double step;
 };
 

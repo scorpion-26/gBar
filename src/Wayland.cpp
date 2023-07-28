@@ -1,4 +1,3 @@
-#pragma once
 #include "Wayland.h"
 
 #include "Common.h"
@@ -98,7 +97,7 @@ namespace Wayland
     {
         LOG("Wayland: Added workspace!");
         workspaceGroups[workspace].workspaces.push_back(ws);
-        workspaces[ws] = {workspace, (uint32_t)-1};
+        workspaces[ws] = {workspace, (uint32_t)-1, false};
         zext_workspace_handle_v1_add_listener(ws, &workspaceListener, nullptr);
         registeredWorkspace = true;
     }

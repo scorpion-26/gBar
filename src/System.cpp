@@ -587,7 +587,7 @@ namespace System
                 {
                     returnVal(std::stoul(buf));
                 }
-                catch (std::invalid_argument)
+                catch (std::invalid_argument&)
                 {
                     configMutex.lock();
                     LOG("GetOutdatedPackages: Invalid output of the package script. Disabling package widget!");

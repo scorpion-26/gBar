@@ -30,17 +30,17 @@ namespace SNI
     {
         std::string name;
         std::string object;
-        size_t w;
-        size_t h;
+        size_t w = 0;
+        size_t h = 0;
         uint8_t* iconData = nullptr;
 
-        std::string tooltip;
+        std::string tooltip = "";
 
-        std::string menuObjectPath;
+        std::string menuObjectPath = "";
 
-        EventBox* gtkEvent;
+        EventBox* gtkEvent = nullptr;
 
-        int watcherID;
+        int watcherID = -1;
     };
     std::vector<Item> items;
 
@@ -556,7 +556,7 @@ namespace SNI
             sni_watcher_set_is_status_notifier_host_registered(watcherSkeleton, true);
         };
         auto emptyCallback = [](GDBusConnection*, const char*, void*) {};
-        auto lostName = [](GDBusConnection*, const char* msg, void*)
+        auto lostName = [](GDBusConnection*, const char*, void*)
         {
             LOG("SNI: Lost Name! Disabling SNI!");
             RuntimeConfig::Get().hasSNI = false;
