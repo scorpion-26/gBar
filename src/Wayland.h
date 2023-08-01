@@ -11,6 +11,7 @@ namespace Wayland
         std::string name;
         wl_output* output;
         zext_workspace_group_handle_v1* workspaceGroup;
+        uint32_t ID;
     };
 
     struct Workspace
@@ -28,7 +29,7 @@ namespace Wayland
     void Init();
     void PollEvents();
 
-    const std::unordered_map<uint32_t, Monitor>& GetMonitors();
+    const std::unordered_map<std::string, Monitor>& GetMonitors();
     const std::unordered_map<zext_workspace_group_handle_v1*, WorkspaceGroup>& GetWorkspaceGroups();
     const std::unordered_map<zext_workspace_handle_v1*, Workspace>& GetWorkspaces();
 
