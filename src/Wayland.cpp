@@ -8,7 +8,7 @@
 namespace Wayland
 {
     // There's probably a better way to avoid the LUTs
-    static std::unordered_map<uint32_t, Monitor> monitors;
+    static std::unordered_map<std::string, Monitor> monitors;
     static std::unordered_map<zext_workspace_group_handle_v1*, WorkspaceGroup> workspaceGroups;
     static std::unordered_map<zext_workspace_handle_v1*, Workspace> workspaces;
 
@@ -28,9 +28,16 @@ namespace Wayland
     // Workspace Callbacks
     static void OnWorkspaceName(void*, zext_workspace_handle_v1* workspace, const char* name)
     {
-        workspaces[workspace].id = std::stoul(name);
-        LOG("Workspace ID: " << workspaces[workspace].id);
-        registeredWorkspaceInfo = true;
+        try
+        {
+            workspaces[workspace].id = std::stoul(name);
+            LOG("Workspace ID: " << workspaces[workspace].id);
+            registeredWorkspaceInfo = true;
+        }
+        catch (const std::invalid_argument&)
+        {
+            LOG("Wayland: Invalid WS name: " << name);
+        }
     }
     static void OnWorkspaceGeometry(void*, zext_workspace_handle_v1*, wl_array*) {}
     static void OnWorkspaceState(void*, zext_workspace_handle_v1* ws, wl_array* arrState)
@@ -67,6 +74,13 @@ namespace Wayland
         workspaces.erase(ws);
 
         LOG("Wayland: Removed workspace!");
+        if (group.lastActiveWorkspace == ws)
+        {
+            if (group.workspaces.size())
+                group.lastActiveWorkspace = group.workspaces[0];
+            else
+                group.lastActiveWorkspace = nullptr;
+        }
     }
     zext_workspace_handle_v1_listener workspaceListener = {OnWorkspaceName, OnWorkspaceGeometry, OnWorkspaceState, OnWorkspaceRemove};
 
@@ -74,7 +88,7 @@ namespace Wayland
     static void OnWSGroupOutputEnter(void*, zext_workspace_group_handle_v1* group, wl_output* output)
     {
         auto monitor = std::find_if(monitors.begin(), monitors.end(),
-                                    [&](const std::pair<uint32_t, Monitor>& mon)
+                                    [&](const std::pair<std::string, Monitor>& mon)
                                     {
                                         return mon.second.output == output;
                                     });
@@ -85,7 +99,7 @@ namespace Wayland
     static void OnWSGroupOutputLeave(void*, zext_workspace_group_handle_v1*, wl_output* output)
     {
         auto monitor = std::find_if(monitors.begin(), monitors.end(),
-                                    [&](const std::pair<uint32_t, Monitor>& mon)
+                                    [&](const std::pair<std::string, Monitor>& mon)
                                     {
                                         return mon.second.output == output;
                                     });
@@ -131,9 +145,19 @@ namespace Wayland
     static void OnOutputScale(void*, wl_output*, int32_t) {}
     static void OnOutputName(void*, wl_output* output, const char* name)
     {
-        LOG("Wayland: Registering monitor " << name << " at ID " << curID);
-        registeredMonitors = true;
-        monitors.try_emplace(curID++, Monitor{name, output, nullptr});
+        std::string nameStr = name;
+        auto it = monitors.find(nameStr);
+        if (it == monitors.end())
+        {
+            LOG("Wayland: Registering monitor " << name << " at ID " << curID);
+            registeredMonitors = true;
+            Monitor mon = {nameStr, output, nullptr, curID++};
+            monitors.try_emplace(nameStr, mon);
+        }
+        else
+        {
+            LOG("Wayland: Recovering monitor " << name << " at ID " << curID);
+        }
     }
     static void OnOutputDescription(void*, wl_output*, const char*) {}
     wl_output_listener outputListener = {OnOutputGeometry, OnOutputMode, OnOutputDone, OnOutputScale, OnOutputName, OnOutputDescription};
@@ -198,7 +222,7 @@ namespace Wayland
             auto workspaceIt = std::find_if(workspaces.begin(), workspaces.end(),
                                             [&](const std::pair<zext_workspace_handle_v1*, Workspace>& ws)
                                             {
-                                                return ws.second.id == monitor.first + 1;
+                                                return ws.second.id == monitor.second.ID + 1;
                                             });
             if (workspaceIt != workspaces.end())
             {
@@ -240,7 +264,7 @@ namespace Wayland
             wl_display_disconnect(display);
     }
 
-    const std::unordered_map<uint32_t, Monitor>& GetMonitors()
+    const std::unordered_map<std::string, Monitor>& GetMonitors()
     {
         return monitors;
     }

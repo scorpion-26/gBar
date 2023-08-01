@@ -39,6 +39,18 @@ void Window::Init(const std::string& overideConfigLocation)
     {
         m_Monitor = gdk_display_get_primary_monitor(defaultDisplay);
     }
+
+    // Register monitor added/removed callbacks
+    auto monAdded = [](GdkDisplay* display, GdkMonitor* mon, void* window)
+    {
+        ((Window*)window)->MonitorAdded(display, mon);
+    };
+    g_signal_connect(defaultDisplay, "monitor-added", G_CALLBACK(+monAdded), this);
+    auto monRemoved = [](GdkDisplay* display, GdkMonitor* mon, void* window)
+    {
+        ((Window*)window)->MonitorRemoved(display, mon);
+    };
+    g_signal_connect(defaultDisplay, "monitor-removed", G_CALLBACK(+monRemoved), this);
 }
 
 void Window::Run()
@@ -157,4 +169,32 @@ int Window::GetHeight() const
     GdkRectangle rect{};
     gdk_monitor_get_geometry(m_Monitor, &rect);
     return rect.height;
+}
+
+void Window::MonitorAdded(GdkDisplay* display, GdkMonitor* mon)
+{
+    LOG("Window: Monitor added: " << mon);
+    if (!m_Monitor)
+    {
+        LOG("Window: Activating window");
+        gtk_layer_set_monitor(m_Window, mon);
+        m_Monitor = mon;
+        gtk_widget_show_all((GtkWidget*)m_Window);
+    }
+}
+
+void Window::MonitorRemoved(GdkDisplay* display, GdkMonitor* mon)
+{
+    LOG("Window: Monitor removed: " << mon);
+    if (mon == m_Monitor)
+    {
+        // Hide the window, so it doesn't get rendered on an invalid monitor
+        gtk_widget_hide((GtkWidget*)m_Window);
+        // Notify gtk layer shell and redisplay window
+        gtk_layer_set_monitor(m_Window, nullptr);
+        m_Monitor = gtk_layer_get_monitor(m_Window);
+        LOG("Window: New Monitor: " << m_Monitor);
+        if (m_Monitor)
+            gtk_widget_show_all((GtkWidget*)m_Window);
+    }
 }

@@ -20,12 +20,18 @@ namespace Workspaces
         }
         System::WorkspaceStatus GetStatus(uint32_t workspaceId)
         {
-            const WaylandMonitor& monitor = ::Wayland::GetMonitors().at(lastPolledMonitor);
-            if (!monitor.output)
+            auto& mons = ::Wayland::GetMonitors();
+            auto it = std::find_if(mons.begin(), mons.end(),
+                                   [&](const std::pair<std::string, ::Wayland::Monitor>& mon)
+                                   {
+                                       return mon.second.ID == workspaceId;
+                                   });
+            if (it == mons.end())
             {
                 LOG("Polled monitor doesn't exist!");
                 return System::WorkspaceStatus::Dead;
             }
+            const ::Wayland::Monitor& monitor = it->second;
 
             auto& workspaces = ::Wayland::GetWorkspaces();
             auto workspaceIt = std::find_if(workspaces.begin(), workspaces.end(),
@@ -156,9 +162,10 @@ namespace Workspaces
             std::string workspaces = DispatchIPC("/workspaces");
             while ((parseIdx = workspaces.find("workspace ID ", parseIdx)) != std::string::npos)
             {
-                // Goto (
-                size_t begWSNum = workspaces.find('(', parseIdx) + 1;
-                size_t endWSNum = workspaces.find(')', begWSNum);
+                // Advance two spaces
+                size_t begWSNum = workspaces.find(' ', parseIdx) + 1;
+                begWSNum = workspaces.find(' ', begWSNum) + 1;
+                size_t endWSNum = workspaces.find(' ', begWSNum);
 
                 std::string ws = workspaces.substr(begWSNum, endWSNum - begWSNum);
                 int32_t wsId = std::atoi(ws.c_str());

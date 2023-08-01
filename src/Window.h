@@ -41,10 +41,14 @@ public:
 
     int GetWidth() const;
     int GetHeight() const;
+
 private:
     void UpdateMargin();
 
     void LoadCSS(GtkCssProvider* provider);
+
+    void MonitorAdded(GdkDisplay* display, GdkMonitor* monitor);
+    void MonitorRemoved(GdkDisplay* display, GdkMonitor* monitor);
 
     GtkWindow* m_Window = nullptr;
     GtkApplication* m_App = nullptr;
