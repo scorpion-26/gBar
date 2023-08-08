@@ -85,6 +85,29 @@ namespace Utils
         return buf;
     }
 
+    template<typename Func>
+    size_t RetrySocketOp(Func func, size_t retries, const char* socketOp)
+    {
+        ssize_t ret;
+        size_t tries = 0;
+        do
+        {
+            ret = func();
+            if (ret < 0)
+            {
+                // Error
+                LOG("RetrySocketOp: " << socketOp << " failed with " << ret);
+            }
+            else
+            {
+                return ret;
+            }
+            tries++;
+        } while (tries < retries);
+        LOG("RetrySocketOp: Failed after " << retries << "tries");
+        return ret;
+    }
+
     inline std::vector<std::string> Split(const std::string& str, char delim)
     {
         std::stringstream strstr(str);
