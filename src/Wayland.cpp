@@ -146,7 +146,7 @@ namespace Wayland
             wl_output* output = (wl_output*)wl_registry_bind(registry, name, &wl_output_interface, 4);
             wl_output_add_listener(output, &outputListener, nullptr);
         }
-        if (strcmp(interface, "zext_workspace_manager_v1") == 0)
+        if (strcmp(interface, "zext_workspace_manager_v1") == 0 && !Config::Get().useHyprlandIPC)
         {
             workspaceManager = (zext_workspace_manager_v1*)wl_registry_bind(registry, name, &zext_workspace_manager_v1_interface, version);
             zext_workspace_manager_v1_add_listener(workspaceManager, &workspaceManagerListener, nullptr);
@@ -180,7 +180,7 @@ namespace Wayland
         WaitFor(registeredMonitors);
         registeredMonitors = false;
 
-        if (!workspaceManager)
+        if (!workspaceManager && !Config::Get().useHyprlandIPC)
         {
             LOG("Compositor doesn't implement zext_workspace_manager_v1, disabling workspaces!");
             RuntimeConfig::Get().hasWorkspaces = false;
