@@ -187,7 +187,7 @@ First, find where the data is located for gBar. Possible locations:
  This will override the default behaviour. If you have sass installed, you can modify the scss file and then regenerate the css file accordingly. Else modify the css file directly.
 
 ### The margins of the bar are inconsistent/messed up / Custom CSS broke.
-If you have a costum style.[s]css, make sure that the margins/names/... are the same as the ones found in ```style/style.[s]css```.\
+If you have a custom style.[s]css, make sure that the margins/names/... are the same as the ones found in ```style/style.[s]css```.\
 *As of commit f78758c margins are no longer used in the default css. If you didn't play around with margins, you can safely remove them from your css*\
 If you've checked the css against upstream gBar and the issue persists, please [open an issue](https://github.com/scorpion-26/gBar/issues/new/choose).
 
