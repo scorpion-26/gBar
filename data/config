@@ -69,6 +69,9 @@ AudioRevealer: false
 # Sets the rate of change of the slider on each scroll. In Percent
 AudioScrollSpeed: 5
 
+# Display numbers instead of a slider for the two audio widgets. Doesn't affect the audio flyin
+AudioNumbers: false
+
 # Command that is run to check if there are out-of-date packages.
 # The script should return *ONLY* a number. If it doesn't output a number, updates are no longer checked.
 # Default value is applicable for Arch Linux. (See data/update.sh for a human-readable version)

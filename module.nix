@@ -133,6 +133,11 @@ in {
                     default = 5;
                     description = "Sets the rate of change of the slider on each scroll. In Percent";
                 };
+                AudioNumbers = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Display numbers instead of a slider for the two audio widgets. Doesn't affect the audio flyin"
+                };
                 AudioMinVolume = mkOption {
                     type = types.nullOr types.int;
                     default = 0;

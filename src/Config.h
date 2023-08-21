@@ -19,11 +19,13 @@ public:
 
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // See data/update.sh for a human-readable version
-    std::string checkPackagesCommand = "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
+    std::string checkPackagesCommand =
+        "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
 
     bool centerTime = true;
     bool audioRevealer = false;
     bool audioInput = false;
+    bool audioNumbers = false; // Affects both audio sliders
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
