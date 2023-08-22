@@ -28,13 +28,13 @@ namespace NvidiaGPU
         typedef int (*PFN_nvmlInit)();
         auto nvmlInit = (PFN_nvmlInit)dlsym(nvmldl, "nvmlInit");
         int res = nvmlInit();
-        ASSERT(res == 0, "Failed initializing nvml!");
+        ASSERT(res == 0, "Failed initializing nvml (Error: " << res << ")!");
 
         // Get GPU handle
         typedef int (*PFN_nvmlDeviceGetHandle)(uint32_t, void**);
         auto nvmlDeviceGetHandle = (PFN_nvmlDeviceGetHandle)dlsym(nvmldl, "nvmlDeviceGetHandleByIndex");
         res = nvmlDeviceGetHandle(0, &nvmlGPUHandle);
-        ASSERT(res == 0, "Failed getting device");
+        ASSERT(res == 0, "Failed getting device (Error: " << res << ")!");
     }
 
     inline void Shutdown()
@@ -68,7 +68,7 @@ namespace NvidiaGPU
         auto nvmlDeviceGetUtilizationRates = (PFN_nvmlDeviceGetUtilizationRates)dlsym(nvmldl, "nvmlDeviceGetUtilizationRates");
 
         int res = nvmlDeviceGetUtilizationRates(nvmlGPUHandle, &util);
-        ASSERT(res == 0, "Failed getting utilization");
+        ASSERT(res == 0, "Failed getting utilization (Error: " << res << ")!");
         return util;
     }
 
@@ -84,7 +84,7 @@ namespace NvidiaGPU
         auto nvmlDeviceGetTemperature = (PFN_nvmlDeviceGetTemperature)dlsym(nvmldl, "nvmlDeviceGetTemperature");
         uint32_t temp;
         int res = nvmlDeviceGetTemperature(nvmlGPUHandle, 0, &temp);
-        ASSERT(res == 0, "Failed getting temperature");
+        ASSERT(res == 0, "Failed getting temperature (Error: " << res << ")!");
         return temp;
     }
 
@@ -100,7 +100,7 @@ namespace NvidiaGPU
         auto nvmlDeviceGetMemoryInfo = (PFN_nvmlDeviceGetMemoryInfo)dlsym(nvmldl, "nvmlDeviceGetMemoryInfo");
         VRAM mem;
         int res = nvmlDeviceGetMemoryInfo(nvmlGPUHandle, &mem);
-        ASSERT(res == 0, "Failed getting memory");
+        ASSERT(res == 0, "Failed getting memory (Error: " << res << ")!");
         return mem;
     }
 }
