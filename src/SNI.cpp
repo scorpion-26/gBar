@@ -234,10 +234,27 @@ namespace SNI
         {
             GVariant* tooltipVar;
             g_variant_get_child(tooltip, 0, "v", &tooltipVar);
-            const gchar* title;
-            // Both telegram and discord only set the "title" component
-            g_variant_get_child(tooltipVar, 2, "s", &title);
-            item.tooltip = title;
+            const gchar* title = nullptr;
+            if (g_variant_is_container(tooltipVar) && g_variant_n_children(tooltipVar) >= 4)
+            {
+                // According to spec, ToolTip is of type (sa(iiab)ss) => 4 children
+                // Most icons only set the "title" component (e.g. Discord, KeePassXC, ...)
+                g_variant_get_child(tooltipVar, 2, "s", &title);
+            }
+            else
+            {
+                // TeamViewer only exposes a string, which is not according to spec!
+                title = g_variant_get_string(tooltipVar, nullptr);
+            }
+
+            if (title != nullptr)
+            {
+                item.tooltip = title;
+            }
+            else
+            {
+                LOG("SNI: Error querying tooltip");
+            }
             LOG("SNI: Title: " << item.tooltip);
             g_variant_unref(tooltip);
             g_variant_unref(tooltipVar);
