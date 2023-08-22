@@ -78,6 +78,8 @@ namespace SNI
             // g_variant_unref(param);
             return res;
         };
+
+        bool hasPixmap = false;
         GVariant* iconPixmap = getProperty("IconPixmap");
         if (iconPixmap)
         {
@@ -88,44 +90,51 @@ namespace SNI
             GVariantIter* arrIter = nullptr;
             g_variant_get(arr, "a(iiay)", &arrIter);
 
-            int width;
-            int height;
-            GVariantIter* data = nullptr;
-            g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
-
-            LOG("SNI: Width: " << width);
-            LOG("SNI: Height: " << height);
-            item.w = width;
-            item.h = height;
-            item.iconData = new uint8_t[width * height * 4];
-
-            uint8_t px = 0;
-            int i = 0;
-            while (g_variant_iter_next(data, "y", &px))
+            if (g_variant_iter_n_children(arrIter) == 3)
             {
-                item.iconData[i] = px;
-                i++;
-            }
-            for (int i = 0; i < width * height; i++)
-            {
-                struct Px
+                int width;
+                int height;
+                GVariantIter* data = nullptr;
+                g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
+
+                LOG("SNI: Width: " << width);
+                LOG("SNI: Height: " << height);
+                item.w = width;
+                item.h = height;
+                item.iconData = new uint8_t[width * height * 4];
+
+                uint8_t px = 0;
+                int i = 0;
+                while (g_variant_iter_next(data, "y", &px))
                 {
-                    // This should be bgra...
-                    // Since source is ARGB32 in network order(=big-endian)
-                    // and x86 Linux is little-endian, we *should* swap b and r...
-                    uint8_t a, r, g, b;
-                };
-                Px& pixel = ((Px*)item.iconData)[i];
-                // Swap to create rgba
-                pixel = {pixel.r, pixel.g, pixel.b, pixel.a};
-            }
+                    item.iconData[i] = px;
+                    i++;
+                }
+                for (int i = 0; i < width * height; i++)
+                {
+                    struct Px
+                    {
+                        // This should be bgra...
+                        // Since source is ARGB32 in network order(=big-endian)
+                        // and x86 Linux is little-endian, we *should* swap b and r...
+                        uint8_t a, r, g, b;
+                    };
+                    Px& pixel = ((Px*)item.iconData)[i];
+                    // Swap to create rgba
+                    pixel = {pixel.r, pixel.g, pixel.b, pixel.a};
+                }
 
-            g_variant_iter_free(data);
-            g_variant_iter_free(arrIter);
+                g_variant_iter_free(data);
+                g_variant_iter_free(arrIter);
+
+                hasPixmap = true;
+            }
             g_variant_unref(arr);
             g_variant_unref(iconPixmap);
         }
-        else
+
+        // Pixmap querying has failed, try IconName
+        if (!hasPixmap)
         {
             auto findIconWithoutPath = [](const char* iconName) -> std::string
             {
