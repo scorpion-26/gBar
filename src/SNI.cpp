@@ -41,6 +41,7 @@ namespace SNI
         EventBox* gtkEvent = nullptr;
 
         int watcherID = -1;
+        int propertyChangeWatcherID = -1;
     };
     std::vector<Item> items;
 
@@ -301,6 +302,7 @@ namespace SNI
         {
             LOG("SNI: " << name << " vanished!");
             g_bus_unwatch_name(it->watcherID);
+            g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
             items.erase(it);
             InvalidateWidget();
             return;
@@ -318,6 +320,11 @@ namespace SNI
 
     static void ItemPropertyChanged(GDBusConnection*, const char* senderName, const char* object, const char*, const char*, GVariant*, void* name)
     {
+        // I think the multiple calling of this callback is a symptom of not unsubscribing the ItemPropertyChanged callback. Since this is now done, I
+        // think the reloadedNames and object path checking is no longer needed. Since it doesn't do any harm (except being a little bit pointless)
+        // I'll leave the checks here for now.
+        // TODO: Investigate whether it is now actually fixed
+
         if (reloadedNames.insert(senderName).second == false)
         {
             // senderName has already requested a change, ignore
@@ -327,19 +334,32 @@ namespace SNI
 
         std::string nameStr = (const char*)name;
         LOG("SNI: Reloading " << (const char*)name << " " << object << " (Sender: " << senderName << ")");
-        // We don't care about *what* changed, just remove and reload
+
+        // We can't trust the object path given to us, since ItemPropertyChanged is called multiple times with the same name, but with different
+        // object paths.
         auto it = std::find_if(items.begin(), items.end(),
                                [&](const Item& item)
                                {
                                    return item.name == nameStr;
                                });
-        // We can't trust the object path given to us, since ItemPropertyChanged is called multiple times with the same name, but with different
-        // object paths.
-        std::string itemObjectPath = it->object;
+        std::string itemObjectPath;
+        if (it != items.end())
+        {
+            itemObjectPath = it->object;
+        }
+        else
+        {
+            // Item not already registered, fallback to provided name and hope the object path provided is accurate
+            LOG("SNI: Couldn't find name for actual object path!");
+            itemObjectPath = object;
+        }
+
+        // We don't care about *what* changed, just remove and reload
         LOG("SNI: Actual object path: " << itemObjectPath)
         if (it != items.end())
         {
             g_bus_unwatch_name(it->watcherID);
+            g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
             items.erase(it);
         }
         else
@@ -376,7 +396,8 @@ namespace SNI
             // Add handler for icon change
             char* staticBuf = new char[item.name.size() + 1]{0x0};
             memcpy(staticBuf, item.name.c_str(), item.name.size());
-            g_dbus_connection_signal_subscribe(
+            LOG("SNI: Allocating static name buffer for " << item.name);
+            item.propertyChangeWatcherID = g_dbus_connection_signal_subscribe(
                 dbusConnection, item.name.c_str(), "org.kde.StatusNotifierItem", nullptr, nullptr, nullptr, G_DBUS_SIGNAL_FLAGS_NONE,
                 ItemPropertyChanged, staticBuf,
                 +[](void* ptr)
