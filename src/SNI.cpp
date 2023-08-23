@@ -90,7 +90,7 @@ namespace SNI
             GVariantIter* arrIter = nullptr;
             g_variant_get(arr, "a(iiay)", &arrIter);
 
-            if (g_variant_iter_n_children(arrIter) == 3)
+            if (g_variant_iter_n_children(arrIter) != 0)
             {
                 int width;
                 int height;
@@ -125,10 +125,10 @@ namespace SNI
                 }
 
                 g_variant_iter_free(data);
-                g_variant_iter_free(arrIter);
 
                 hasPixmap = true;
             }
+            g_variant_iter_free(arrIter);
             g_variant_unref(arr);
             g_variant_unref(iconPixmap);
         }
