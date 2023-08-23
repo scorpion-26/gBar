@@ -587,7 +587,7 @@ namespace SNI
             LOG("SNI: Lost Name! Disabling SNI!");
             RuntimeConfig::Get().hasSNI = false;
         };
-        auto flags = G_BUS_NAME_OWNER_FLAGS_REPLACE | G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT;
+        auto flags = G_BUS_NAME_OWNER_FLAGS_REPLACE;
         g_bus_own_name(G_BUS_TYPE_SESSION, "org.kde.StatusNotifierWatcher", (GBusNameOwnerFlags)flags, +busAcquired, +emptyCallback, +lostName,
                        nullptr, nullptr);
         watcherSkeleton = sni_watcher_skeleton_new();
