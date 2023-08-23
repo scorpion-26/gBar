@@ -28,7 +28,12 @@ namespace NvidiaGPU
         typedef int (*PFN_nvmlInit)();
         auto nvmlInit = (PFN_nvmlInit)dlsym(nvmldl, "nvmlInit");
         int res = nvmlInit();
-        ASSERT(res == 0, "Failed initializing nvml (Error: " << res << ")!");
+        if (res != 0)
+        {
+            LOG("Failed initializing nvml (Error: " << res << "), disabling Nvidia GPU");
+            RuntimeConfig::Get().hasNvidia = false;
+            return;
+        }
 
         // Get GPU handle
         typedef int (*PFN_nvmlDeviceGetHandle)(uint32_t, void**);
