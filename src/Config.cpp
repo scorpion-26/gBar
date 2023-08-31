@@ -202,6 +202,7 @@ void Config::Load()
         AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
 
         AddConfigVar("TimeSpace", config.timeSpace, lineView, foundProperty);
+        AddConfigVar("DateTimeLocale", config.dateTimeLocale, lineView, foundProperty);
 
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
 
