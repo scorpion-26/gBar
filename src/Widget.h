@@ -400,7 +400,7 @@ namespace Utils
         case 'B': return Orientation::Horizontal;
         case 'L':
         case 'R': return Orientation::Vertical;
-        default: LOG("Invalid location char \"" << Config::Get().location << "\"!") return Orientation::Horizontal;
+        default: LOG("Invalid location char \"" << Config::Get().location << "\"!"); return Orientation::Horizontal;
         }
     }
 
@@ -431,7 +431,7 @@ namespace Utils
         case 'B': return TransitionType::SlideLeft;
         case 'L':
         case 'R': return TransitionType::SlideUp;
-        default: LOG("Invalid location char \"" << Config::Get().location << "\"!") return TransitionType::SlideLeft;
+        default: LOG("Invalid location char \"" << Config::Get().location << "\"!"); return TransitionType::SlideLeft;
         }
     }
 }
