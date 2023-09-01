@@ -118,6 +118,11 @@ in {
                     default = "%a %D - %H:%M:%S %Z";
                     description = "Set datetime style";
                 };
+                DateTimeLocale = mkOption {
+                    type = types.nullOr types.str;
+                    default = "";
+                    description = "Set datetime locale (defaults to system locale if not set or set to empty string). Example locale: \"de_DE.utf8\"";
+                };
                 AudioInput = mkOption {
                     type = types.bool;
                     default = false;
