@@ -150,6 +150,7 @@ gBar gBarHelloWorld
 ```
 The second argument is the name of the shared library (without 'lib' and '.so').
 
+For more examples on how to use the gBar API, you can have a look at the built-in widgets (AudioFlyin.cpp, BluetoothDevices.cpp, Bar.cpp) as they use the same API.
 
 ## FAQ
 ### There are already many GTK bars out there, why not use them?
