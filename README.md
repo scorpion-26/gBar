@@ -98,7 +98,7 @@ gBar bluetooth [monitor]
 
 ## Features / Widgets
 Bar: 
-- Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace, though workspace control relies on Hyprland)
+- Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace when ```UseHyprlandIPC``` is false, though workspace control relies on Hyprland)
 - Time
 - Bluetooth (BlueZ only)
 - Audio control

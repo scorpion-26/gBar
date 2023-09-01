@@ -37,7 +37,9 @@ WorkspaceScrollInvert: false
 # Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
 # Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,
 # since the protocol is not as feature complete as Hyprland IPC.
-UseHyprlandIPC: false
+# NOTE: Hyprland no longer supports ext-workspace-unstable-v1 as of commit bb09334.
+# Hyprland IPC is thus *required* for workspace support under Hyprland >=v0.30.0!
+UseHyprlandIPC: true
 
 # The location of the bar
 # Needs to be capitalized!!

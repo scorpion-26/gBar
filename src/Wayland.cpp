@@ -183,6 +183,7 @@ namespace Wayland
         if (!workspaceManager && !Config::Get().useHyprlandIPC)
         {
             LOG("Compositor doesn't implement zext_workspace_manager_v1, disabling workspaces!");
+            LOG("Note: Hyprland v0.30.0 removed support for zext_workspace_manager_v1, please enable UseHyprlandIPC instead!");
             RuntimeConfig::Get().hasWorkspaces = false;
             return;
         }
