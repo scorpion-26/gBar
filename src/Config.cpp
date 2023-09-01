@@ -177,6 +177,7 @@ void Config::Load()
         AddConfigVar("BatteryFolder", config.batteryFolder, lineView, foundProperty);
         AddConfigVar("DefaultWorkspaceSymbol", config.defaultWorkspaceSymbol, lineView, foundProperty);
         AddConfigVar("DateTimeStyle", config.dateTimeStyle, lineView, foundProperty);
+        AddConfigVar("DateTimeLocale", config.dateTimeLocale, lineView, foundProperty);
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
         for (int i = 1; i < 10; i++)
         {

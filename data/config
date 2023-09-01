@@ -60,6 +60,9 @@ TimeSpace: 300
 # Set datetime style
 # DateTimeStyle: %a %D - %H:%M:%S %Z
 
+# Set datetime locale (defaults to system locale if not set or set to empty string)
+# DateTimeLocale: de_DE.utf8
+
 # Adds a audio input(aka. microphone) widget
 AudioInput: false
 

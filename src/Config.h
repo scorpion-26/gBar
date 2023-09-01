@@ -16,6 +16,7 @@ public:
     std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
     std::string defaultWorkspaceSymbol = "";
     std::string dateTimeStyle = "%a %D - %H:%M:%S %Z"; // A sane default
+    std::string dateTimeLocale = ""; // use system locale
 
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // See data/update.sh for a human-readable version
