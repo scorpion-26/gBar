@@ -6,7 +6,8 @@ void Create(Window& window, int32_t monitor)
     auto mainWidget = Widget::Create<Text>();
     mainWidget->SetText("Hello, World!");
 
-    window = Window(std::move(mainWidget), monitor);
+    window = Window(monitor);
+    window.SetMainWidget(std::move(mainWidget));
 }
 
 DEFINE_PLUGIN(Create);

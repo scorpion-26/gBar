@@ -7,6 +7,8 @@ project('gBarHelloWorld',
 
 gBar = dependency('gBar')
 
+add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
+
 library(
   'gBarHelloWorld',
   ['main.cpp'],
