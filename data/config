@@ -22,8 +22,9 @@ ExitCommand: killall Hyprland
 # The folder, where the battery sensors reside
 BatteryFolder: /sys/class/power_supply/BAT1
 
-# Overrides the icon of the nth (in this case the first) workspace
-# WorkspaceSymbol-1: 
+# Overrides the icon of the nth (in this case the first) workspace.
+# Please note the missing space between "," and the symbol. Adding a space here adds it to the bar too!
+#WorkspaceSymbol: 1,
 
 # The default symbol for the workspaces
 DefaultWorkspaceSymbol: 
@@ -33,6 +34,9 @@ WorkspaceScrollOnMonitor: true
 
 # When true: Scroll up -> Next workspace instead of previous workspace. Analogous with scroll down
 WorkspaceScrollInvert: false
+
+# Number of workspaces to display. Displayed workspace IDs are 1-n (Default: 1-9)
+NumWorkspaces: 9
 
 # Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
 # Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,

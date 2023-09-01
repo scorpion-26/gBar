@@ -261,7 +261,7 @@ namespace Bar
         }
 
 #ifdef WITH_WORKSPACES
-        static std::array<Button*, 9> workspaces;
+        static std::vector<Button*> workspaces;
         TimerResult UpdateWorkspaces(Box&)
         {
             System::PollWorkspaces((uint32_t)monitorID, workspaces.size());
@@ -765,6 +765,7 @@ namespace Bar
             box->SetOrientation(Utils::GetOrientation());
             Utils::SetTransform(*box, {-1, true, Alignment::Left, 12, 0});
             {
+                DynCtx::workspaces.resize(Config::Get().numWorkspaces);
                 for (size_t i = 0; i < DynCtx::workspaces.size(); i++)
                 {
                     auto workspace = Widget::Create<Button>();

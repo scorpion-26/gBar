@@ -233,7 +233,7 @@ in {
           in attrsets.mapAttrs (name: value:
                       name + ": " + (anyToString value)) (filterAttrs (n2: v2: (isInt v2 || isString v2 || isBool v2))x);
       extractLists = l:
-          (imap1 (i: v: "WorkspaceSymbol-${toString i}: " + v) l.WorkspaceSymbols) ++
+          (imap1 (i: v: "WorkspaceSymbol: ${toString i}," + v) l.WorkspaceSymbols) ++
           (mapAttrsToList (n: v: "SNIIconSize: ${n}, ${toString v}") l.SNIIconSize) ++
           (mapAttrsToList (n: v: "SNIIconPaddingTop: ${n}, ${toString v}") l.SNIIconPaddingTop);
 

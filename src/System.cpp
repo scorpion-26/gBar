@@ -478,18 +478,20 @@ namespace System
     }
     std::string GetWorkspaceSymbol(int index)
     {
-        if (index < 0 || index > 9)
+        if (index < 0 || index > (int)Config::Get().numWorkspaces)
         {
             LOG("Workspace Symbol Index Out Of Bounds: " + std::to_string(index));
             return "";
         }
 
-        if (Config::Get().workspaceSymbols[index].empty())
+        // workspaceSymbols is from [1-n], wsidx is from [0-n[
+        auto it = Config::Get().workspaceSymbols.find(index + 1);
+        if (it == Config::Get().workspaceSymbols.end())
         {
             return Config::Get().defaultWorkspaceSymbol + " ";
         }
 
-        return Config::Get().workspaceSymbols[index] + " ";
+        return it->second + " ";
     }
 #endif
 

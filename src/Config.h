@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdint>
 #include <unordered_map>
+#include <map>
 
 class Config
 {
@@ -13,10 +14,10 @@ public:
     std::string lockCommand = "";   // idk, no standard way of doing this.
     std::string exitCommand = "";   // idk, no standard way of doing this.
     std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
-    std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
+    std::map<uint32_t, std::string> workspaceSymbols;
     std::string defaultWorkspaceSymbol = "";
     std::string dateTimeStyle = "%a %D - %H:%M:%S %Z"; // A sane default
-    std::string dateTimeLocale = ""; // use system locale
+    std::string dateTimeLocale = "";                   // use system locale
 
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // See data/update.sh for a human-readable version
@@ -39,11 +40,10 @@ public:
     uint32_t minDownloadBytes = 0;                // Bottom limit of the network widgets download. Everything above it is considered "under"
     uint32_t maxDownloadBytes = 10 * 1024 * 1024; // 10 MiB Top limit of the network widgets download. Everything above it is considered "over"
 
-    uint32_t audioScrollSpeed = 5; // 5% each scroll
-
+    uint32_t audioScrollSpeed = 5;         // 5% each scroll
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
-
-    uint32_t timeSpace = 300; // How much time should be reserved for the time widget.
+    uint32_t timeSpace = 300;              // How much time should be reserved for the time widget.
+    uint32_t numWorkspaces = 9;            // How many workspaces to display
 
     char location = 'T'; // The Location of the bar. Can be L,R,T,B
 

@@ -194,11 +194,23 @@ void Config::Load()
         AddConfigVar("DateTimeStyle", config.dateTimeStyle, lineView, foundProperty);
         AddConfigVar("DateTimeLocale", config.dateTimeLocale, lineView, foundProperty);
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
+
+        // Legacy syntax
         for (int i = 1; i < 10; i++)
         {
             // Subtract 1 to index from 1 to 9 rather than 0 to 8
-            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), config.workspaceSymbols[i - 1], lineView, foundProperty);
+            std::string symbol;
+            bool hasFoundProperty = foundProperty;
+            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), symbol, lineView, foundProperty);
+            if (foundProperty && !hasFoundProperty)
+            {
+                config.workspaceSymbols[i] = symbol;
+                LOG("Warning: Legacy notation for WorkspaceSymbol used.");
+                LOG("         Please consider switching to \"WorkspaceSymbol: [number], [symbol]!\"");
+            }
         }
+        // Modern map syntax
+        AddConfigVar("WorkspaceSymbol", config.workspaceSymbols, lineView, foundProperty);
 
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
@@ -216,9 +228,8 @@ void Config::Load()
         AddConfigVar("MaxDownloadBytes", config.maxDownloadBytes, lineView, foundProperty);
 
         AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
-
         AddConfigVar("TimeSpace", config.timeSpace, lineView, foundProperty);
-
+        AddConfigVar("NumWorkspaces", config.numWorkspaces, lineView, foundProperty);
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
 
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
