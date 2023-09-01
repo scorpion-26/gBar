@@ -195,23 +195,6 @@ void Config::Load()
         AddConfigVar("DateTimeLocale", config.dateTimeLocale, lineView, foundProperty);
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
 
-        // Legacy syntax
-        for (int i = 1; i < 10; i++)
-        {
-            // Subtract 1 to index from 1 to 9 rather than 0 to 8
-            std::string symbol;
-            bool hasFoundProperty = foundProperty;
-            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), symbol, lineView, foundProperty);
-            if (foundProperty && !hasFoundProperty)
-            {
-                config.workspaceSymbols[i] = symbol;
-                LOG("Warning: Legacy notation for WorkspaceSymbol used.");
-                LOG("         Please consider switching to \"WorkspaceSymbol: [number], [symbol]!\"");
-            }
-        }
-        // Modern map syntax
-        AddConfigVar("WorkspaceSymbol", config.workspaceSymbols, lineView, foundProperty);
-
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
@@ -239,6 +222,22 @@ void Config::Load()
 
         AddConfigVar("SNIIconSize", config.sniIconSizes, lineView, foundProperty);
         AddConfigVar("SNIPaddingTop", config.sniPaddingTop, lineView, foundProperty);
+        // Modern map syntax
+        AddConfigVar("WorkspaceSymbol", config.workspaceSymbols, lineView, foundProperty);
+        // Legacy syntax
+        for (int i = 1; i < 10; i++)
+        {
+            // Subtract 1 to index from 1 to 9 rather than 0 to 8
+            std::string symbol;
+            bool hasFoundProperty = foundProperty;
+            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), symbol, lineView, foundProperty);
+            if (foundProperty && !hasFoundProperty)
+            {
+                config.workspaceSymbols[i] = symbol;
+                LOG("Warning: Legacy notation for WorkspaceSymbol used.");
+                LOG("         Please consider switching to \"WorkspaceSymbol: [number], [symbol]!\"");
+            }
+        }
 
         if (foundProperty == false)
         {
