@@ -2,8 +2,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <filesystem>
+#include <map>
 
 #include "Log.h"
 
@@ -51,6 +53,14 @@ using EnumType = std::underlying_type_t<Enum>;
 
 namespace Utils
 {
+    template<typename T>
+    constexpr bool IsMapLike = false;
+
+    template<typename Key, typename Value>
+    constexpr bool IsMapLike<std::map<Key, Value>> = true;
+    template<typename Key, typename Value>
+    constexpr bool IsMapLike<std::unordered_map<Key, Value>> = true;
+
     inline std::string ToStringPrecision(double x, const char* fmt)
     {
         char buf[128];
