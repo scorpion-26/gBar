@@ -124,7 +124,7 @@ namespace Bar
         {
             System::DiskInfo info = System::GetDiskInfo();
 
-            std::string text = "Disk: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" +
+            std::string text = "Disk " + info.partition + ": " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" +
                                Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
             if (Config::Get().sensorTooltips)
             {

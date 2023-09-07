@@ -38,6 +38,7 @@ namespace System
 
     struct DiskInfo
     {
+        std::string partition;
         double totalGiB;
         double usedGiB;
     };
