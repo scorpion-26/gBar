@@ -28,7 +28,15 @@ namespace Bar
             double usage = System::GetCPUUsage();
             double temp = System::GetCPUTemp();
 
-            cpuText->SetText("CPU: " + Utils::ToStringPrecision(usage * 100, "%0.1f") + "% " + Utils::ToStringPrecision(temp, "%0.1f") + "°C");
+            std::string text = "CPU: " + Utils::ToStringPrecision(usage * 100, "%0.1f") + "% " + Utils::ToStringPrecision(temp, "%0.1f") + "°C";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                cpuText->SetText(text);
+            }
             sensor.SetValue(usage);
             return TimerResult::Ok;
         }
@@ -38,7 +46,15 @@ namespace Bar
         {
             double percentage = System::GetBatteryPercentage();
 
-            batteryText->SetText("Battery: " + Utils::ToStringPrecision(percentage * 100, "%0.1f") + "%");
+            std::string text = "Battery: " + Utils::ToStringPrecision(percentage * 100, "%0.1f") + "%";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                batteryText->SetText(text);
+            }
             sensor.SetValue(percentage);
             return TimerResult::Ok;
         }
@@ -50,7 +66,15 @@ namespace Bar
             double used = info.totalGiB - info.freeGiB;
             double usedPercent = used / info.totalGiB;
 
-            ramText->SetText("RAM: " + Utils::ToStringPrecision(used, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB");
+            std::string text = "RAM: " + Utils::ToStringPrecision(used, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                ramText->SetText(text);
+            }
             sensor.SetValue(usedPercent);
             return TimerResult::Ok;
         }
@@ -61,8 +85,16 @@ namespace Bar
         {
             System::GPUInfo info = System::GetGPUInfo();
 
-            gpuText->SetText("GPU: " + Utils::ToStringPrecision(info.utilisation, "%0.1f") + "% " + Utils::ToStringPrecision(info.coreTemp, "%0.1f") +
-                             "°C");
+            std::string text = "GPU: " + Utils::ToStringPrecision(info.utilisation, "%0.1f") + "% " +
+                               Utils::ToStringPrecision(info.coreTemp, "%0.1f") + "°C";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                gpuText->SetText(text);
+            }
             sensor.SetValue(info.utilisation / 100);
             return TimerResult::Ok;
         }
@@ -72,8 +104,16 @@ namespace Bar
         {
             System::VRAMInfo info = System::GetVRAMInfo();
 
-            vramText->SetText("VRAM: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") +
-                              "GiB");
+            std::string text = "VRAM: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" +
+                               Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                vramText->SetText(text);
+            }
             sensor.SetValue(info.usedGiB / info.totalGiB);
             return TimerResult::Ok;
         }
@@ -84,8 +124,16 @@ namespace Bar
         {
             System::DiskInfo info = System::GetDiskInfo();
 
-            diskText->SetText("Disk: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") +
-                              "GiB");
+            std::string text = "Disk: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" +
+                               Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                diskText->SetText(text);
+            }
             sensor.SetValue(info.usedGiB / info.totalGiB);
             return TimerResult::Ok;
         }
@@ -246,7 +294,15 @@ namespace Bar
             std::string upload = Utils::StorageUnitDynamic(bpsUp, "%0.1f%s");
             std::string download = Utils::StorageUnitDynamic(bpsDown, "%0.1f%s");
 
-            networkText->SetText(Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down");
+            std::string text = Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                networkText->SetText(Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down");
+            }
 
             sensor.SetUp(bpsUp);
             sensor.SetDown(bpsDown);
@@ -311,21 +367,25 @@ namespace Bar
             Utils::SetTransform(*box, {-1, true, Alignment::Right});
             box->SetOrientation(Utils::GetOrientation());
             {
-                auto revealer = Widget::Create<Revealer>();
-                revealer->SetTransition({Utils::GetTransitionType(), 500});
-                // Add event to eventbox for the revealer to open
-                eventBox->SetHoverFn(
-                    [textRevealer = revealer.get()](EventBox&, bool hovered)
-                    {
-                        textRevealer->SetRevealed(hovered);
-                    });
+                if (!Config::Get().sensorTooltips)
                 {
-                    auto text = Widget::Create<Text>();
-                    text->SetClass(textClass);
-                    text->SetAngle(Utils::GetAngle());
-                    Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
-                    textPtr = text.get();
-                    revealer->AddChild(std::move(text));
+                    auto revealer = Widget::Create<Revealer>();
+                    revealer->SetTransition({Utils::GetTransitionType(), 500});
+                    // Add event to eventbox for the revealer to open
+                    eventBox->SetHoverFn(
+                        [textRevealer = revealer.get()](EventBox&, bool hovered)
+                        {
+                            textRevealer->SetRevealed(hovered);
+                        });
+                    {
+                        auto text = Widget::Create<Text>();
+                        text->SetClass(textClass);
+                        text->SetAngle(Utils::GetAngle());
+                        Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
+                        textPtr = text.get();
+                        revealer->AddChild(std::move(text));
+                    }
+                    box->AddChild(std::move(revealer));
                 }
 
                 auto sensor = Widget::Create<Sensor>();
@@ -342,7 +402,6 @@ namespace Bar
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
                 Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
 
-                box->AddChild(std::move(revealer));
                 box->AddChild(std::move(sensor));
             }
             eventBox->AddChild(std::move(box));
@@ -543,21 +602,25 @@ namespace Bar
             Utils::SetTransform(*box, {-1, true, Alignment::Right});
             box->SetOrientation(Utils::GetOrientation());
             {
-                auto revealer = Widget::Create<Revealer>();
-                revealer->SetTransition({Utils::GetTransitionType(), 500});
-                // Add event to eventbox for the revealer to open
-                eventBox->SetHoverFn(
-                    [textRevealer = revealer.get()](EventBox&, bool hovered)
-                    {
-                        textRevealer->SetRevealed(hovered);
-                    });
+                if (!Config::Get().sensorTooltips)
                 {
-                    auto text = Widget::Create<Text>();
-                    text->SetClass("network-data-text");
-                    text->SetAngle(Utils::GetAngle());
-                    Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
-                    DynCtx::networkText = text.get();
-                    revealer->AddChild(std::move(text));
+                    auto revealer = Widget::Create<Revealer>();
+                    revealer->SetTransition({Utils::GetTransitionType(), 500});
+                    // Add event to eventbox for the revealer to open
+                    eventBox->SetHoverFn(
+                        [textRevealer = revealer.get()](EventBox&, bool hovered)
+                        {
+                            textRevealer->SetRevealed(hovered);
+                        });
+                    {
+                        auto text = Widget::Create<Text>();
+                        text->SetClass("network-data-text");
+                        text->SetAngle(Utils::GetAngle());
+                        Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
+                        DynCtx::networkText = text.get();
+                        revealer->AddChild(std::move(text));
+                    }
+                    box->AddChild(std::move(revealer));
                 }
 
                 auto sensor = Widget::Create<NetworkSensor>();
@@ -567,7 +630,6 @@ namespace Bar
                 sensor->AddTimer<NetworkSensor>(DynCtx::UpdateNetwork, DynCtx::updateTime);
                 Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
 
-                box->AddChild(std::move(revealer));
                 box->AddChild(std::move(sensor));
             }
             eventBox->AddChild(std::move(box));

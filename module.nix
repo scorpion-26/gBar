@@ -163,6 +163,11 @@ in {
                     default = true;
                     description = "Disables the network widget when set to false";
                 };
+                SensorTooltips = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Use tooltips instead of sliders for the sensors";
+                };
                 EnableSNI = mkOption {
                     type = types.bool;
                     default = true;

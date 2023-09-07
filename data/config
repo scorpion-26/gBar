@@ -101,6 +101,9 @@ NetworkAdapter: eno1
 # Disables the network widget when set to false
 NetworkWidget: true
 
+# Use tooltips instead of sliders for the sensors
+SensorTooltips: false
+
 # Enables tray icons
 EnableSNI: true
 
