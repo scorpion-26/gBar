@@ -64,10 +64,10 @@ CenterTime: true
 TimeSpace: 300
 
 # Set datetime style
-# DateTimeStyle: %a %D - %H:%M:%S %Z
+DateTimeStyle: %a %D - %H:%M:%S %Z
 
 # Set datetime locale (defaults to system locale if not set or set to empty string)
-# DateTimeLocale: de_DE.utf8
+#DateTimeLocale: de_DE.utf8
 
 # Adds a audio input(aka. microphone) widget
 AudioInput: false
@@ -112,11 +112,11 @@ EnableSNI: true
 # For both: The first parameter is a filter of the tooltip(The text that pops up, when the icon is hovered) of the icon
 
 # Scale everything down to 25 pixels ('*' as filter means everything)
-SNIIconSize: *, 25
+#SNIIconSize: *, 25
 # Explicitly make OBS a bit smaller than default
-SNIIconSize: OBS, 23
+#SNIIconSize: OBS, 23
 # Nudges the Discord icon a bit down
-# SNIPaddingTop: Discord, 5
+#SNIPaddingTop: Discord, 5
 
 # These set the range for the network widget. The widget changes colors at six intervals:
 #    - Below Min...Bytes ("under")
