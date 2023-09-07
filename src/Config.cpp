@@ -127,7 +127,14 @@ void AddConfigVar(const std::string& propertyName, T& propertyToSet, std::string
     std::string_view value = line.substr(colon + 1);
     size_t beginValue = value.find_first_not_of(whitespace);
     size_t endValue = value.find_last_not_of(whitespace);
-    value = value.substr(beginValue, endValue - beginValue + 1);
+    if (beginValue == std::string::npos || endValue == std::string::npos)
+    {
+        value = "";
+    }
+    else
+    {
+        value = value.substr(beginValue, endValue - beginValue + 1);
+    }
 
     // Set value
     ApplyProperty(propertyToSet, value);
