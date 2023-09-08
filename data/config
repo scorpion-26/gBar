@@ -22,6 +22,9 @@ ExitCommand: killall Hyprland
 # The folder, where the battery sensors reside
 BatteryFolder: /sys/class/power_supply/BAT1
 
+# The partition to monitor with disk sensor
+DiskPartition: /
+
 # Overrides the icon of the nth (in this case the first) workspace.
 # Please note the missing space between "," and the symbol. Adding a space here adds it to the bar too!
 #WorkspaceSymbol: 1,

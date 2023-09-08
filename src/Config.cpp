@@ -201,6 +201,7 @@ void Config::Load()
         AddConfigVar("DateTimeStyle", config.dateTimeStyle, lineView, foundProperty);
         AddConfigVar("DateTimeLocale", config.dateTimeLocale, lineView, foundProperty);
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
+        AddConfigVar("DiskPartition", config.diskPartition, lineView, foundProperty);
 
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
