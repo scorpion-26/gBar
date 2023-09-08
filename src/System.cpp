@@ -202,11 +202,12 @@ namespace System
     DiskInfo GetDiskInfo()
     {
         struct statvfs stat;
-        int err = statvfs(Config::Get().diskPartition.c_str(), &stat);
-        ASSERT(err == 0, "Cannot stat diskPartition!");
+        std::string partition = Config::Get().diskPartition;
+        int err = statvfs(partition.c_str(), &stat);
+        ASSERT(err == 0, "Cannot stat " + partition + "!");
 
         DiskInfo out{};
-        out.partition = Config::Get().diskPartition;
+        out.partition = partition;
         out.totalGiB = (double)(stat.f_blocks * stat.f_frsize) / (1024 * 1024 * 1024);
         out.usedGiB = (double)((stat.f_blocks - stat.f_bfree) * stat.f_frsize) / (1024 * 1024 * 1024);
         return out;
