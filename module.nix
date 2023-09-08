@@ -58,6 +58,11 @@ in {
                     default = "/sys/class/power_supply/BAT1";
                     description = "The folder, where the battery sensors reside";
                 };
+                DiskPartition = mkOption {
+                    type = types.str;
+                    default = "/";
+                    description = "The partition to monitor with disk sensor";
+                };
                 WorkspaceSymbols = mkOption {
                     type = types.nullOr (types.listOf types.str);
                     default = [];
