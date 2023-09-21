@@ -108,9 +108,6 @@ namespace NvidiaGPU
         }
 
         GPUUtilization util;
-        typedef int (*PFN_nvmlDeviceGetUtilizationRates)(void*, GPUUtilization*);
-        auto nvmlDeviceGetUtilizationRates = (PFN_nvmlDeviceGetUtilizationRates)dlsym(nvmldl, "nvmlDeviceGetUtilizationRates");
-
         int res = nvmlDeviceGetUtilizationRates(nvmlGPUHandle, &util);
         ASSERT(res == 0, "Failed getting utilization (Error: " << res << ")!");
         return util;
@@ -124,8 +121,6 @@ namespace NvidiaGPU
             return {};
         }
 
-        typedef int (*PFN_nvmlDeviceGetTemperature)(void*, uint32_t, uint32_t*);
-        auto nvmlDeviceGetTemperature = (PFN_nvmlDeviceGetTemperature)dlsym(nvmldl, "nvmlDeviceGetTemperature");
         uint32_t temp;
         int res = nvmlDeviceGetTemperature(nvmlGPUHandle, 0, &temp);
         ASSERT(res == 0, "Failed getting temperature (Error: " << res << ")!");
@@ -140,8 +135,6 @@ namespace NvidiaGPU
             return {};
         }
 
-        typedef int (*PFN_nvmlDeviceGetMemoryInfo)(void*, VRAM*);
-        auto nvmlDeviceGetMemoryInfo = (PFN_nvmlDeviceGetMemoryInfo)dlsym(nvmldl, "nvmlDeviceGetMemoryInfo");
         VRAM mem;
         int res = nvmlDeviceGetMemoryInfo(nvmlGPUHandle, &mem);
         ASSERT(res == 0, "Failed getting memory (Error: " << res << ")!");
