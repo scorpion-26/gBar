@@ -68,7 +68,7 @@ namespace NvidiaGPU
         
         // Check if all information is available
         GPUUtilization util;
-        int res = nvmlDeviceGetUtilizationRates(nvmlGPUHandle, &util);
+        res = nvmlDeviceGetUtilizationRates(nvmlGPUHandle, &util);
         if (res != 0)
         {
             LOG("Failed querying utilization rates (Error: " << res << "), disabling Nvidia GPU!");
