@@ -15,6 +15,8 @@
 #include <stb/stb_image.h>
 
 #include <fstream>
+#include <cstdio>
+#include <unordered_set>
 
 namespace SNI
 {
@@ -28,19 +30,23 @@ namespace SNI
     {
         std::string name;
         std::string object;
-        size_t w;
-        size_t h;
+        size_t w = 0;
+        size_t h = 0;
         uint8_t* iconData = nullptr;
 
-        std::string tooltip;
+        std::string tooltip = "";
 
-        std::string menuObjectPath;
+        std::string menuObjectPath = "";
 
-        EventBox* gtkEvent;
+        EventBox* gtkEvent = nullptr;
+
+        int watcherID = -1;
+        int propertyChangeWatcherID = -1;
     };
     std::vector<Item> items;
 
     std::unordered_map<std::string, Item> clientsToQuery;
+    std::unordered_set<std::string> reloadedNames;
 
     // Gtk stuff, TODO: Allow more than one instance
     // Simply removing the gtk_drawing_areas doesn't trigger proper redrawing
@@ -73,6 +79,8 @@ namespace SNI
             // g_variant_unref(param);
             return res;
         };
+
+        bool hasPixmap = false;
         GVariant* iconPixmap = getProperty("IconPixmap");
         if (iconPixmap)
         {
@@ -83,45 +91,81 @@ namespace SNI
             GVariantIter* arrIter = nullptr;
             g_variant_get(arr, "a(iiay)", &arrIter);
 
-            int width;
-            int height;
-            GVariantIter* data = nullptr;
-            g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
-
-            LOG("SNI: Width: " << width);
-            LOG("SNI: Height: " << height);
-            item.w = width;
-            item.h = height;
-            item.iconData = new uint8_t[width * height * 4];
-
-            uint8_t px = 0;
-            int i = 0;
-            while (g_variant_iter_next(data, "y", &px))
+            if (g_variant_iter_n_children(arrIter) != 0)
             {
-                item.iconData[i] = px;
-                i++;
-            }
-            for (int i = 0; i < width * height; i++)
-            {
-                struct Px
+                int width;
+                int height;
+                GVariantIter* data = nullptr;
+                g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
+
+                LOG("SNI: Width: " << width);
+                LOG("SNI: Height: " << height);
+                item.w = width;
+                item.h = height;
+                item.iconData = new uint8_t[width * height * 4];
+
+                uint8_t px = 0;
+                int i = 0;
+                while (g_variant_iter_next(data, "y", &px))
                 {
-                    // This should be bgra...
-                    // Since source is ARGB32 in network order(=big-endian)
-                    // and x86 Linux is little-endian, we *should* swap b and r...
-                    uint8_t a, r, g, b;
-                };
-                Px& pixel = ((Px*)item.iconData)[i];
-                // Swap to create rgba
-                pixel = {pixel.r, pixel.g, pixel.b, pixel.a};
-            }
+                    item.iconData[i] = px;
+                    i++;
+                }
+                for (int i = 0; i < width * height; i++)
+                {
+                    struct Px
+                    {
+                        // This should be bgra...
+                        // Since source is ARGB32 in network order(=big-endian)
+                        // and x86 Linux is little-endian, we *should* swap b and r...
+                        uint8_t a, r, g, b;
+                    };
+                    Px& pixel = ((Px*)item.iconData)[i];
+                    // Swap to create rgba
+                    pixel = {pixel.r, pixel.g, pixel.b, pixel.a};
+                }
 
-            g_variant_iter_free(data);
+                g_variant_iter_free(data);
+
+                hasPixmap = true;
+            }
             g_variant_iter_free(arrIter);
             g_variant_unref(arr);
             g_variant_unref(iconPixmap);
         }
-        else
+
+        // Pixmap querying has failed, try IconName
+        if (!hasPixmap)
         {
+            auto findIconWithoutPath = [](const char* iconName) -> std::string
+            {
+                std::string iconPath;
+                const char* dataDirs = getenv("XDG_DATA_DIRS");
+                // Nothing defined, look in $XDG_DATA_DIRS/icons
+                // network-manager-applet does this e.g.
+                if (dataDirs)
+                {
+                    for (auto& dataDir : Utils::Split(dataDirs, ':'))
+                    {
+                        LOG("SNI: Searching icon " << iconName << " in " << dataDir << "/icons");
+                        std::string path = Utils::FindFileWithName(dataDir + "/icons", iconName, ".png");
+                        if (path != "")
+                        {
+                            iconPath = path;
+                            break;
+                        }
+                    }
+                }
+                if (iconPath == "")
+                {
+                    // Fallback to /usr/share/icons
+                    LOG("SNI: Searching icon " << iconName << " in "
+                                               << "/usr/share/icons");
+                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName, ".png");
+                }
+                return iconPath;
+            };
+
             // Get icon theme path
             GVariant* themePathVariant = getProperty("IconThemePath"); // Not defined by freedesktop, I think ayatana does this...
             GVariant* iconNameVariant = getProperty("IconName");
@@ -139,9 +183,7 @@ namespace SNI
                 const char* iconName = g_variant_get_string(iconNameStr, nullptr);
                 if (strlen(themePath) == 0)
                 {
-                    // Nothing defined, look in /usr/share/icons
-                    // network-manager-applet does this
-                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName, ".png");
+                    iconPath = findIconWithoutPath(iconName);
                 }
                 else
                 {
@@ -159,7 +201,12 @@ namespace SNI
                 g_variant_get(iconNameVariant, "(v)", &iconNameStr);
 
                 const char* iconName = g_variant_get_string(iconNameStr, nullptr);
-                iconPath = std::string(iconName);
+                iconPath = findIconWithoutPath(iconName);
+                if (iconPath == "")
+                {
+                    // Try our luck with just using iconName, maybe its just an absolute path
+                    iconPath = iconName;
+                }
 
                 g_variant_unref(iconNameVariant);
                 g_variant_unref(iconNameStr);
@@ -167,6 +214,12 @@ namespace SNI
             else
             {
                 LOG("SNI: Unknown path!");
+                return item;
+            }
+
+            if (iconPath == "")
+            {
+                LOG("SNI: Cannot find icon path for " << name);
                 return item;
             }
 
@@ -191,10 +244,27 @@ namespace SNI
         {
             GVariant* tooltipVar;
             g_variant_get_child(tooltip, 0, "v", &tooltipVar);
-            const gchar* title;
-            // Both telegram and discord only set the "title" component
-            g_variant_get_child(tooltipVar, 2, "s", &title);
-            item.tooltip = title;
+            const gchar* title = nullptr;
+            if (g_variant_is_container(tooltipVar) && g_variant_n_children(tooltipVar) >= 4)
+            {
+                // According to spec, ToolTip is of type (sa(iiab)ss) => 4 children
+                // Most icons only set the "title" component (e.g. Discord, KeePassXC, ...)
+                g_variant_get_child(tooltipVar, 2, "s", &title);
+            }
+            else
+            {
+                // TeamViewer only exposes a string, which is not according to spec!
+                title = g_variant_get_string(tooltipVar, nullptr);
+            }
+
+            if (title != nullptr)
+            {
+                item.tooltip = title;
+            }
+            else
+            {
+                LOG("SNI: Error querying tooltip");
+            }
             LOG("SNI: Title: " << item.tooltip);
             g_variant_unref(tooltip);
             g_variant_unref(tooltipVar);
@@ -231,38 +301,85 @@ namespace SNI
         if (it != items.end())
         {
             LOG("SNI: " << name << " vanished!");
+            g_bus_unwatch_name(it->watcherID);
+            g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
             items.erase(it);
             InvalidateWidget();
+            return;
         }
-        else
+
+        auto toRegisterIt = clientsToQuery.find(name);
+        if (toRegisterIt != clientsToQuery.end())
         {
-            LOG("SNI: Cannot remove unregistered bus name " << name);
+            clientsToQuery.erase(toRegisterIt);
         }
+
+        LOG("SNI: Cannot remove unregistered bus name " << name);
+        return;
     }
 
-    static void ItemPropertyChanged(GDBusConnection*, const char*, const char* object, const char*, const char*, GVariant*, void* name)
+    static void ItemPropertyChanged(GDBusConnection*, const char* senderName, const char* object, const char*, const char*, GVariant*, void* name)
     {
+        // I think the multiple calling of this callback is a symptom of not unsubscribing the ItemPropertyChanged callback. Since this is now done, I
+        // think the reloadedNames and object path checking is no longer needed. Since it doesn't do any harm (except being a little bit pointless)
+        // I'll leave the checks here for now.
+        // TODO: Investigate whether it is now actually fixed
+
+        if (reloadedNames.insert(senderName).second == false)
+        {
+            // senderName has already requested a change, ignore
+            LOG("SNI: " << senderName << " already signaled property change");
+            return;
+        }
+
         std::string nameStr = (const char*)name;
-        LOG("SNI: Reloading " << (const char*)name << " " << object);
-        // We don't care about *what* changed, just remove and reload
+        LOG("SNI: Reloading " << (const char*)name << " " << object << " (Sender: " << senderName << ")");
+
+        // We can't trust the object path given to us, since ItemPropertyChanged is called multiple times with the same name, but with different
+        // object paths.
         auto it = std::find_if(items.begin(), items.end(),
                                [&](const Item& item)
                                {
                                    return item.name == nameStr;
                                });
+        std::string itemObjectPath;
         if (it != items.end())
         {
+            itemObjectPath = it->object;
+        }
+        else
+        {
+            // Item not already registered, fallback to provided name and hope the object path provided is accurate
+            LOG("SNI: Couldn't find name for actual object path!");
+            itemObjectPath = object;
+        }
+
+        // We don't care about *what* changed, just remove and reload
+        LOG("SNI: Actual object path: " << itemObjectPath)
+        if (it != items.end())
+        {
+            g_bus_unwatch_name(it->watcherID);
+            g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
             items.erase(it);
         }
         else
         {
             LOG("SNI: Coudn't remove item " << nameStr << " when reloading");
         }
-        clientsToQuery[nameStr] = {nameStr, std::string(object)};
+        clientsToQuery[nameStr] = {nameStr, itemObjectPath};
     }
 
     static TimerResult UpdateWidgets(Box&)
     {
+        // Flush connection, so we hopefully don't deadlock with any client
+        GError* err = nullptr;
+        g_dbus_connection_flush_sync(dbusConnection, nullptr, &err);
+        if (err)
+        {
+            LOG("SNI: g_dbus_connection_call_sync failed: " << err->message);
+            g_error_free(err);
+        }
+
         if (RuntimeConfig::Get().hasSNI == false || Config::Get().enableSNI == false)
         {
             // Don't bother
@@ -273,13 +390,14 @@ namespace SNI
             LOG("SNI: Creating Item " << client.name << " " << client.object);
             Item item = CreateItem(std::move(client.name), std::move(client.object));
             // Add handler for removing
-            g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr, DBusNameVanished, nullptr,
-                                           nullptr);
+            item.watcherID = g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr,
+                                                            DBusNameVanished, nullptr, nullptr);
 
             // Add handler for icon change
             char* staticBuf = new char[item.name.size() + 1]{0x0};
             memcpy(staticBuf, item.name.c_str(), item.name.size());
-            g_dbus_connection_signal_subscribe(
+            LOG("SNI: Allocating static name buffer for " << item.name);
+            item.propertyChangeWatcherID = g_dbus_connection_signal_subscribe(
                 dbusConnection, item.name.c_str(), "org.kde.StatusNotifierItem", nullptr, nullptr, nullptr, G_DBUS_SIGNAL_FLAGS_NONE,
                 ItemPropertyChanged, staticBuf,
                 +[](void* ptr)
@@ -304,11 +422,22 @@ namespace SNI
         LOG("SNI: Clearing old children");
         parentBox->RemoveChild(iconBox);
 
+        // Allow further updates from the icon
+        reloadedNames.clear();
+
         auto container = Widget::Create<Box>();
         container->SetSpacing({4, false});
         container->SetOrientation(Utils::GetOrientation());
         Utils::SetTransform(*container, {-1, true, Alignment::Fill, 0, 8});
         iconBox = container.get();
+
+        // Sort items, so they don't jump around randomly
+        std::sort(items.begin(), items.end(),
+                  [](const Item& a, const Item& b)
+                  {
+                      return a.name < b.name;
+                  });
+
         for (auto& item : items)
         {
             if (item.iconData)
@@ -474,12 +603,12 @@ namespace SNI
             sni_watcher_set_is_status_notifier_host_registered(watcherSkeleton, true);
         };
         auto emptyCallback = [](GDBusConnection*, const char*, void*) {};
-        auto lostName = [](GDBusConnection*, const char* msg, void*)
+        auto lostName = [](GDBusConnection*, const char*, void*)
         {
             LOG("SNI: Lost Name! Disabling SNI!");
             RuntimeConfig::Get().hasSNI = false;
         };
-        auto flags = G_BUS_NAME_OWNER_FLAGS_REPLACE | G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT;
+        auto flags = G_BUS_NAME_OWNER_FLAGS_REPLACE;
         g_bus_own_name(G_BUS_TYPE_SESSION, "org.kde.StatusNotifierWatcher", (GBusNameOwnerFlags)flags, +busAcquired, +emptyCallback, +lostName,
                        nullptr, nullptr);
         watcherSkeleton = sni_watcher_skeleton_new();

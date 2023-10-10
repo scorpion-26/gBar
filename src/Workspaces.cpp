@@ -90,21 +90,49 @@ namespace Workspaces
             addr.sun_family = AF_UNIX;
             memcpy(addr.sun_path, socketPath.c_str(), sizeof(addr.sun_path));
 
-            int ret = connect(hyprSocket, (sockaddr*)&addr, SUN_LEN(&addr));
-            ASSERT(ret >= 0, "Couldn't connect to hyprland socket");
-            ssize_t written = write(hyprSocket, arg.c_str(), arg.size());
-            ASSERT(written >= 0, "Couldn't write to socket");
+            int ret = Utils::RetrySocketOp(
+                [&]()
+                {
+                    return connect(hyprSocket, (sockaddr*)&addr, SUN_LEN(&addr));
+                },
+                5, "connect");
+            if (ret < 0)
+            {
+                LOG("Couldn't connect to Hyprland socket.");
+                return "";
+            }
+
+            ssize_t written = Utils::RetrySocketOp(
+                [&]()
+                {
+                    return write(hyprSocket, arg.c_str(), arg.size());
+                },
+                5, "write");
+            if (written < 0)
+            {
+                LOG("Couldn't write to Hyprland socket.");
+                return "";
+            }
             char buf[2056];
             std::string res;
 
             while (true)
             {
-                ssize_t bytesRead = read(hyprSocket, buf, sizeof(buf));
+                ssize_t bytesRead = Utils::RetrySocketOp(
+                    [&]()
+                    {
+                        return read(hyprSocket, buf, sizeof(buf));
+                    },
+                    5, "read");
                 if (bytesRead == 0)
                 {
                     break;
                 }
-                ASSERT(bytesRead >= 0, "Couldn't read");
+                if (bytesRead < 0)
+                {
+                    LOG("Couldn't read from Hyprland socket.");
+                    return "";
+                }
                 res += std::string(buf, bytesRead);
             }
             close(hyprSocket);
@@ -134,7 +162,7 @@ namespace Workspaces
 
                 std::string ws = workspaces.substr(begWSNum, endWSNum - begWSNum);
                 int32_t wsId = std::atoi(ws.c_str());
-                if (wsId >= 1 && wsId < (int32_t)numWorkspaces)
+                if (wsId >= 1 && wsId <= (int32_t)numWorkspaces)
                 {
                     // WS is at least inactive
                     workspaceStati[wsId - 1] = System::WorkspaceStatus::Inactive;
@@ -168,7 +196,7 @@ namespace Workspaces
                 size_t endFocused = monitors.find('\n', begFocused);
                 bool focused = std::string_view(monitors).substr(begFocused, endFocused - begFocused) == "yes";
 
-                if (wsId >= 1 && wsId < (int32_t)numWorkspaces)
+                if (wsId >= 1 && wsId <= (int32_t)numWorkspaces)
                 {
                     if ((uint32_t)monIdx == monitorID)
                     {

@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdint>
 #include <unordered_map>
+#include <map>
 
 class Config
 {
@@ -13,22 +14,27 @@ public:
     std::string lockCommand = "";   // idk, no standard way of doing this.
     std::string exitCommand = "";   // idk, no standard way of doing this.
     std::string batteryFolder = ""; // this can be BAT0, BAT1, etc. Usually in /sys/class/power_supply
-    std::vector<std::string> workspaceSymbols = std::vector<std::string>(9, "");
+    std::map<uint32_t, std::string> workspaceSymbols;
     std::string defaultWorkspaceSymbol = "";
     std::string dateTimeStyle = "%a %D - %H:%M:%S %Z"; // A sane default
+    std::string dateTimeLocale = "";                   // use system locale
+    std::string diskPartition = "/";                   // should be expectable on every linux system
 
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // See data/update.sh for a human-readable version
-    std::string checkPackagesCommand = "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
+    std::string checkPackagesCommand =
+        "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
 
     bool centerTime = true;
     bool audioRevealer = false;
     bool audioInput = false;
+    bool audioNumbers = false; // Affects both audio sliders
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
-    bool useHyprlandIPC = false;          // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
+    bool useHyprlandIPC = true;           // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
     bool enableSNI = true;                // Enable tray icon
+    bool sensorTooltips = false;          // Use tooltips instead of sliders for the sensors
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
@@ -36,11 +42,10 @@ public:
     uint32_t minDownloadBytes = 0;                // Bottom limit of the network widgets download. Everything above it is considered "under"
     uint32_t maxDownloadBytes = 10 * 1024 * 1024; // 10 MiB Top limit of the network widgets download. Everything above it is considered "over"
 
-    uint32_t audioScrollSpeed = 5; // 5% each scroll
-
+    uint32_t audioScrollSpeed = 5;         // 5% each scroll
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
-
-    uint32_t timeSpace = 300; // How much time should be reserved for the time widget.
+    uint32_t timeSpace = 300;              // How much time should be reserved for the time widget.
+    uint32_t numWorkspaces = 9;            // How many workspaces to display
 
     char location = 'T'; // The Location of the bar. Can be L,R,T,B
 

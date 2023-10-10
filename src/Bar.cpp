@@ -28,7 +28,15 @@ namespace Bar
             double usage = System::GetCPUUsage();
             double temp = System::GetCPUTemp();
 
-            cpuText->SetText("CPU: " + Utils::ToStringPrecision(usage * 100, "%0.1f") + "% " + Utils::ToStringPrecision(temp, "%0.1f") + "°C");
+            std::string text = "CPU: " + Utils::ToStringPrecision(usage * 100, "%0.1f") + "% " + Utils::ToStringPrecision(temp, "%0.1f") + "°C";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                cpuText->SetText(text);
+            }
             sensor.SetValue(usage);
             return TimerResult::Ok;
         }
@@ -38,7 +46,15 @@ namespace Bar
         {
             double percentage = System::GetBatteryPercentage();
 
-            batteryText->SetText("Battery: " + Utils::ToStringPrecision(percentage * 100, "%0.1f") + "%");
+            std::string text = "Battery: " + Utils::ToStringPrecision(percentage * 100, "%0.1f") + "%";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                batteryText->SetText(text);
+            }
             sensor.SetValue(percentage);
             return TimerResult::Ok;
         }
@@ -50,7 +66,15 @@ namespace Bar
             double used = info.totalGiB - info.freeGiB;
             double usedPercent = used / info.totalGiB;
 
-            ramText->SetText("RAM: " + Utils::ToStringPrecision(used, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB");
+            std::string text = "RAM: " + Utils::ToStringPrecision(used, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                ramText->SetText(text);
+            }
             sensor.SetValue(usedPercent);
             return TimerResult::Ok;
         }
@@ -61,8 +85,16 @@ namespace Bar
         {
             System::GPUInfo info = System::GetGPUInfo();
 
-            gpuText->SetText("GPU: " + Utils::ToStringPrecision(info.utilisation, "%0.1f") + "% " + Utils::ToStringPrecision(info.coreTemp, "%0.1f") +
-                             "°C");
+            std::string text = "GPU: " + Utils::ToStringPrecision(info.utilisation, "%0.1f") + "% " +
+                               Utils::ToStringPrecision(info.coreTemp, "%0.1f") + "°C";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                gpuText->SetText(text);
+            }
             sensor.SetValue(info.utilisation / 100);
             return TimerResult::Ok;
         }
@@ -72,8 +104,16 @@ namespace Bar
         {
             System::VRAMInfo info = System::GetVRAMInfo();
 
-            vramText->SetText("VRAM: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") +
-                              "GiB");
+            std::string text = "VRAM: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" +
+                               Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                vramText->SetText(text);
+            }
             sensor.SetValue(info.usedGiB / info.totalGiB);
             return TimerResult::Ok;
         }
@@ -84,8 +124,16 @@ namespace Bar
         {
             System::DiskInfo info = System::GetDiskInfo();
 
-            diskText->SetText("Disk: " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" + Utils::ToStringPrecision(info.totalGiB, "%0.2f") +
-                              "GiB");
+            std::string text = "Disk " + info.partition + ": " + Utils::ToStringPrecision(info.usedGiB, "%0.2f") + "GiB/" +
+                               Utils::ToStringPrecision(info.totalGiB, "%0.2f") + "GiB";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                diskText->SetText(text);
+            }
             sensor.SetValue(info.usedGiB / info.totalGiB);
             return TimerResult::Ok;
         }
@@ -163,6 +211,10 @@ namespace Bar
             return TimerResult::Ok;
         }
 
+        Widget* audioSlider;
+        Widget* micSlider;
+        Text* audioIcon;
+        Text* micIcon;
         void OnChangeVolumeSink(Slider&, double value)
         {
             System::SetVolumeSink(value);
@@ -173,14 +225,35 @@ namespace Bar
             System::SetVolumeSource(value);
         }
 
-        Slider* audioSlider;
-        Slider* micSlider;
-        Text* audioIcon;
-        Text* micIcon;
+        // For text
+        double audioVolume = 0;
+        void OnChangeVolumeSinkDelta(double delta)
+        {
+            audioVolume += delta;
+            audioVolume = std::clamp(audioVolume, 0.0, 1.0);
+            System::SetVolumeSink(audioVolume);
+        }
+
+        double micVolume = 0;
+        void OnChangeVolumeSourceDelta(double delta)
+        {
+            micVolume += delta;
+            micVolume = std::clamp(micVolume, 0.0, 1.0);
+            System::SetVolumeSource(micVolume);
+        }
+
         TimerResult UpdateAudio(Widget&)
         {
             System::AudioInfo info = System::GetAudioInfo();
-            audioSlider->SetValue(info.sinkVolume);
+            if (Config::Get().audioNumbers)
+            {
+                audioVolume = info.sinkVolume;
+                ((Text*)audioSlider)->SetText(Utils::ToStringPrecision(info.sinkVolume * 100, "%0.0f") + "%");
+            }
+            else
+            {
+                ((Slider*)audioSlider)->SetValue(info.sinkVolume);
+            }
             if (info.sinkMuted)
             {
                 audioIcon->SetText("󰝟");
@@ -191,7 +264,15 @@ namespace Bar
             }
             if (Config::Get().audioInput)
             {
-                micSlider->SetValue(info.sourceVolume);
+                if (Config::Get().audioNumbers)
+                {
+                    micVolume = info.sourceVolume;
+                    ((Text*)micSlider)->SetText(Utils::ToStringPrecision(info.sourceVolume * 100, "%0.0f") + "%");
+                }
+                else
+                {
+                    ((Slider*)micSlider)->SetValue(info.sinkVolume);
+                }
                 if (info.sourceMuted)
                 {
                     micIcon->SetText("󰍭");
@@ -213,7 +294,15 @@ namespace Bar
             std::string upload = Utils::StorageUnitDynamic(bpsUp, "%0.1f%s");
             std::string download = Utils::StorageUnitDynamic(bpsDown, "%0.1f%s");
 
-            networkText->SetText(Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down");
+            std::string text = Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down";
+            if (Config::Get().sensorTooltips)
+            {
+                sensor.SetTooltip(text);
+            }
+            else
+            {
+                networkText->SetText(Config::Get().networkAdapter + ": " + upload + " Up/" + download + " Down");
+            }
 
             sensor.SetUp(bpsUp);
             sensor.SetDown(bpsDown);
@@ -228,7 +317,7 @@ namespace Bar
         }
 
 #ifdef WITH_WORKSPACES
-        static std::array<Button*, 9> workspaces;
+        static std::vector<Button*> workspaces;
         TimerResult UpdateWorkspaces(Box&)
         {
             System::PollWorkspaces((uint32_t)monitorID, workspaces.size());
@@ -278,21 +367,25 @@ namespace Bar
             Utils::SetTransform(*box, {-1, true, Alignment::Right});
             box->SetOrientation(Utils::GetOrientation());
             {
-                auto revealer = Widget::Create<Revealer>();
-                revealer->SetTransition({Utils::GetTransitionType(), 500});
-                // Add event to eventbox for the revealer to open
-                eventBox->SetHoverFn(
-                    [textRevealer = revealer.get()](EventBox&, bool hovered)
-                    {
-                        textRevealer->SetRevealed(hovered);
-                    });
+                if (!Config::Get().sensorTooltips)
                 {
-                    auto text = Widget::Create<Text>();
-                    text->SetClass(textClass);
-                    text->SetAngle(Utils::GetAngle());
-                    Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
-                    textPtr = text.get();
-                    revealer->AddChild(std::move(text));
+                    auto revealer = Widget::Create<Revealer>();
+                    revealer->SetTransition({Utils::GetTransitionType(), 500});
+                    // Add event to eventbox for the revealer to open
+                    eventBox->SetHoverFn(
+                        [textRevealer = revealer.get()](EventBox&, bool hovered)
+                        {
+                            textRevealer->SetRevealed(hovered);
+                        });
+                    {
+                        auto text = Widget::Create<Text>();
+                        text->SetClass(textClass);
+                        text->SetAngle(Utils::GetAngle());
+                        Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
+                        textPtr = text.get();
+                        revealer->AddChild(std::move(text));
+                    }
+                    box->AddChild(std::move(revealer));
                 }
 
                 auto sensor = Widget::Create<Sensor>();
@@ -309,7 +402,6 @@ namespace Bar
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
                 Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
 
-                box->AddChild(std::move(revealer));
                 box->AddChild(std::move(sensor));
             }
             eventBox->AddChild(std::move(box));
@@ -326,32 +418,66 @@ namespace Bar
             Input,
             Output
         };
-        auto widgetAudioSlider = [](Widget& parent, AudioType type)
+        auto widgetAudioVolume = [](Widget& parent, AudioType type)
         {
-            auto slider = Widget::Create<Slider>();
-            slider->SetOrientation(Utils::GetOrientation());
-            Utils::SetTransform(*slider, {100, true, Alignment::Fill});
-            slider->SetInverted(true);
-            switch (type)
+            if (Config::Get().audioNumbers)
             {
-            case AudioType::Input:
-                slider->SetClass("mic-volume");
-                slider->OnValueChange(DynCtx::OnChangeVolumeSource);
-                DynCtx::micSlider = slider.get();
-                break;
-            case AudioType::Output:
-                slider->SetClass("audio-volume");
-                slider->OnValueChange(DynCtx::OnChangeVolumeSink);
-                DynCtx::audioSlider = slider.get();
-                break;
+                auto eventBox = Widget::Create<EventBox>();
+                auto text = Widget::Create<Text>();
+                text->SetAngle(Utils::GetAngle());
+                Utils::SetTransform(*text, {-1, true, Alignment::Fill});
+                switch (type)
+                {
+                case AudioType::Input:
+                    text->SetClass("mic-volume");
+                    DynCtx::micSlider = text.get();
+                    break;
+                case AudioType::Output:
+                    text->SetClass("audio-volume");
+                    DynCtx::audioSlider = text.get();
+                    break;
+                }
+                eventBox->SetScrollFn(
+                    [type, text = text.get()](EventBox&, ScrollDirection direction)
+                    {
+                        double delta = (double)Config::Get().audioScrollSpeed / 100.;
+                        delta *= direction == ScrollDirection::Down ? -1 : 1;
+                        switch (type)
+                        {
+                        case AudioType::Input: DynCtx::OnChangeVolumeSourceDelta(delta); break;
+                        case AudioType::Output: DynCtx::OnChangeVolumeSinkDelta(delta); break;
+                        }
+                    });
+                eventBox->AddChild(std::move(text));
+                parent.AddChild(std::move(eventBox));
             }
-            slider->SetRange({0, 1, 0.01});
-            slider->SetScrollSpeed((double)Config::Get().audioScrollSpeed / 100.);
+            else
+            {
+                auto slider = Widget::Create<Slider>();
+                slider->SetOrientation(Utils::GetOrientation());
+                Utils::SetTransform(*slider, {100, true, Alignment::Fill});
+                slider->SetInverted(true);
+                switch (type)
+                {
+                case AudioType::Input:
+                    slider->SetClass("mic-volume");
+                    slider->OnValueChange(DynCtx::OnChangeVolumeSource);
+                    DynCtx::micSlider = slider.get();
+                    break;
+                case AudioType::Output:
+                    slider->SetClass("audio-volume");
+                    slider->OnValueChange(DynCtx::OnChangeVolumeSink);
+                    DynCtx::audioSlider = slider.get();
+                    break;
+                }
+                slider->SetRange({0, 1, 0.01});
+                slider->SetScrollSpeed((double)Config::Get().audioScrollSpeed / 100.);
 
-            parent.AddChild(std::move(slider));
+                parent.AddChild(std::move(slider));
+            }
         };
 
-        auto widgetAudioBody = [&widgetAudioSlider](Widget& parent, AudioType type)
+        auto widgetAudioBody = [&widgetAudioVolume](Widget& parent, AudioType type)
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, false});
@@ -387,7 +513,7 @@ namespace Bar
                             slideRevealer->SetRevealed(hovered);
                         });
                     {
-                        widgetAudioSlider(*revealer, type);
+                        widgetAudioVolume(*revealer, type);
                     }
 
                     box->AddChild(std::move(revealer));
@@ -395,7 +521,7 @@ namespace Bar
                 else
                 {
                     // Straight forward
-                    widgetAudioSlider(*box, type);
+                    widgetAudioVolume(*box, type);
                 }
 
                 box->AddChild(std::move(icon));
@@ -476,21 +602,25 @@ namespace Bar
             Utils::SetTransform(*box, {-1, true, Alignment::Right});
             box->SetOrientation(Utils::GetOrientation());
             {
-                auto revealer = Widget::Create<Revealer>();
-                revealer->SetTransition({Utils::GetTransitionType(), 500});
-                // Add event to eventbox for the revealer to open
-                eventBox->SetHoverFn(
-                    [textRevealer = revealer.get()](EventBox&, bool hovered)
-                    {
-                        textRevealer->SetRevealed(hovered);
-                    });
+                if (!Config::Get().sensorTooltips)
                 {
-                    auto text = Widget::Create<Text>();
-                    text->SetClass("network-data-text");
-                    text->SetAngle(Utils::GetAngle());
-                    Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
-                    DynCtx::networkText = text.get();
-                    revealer->AddChild(std::move(text));
+                    auto revealer = Widget::Create<Revealer>();
+                    revealer->SetTransition({Utils::GetTransitionType(), 500});
+                    // Add event to eventbox for the revealer to open
+                    eventBox->SetHoverFn(
+                        [textRevealer = revealer.get()](EventBox&, bool hovered)
+                        {
+                            textRevealer->SetRevealed(hovered);
+                        });
+                    {
+                        auto text = Widget::Create<Text>();
+                        text->SetClass("network-data-text");
+                        text->SetAngle(Utils::GetAngle());
+                        Utils::SetTransform(*text, {-1, true, Alignment::Fill, 0, 6});
+                        DynCtx::networkText = text.get();
+                        revealer->AddChild(std::move(text));
+                    }
+                    box->AddChild(std::move(revealer));
                 }
 
                 auto sensor = Widget::Create<NetworkSensor>();
@@ -500,7 +630,6 @@ namespace Bar
                 sensor->AddTimer<NetworkSensor>(DynCtx::UpdateNetwork, DynCtx::updateTime);
                 Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
 
-                box->AddChild(std::move(revealer));
                 box->AddChild(std::move(sensor));
             }
             eventBox->AddChild(std::move(box));
@@ -698,6 +827,7 @@ namespace Bar
             box->SetOrientation(Utils::GetOrientation());
             Utils::SetTransform(*box, {-1, true, Alignment::Left, 12, 0});
             {
+                DynCtx::workspaces.resize(Config::Get().numWorkspaces);
                 for (size_t i = 0; i < DynCtx::workspaces.size(); i++)
                 {
                     auto workspace = Widget::Create<Button>();

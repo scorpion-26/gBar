@@ -2,7 +2,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
+#include <unordered_map>
+#include <vector>
 #include <filesystem>
+#include <map>
 
 #include "Log.h"
 
@@ -50,6 +53,14 @@ using EnumType = std::underlying_type_t<Enum>;
 
 namespace Utils
 {
+    template<typename T>
+    constexpr bool IsMapLike = false;
+
+    template<typename Key, typename Value>
+    constexpr bool IsMapLike<std::map<Key, Value>> = true;
+    template<typename Key, typename Value>
+    constexpr bool IsMapLike<std::unordered_map<Key, Value>> = true;
+
     inline std::string ToStringPrecision(double x, const char* fmt)
     {
         char buf[128];
@@ -84,8 +95,50 @@ namespace Utils
         return buf;
     }
 
+    template<typename Func>
+    size_t RetrySocketOp(Func func, size_t retries, const char* socketOp)
+    {
+        ssize_t ret;
+        size_t tries = 0;
+        do
+        {
+            ret = func();
+            if (ret < 0)
+            {
+                // Error
+                LOG("RetrySocketOp: " << socketOp << " failed with " << ret);
+            }
+            else
+            {
+                return ret;
+            }
+            tries++;
+        } while (tries < retries);
+        LOG("RetrySocketOp: Failed after " << retries << "tries");
+        return ret;
+    }
+
+    inline std::vector<std::string> Split(const std::string& str, char delim)
+    {
+        std::stringstream strstr(str);
+        std::string curElem;
+        std::vector<std::string> result;
+        while (std::getline(strstr, curElem, delim))
+        {
+            if (!curElem.empty())
+            {
+                result.emplace_back(curElem);
+            }
+        }
+        return result;
+    }
+
     inline std::string FindFileWithName(const std::string& directory, const std::string& name, const std::string& extension)
     {
+        if (!std::filesystem::exists(directory))
+        {
+            return "";
+        }
         for (auto& path : std::filesystem::recursive_directory_iterator(directory))
         {
             if (path.is_directory())

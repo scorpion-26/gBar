@@ -9,10 +9,11 @@ namespace Logging
 
     void Init()
     {
-        logFile = std::ofstream("/tmp/gBar.log");
+        pid_t pid = getpid();
+        logFile = std::ofstream("/tmp/gBar-" + std::to_string(pid) + ".log");
         if (!logFile.is_open())
         {
-            LOG("Cannot open logfile(/tmp/gBar.log)");
+            LOG("Cannot open logfile(/tmp/gBar-" << pid << ".log)");
         }
     }
 

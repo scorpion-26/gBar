@@ -98,7 +98,7 @@ gBar bluetooth [monitor]
 
 ## Features / Widgets
 Bar: 
-- Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace, though workspace control relies on Hyprland)
+- Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace when ```UseHyprlandIPC``` is false, though workspace control relies on Hyprland)
 - Time
 - Bluetooth (BlueZ only)
 - Audio control
@@ -150,6 +150,7 @@ gBar gBarHelloWorld
 ```
 The second argument is the name of the shared library (without 'lib' and '.so').
 
+For more examples on how to use the gBar API, you can have a look at the built-in widgets (AudioFlyin.cpp, BluetoothDevices.cpp, Bar.cpp) as they use the same API.
 
 ## FAQ
 ### There are already many GTK bars out there, why not use them?
@@ -165,8 +166,8 @@ And lastly: Implementing it myself is fun and a great excuse to learn something 
 
 ### Can you implement feature XYZ? / I've found a bug. Can you fix it?
 This project is meant to be for my personal use, though I want it to be easily used by others without bugs or a complicated setup. This means the following:
- -  If you found a bug, please open an issue and I'll try to fix it as quickly as I can.
- -  If you're missing a particular feature, please open issue as well and I'll see what I can do, although I can't guarantee anything. Small requests or features I'll find useful too will probably be implemented in a timely fashion though.
+ -  If you found a bug, please [open an issue](https://github.com/scorpion-26/gBar/issues/new/choose) and I'll try to fix it as quickly as I can.
+ -  If you're missing a particular feature, please [open an issue](https://github.com/scorpion-26/gBar/issues/new/choose) as well and I'll see what I can do, although I can't guarantee anything. Small requests or features I'll find useful too will probably be implemented in a timely fashion though.
 
 
 ### What scheme are you using?
@@ -186,6 +187,10 @@ First, find where the data is located for gBar. Possible locations:
  ```
  This will override the default behaviour. If you have sass installed, you can modify the scss file and then regenerate the css file accordingly. Else modify the css file directly.
 
+### The margins of the bar are inconsistent/messed up / Custom CSS broke.
+If you have a custom style.[s]css, make sure that the margins/names/... are the same as the ones found in ```style/style.[s]css```.\
+*As of commit f78758c margins are no longer used in the default css. If you didn't play around with margins, you can safely remove them from your css*\
+If you've checked the css against upstream gBar and the issue persists, please [open an issue](https://github.com/scorpion-26/gBar/issues/new/choose).
 
 ### The Audio/Bluetooth widget doesn't open
 Delete ```/tmp/gBar__audio```/```/tmp/gBar__bluetooth```.

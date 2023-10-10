@@ -72,8 +72,9 @@ void ApplyProperty<bool>(bool& propertyToSet, const std::string_view& value)
     }
 }
 
-template<>
-void ApplyProperty<std::pair<std::string, uint32_t>>(std::pair<std::string, uint32_t>& propertyToSet, const std::string_view& value)
+// Why does C++ not have partial template specialization?
+template<typename First, typename Second>
+void ApplyProperty(std::pair<First, Second>& propertyToSet, const std::string_view& value)
 {
     // TODO: Ignore escaped delimiter (e.g. \, is the same as ,)
     const char delim = ',';
@@ -81,7 +82,6 @@ void ApplyProperty<std::pair<std::string, uint32_t>>(std::pair<std::string, uint
     size_t delimPos = value.find(delim);
     if (delimPos == std::string::npos)
     {
-        propertyToSet = {std::string(value), 0};
         return;
     }
     std::string_view before = value.substr(0, delimPos);
@@ -96,7 +96,7 @@ void ApplyProperty<std::pair<std::string, uint32_t>>(std::pair<std::string, uint
     ApplyProperty(propertyToSet.second, after);
 }
 
-template<typename T>
+template<typename T, std::enable_if_t<!Utils::IsMapLike<T>, bool> = true>
 void AddConfigVar(const std::string& propertyName, T& propertyToSet, std::string_view line, bool& setConfig)
 {
     const char* whitespace = " \t";
@@ -127,12 +127,34 @@ void AddConfigVar(const std::string& propertyName, T& propertyToSet, std::string
     std::string_view value = line.substr(colon + 1);
     size_t beginValue = value.find_first_not_of(whitespace);
     size_t endValue = value.find_last_not_of(whitespace);
-    value = value.substr(beginValue, endValue - beginValue + 1);
+    if (beginValue == std::string::npos || endValue == std::string::npos)
+    {
+        value = "";
+    }
+    else
+    {
+        value = value.substr(beginValue, endValue - beginValue + 1);
+    }
 
     // Set value
-    ApplyProperty<T>(propertyToSet, value);
+    ApplyProperty(propertyToSet, value);
     LOG("Set value for " << propertyName << ": " << value);
+
     setConfig = true;
+}
+
+// Specialization for std::[unordered_]map
+template<typename MapLike, std::enable_if_t<Utils::IsMapLike<MapLike>, bool> = true>
+void AddConfigVar(const std::string& propertyName, MapLike& propertyToSet, std::string_view line, bool& setConfig)
+{
+    bool hasntSetProperty = !setConfig;
+    std::pair<typename MapLike::key_type, typename MapLike::mapped_type> buf;
+    AddConfigVar(propertyName, buf, line, setConfig);
+    if (setConfig && hasntSetProperty)
+    {
+        // This was found
+        propertyToSet[buf.first] = buf.second;
+    }
 }
 
 void Config::Load()
@@ -177,21 +199,20 @@ void Config::Load()
         AddConfigVar("BatteryFolder", config.batteryFolder, lineView, foundProperty);
         AddConfigVar("DefaultWorkspaceSymbol", config.defaultWorkspaceSymbol, lineView, foundProperty);
         AddConfigVar("DateTimeStyle", config.dateTimeStyle, lineView, foundProperty);
+        AddConfigVar("DateTimeLocale", config.dateTimeLocale, lineView, foundProperty);
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
-        for (int i = 1; i < 10; i++)
-        {
-            // Subtract 1 to index from 1 to 9 rather than 0 to 8
-            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), config.workspaceSymbols[i - 1], lineView, foundProperty);
-        }
+        AddConfigVar("DiskPartition", config.diskPartition, lineView, foundProperty);
 
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
+        AddConfigVar("AudioNumbers", config.audioNumbers, lineView, foundProperty);
         AddConfigVar("NetworkWidget", config.networkWidget, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollOnMonitor", config.workspaceScrollOnMonitor, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollInvert", config.workspaceScrollInvert, lineView, foundProperty);
         AddConfigVar("UseHyprlandIPC", config.useHyprlandIPC, lineView, foundProperty);
         AddConfigVar("EnableSNI", config.enableSNI, lineView, foundProperty);
+        AddConfigVar("SensorTooltips", config.sensorTooltips, lineView, foundProperty);
 
         AddConfigVar("MinUploadBytes", config.minUploadBytes, lineView, foundProperty);
         AddConfigVar("MaxUploadBytes", config.maxUploadBytes, lineView, foundProperty);
@@ -199,9 +220,8 @@ void Config::Load()
         AddConfigVar("MaxDownloadBytes", config.maxDownloadBytes, lineView, foundProperty);
 
         AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
-
         AddConfigVar("TimeSpace", config.timeSpace, lineView, foundProperty);
-
+        AddConfigVar("NumWorkspaces", config.numWorkspaces, lineView, foundProperty);
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
 
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
@@ -209,19 +229,23 @@ void Config::Load()
 
         AddConfigVar("Location", config.location, lineView, foundProperty);
 
-        std::pair<std::string, uint32_t> buf;
-        bool hasntFoundProperty = !foundProperty;
-        AddConfigVar("SNIIconSize", buf, lineView, foundProperty);
-        if (foundProperty && hasntFoundProperty)
+        AddConfigVar("SNIIconSize", config.sniIconSizes, lineView, foundProperty);
+        AddConfigVar("SNIPaddingTop", config.sniPaddingTop, lineView, foundProperty);
+        // Modern map syntax
+        AddConfigVar("WorkspaceSymbol", config.workspaceSymbols, lineView, foundProperty);
+        // Legacy syntax
+        for (int i = 1; i < 10; i++)
         {
-            // This was found
-            config.sniIconSizes[buf.first] = buf.second;
-        }
-        hasntFoundProperty = !foundProperty;
-        AddConfigVar("SNIPaddingTop", buf, lineView, foundProperty);
-        if (foundProperty && hasntFoundProperty)
-        {
-            config.sniPaddingTop[buf.first] = buf.second;
+            // Subtract 1 to index from 1 to 9 rather than 0 to 8
+            std::string symbol;
+            bool hasFoundProperty = foundProperty;
+            AddConfigVar("WorkspaceSymbol-" + std::to_string(i), symbol, lineView, foundProperty);
+            if (foundProperty && !hasFoundProperty)
+            {
+                config.workspaceSymbols[i] = symbol;
+                LOG("Warning: Legacy notation for WorkspaceSymbol used.");
+                LOG("         Please consider switching to \"WorkspaceSymbol: [number], [symbol]!\"");
+            }
         }
 
         if (foundProperty == false)

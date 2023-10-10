@@ -22,8 +22,12 @@ ExitCommand: killall Hyprland
 # The folder, where the battery sensors reside
 BatteryFolder: /sys/class/power_supply/BAT1
 
-# Overrides the icon of the nth (in this case the first) workspace
-# WorkspaceSymbol-1: 
+# The partition to monitor with disk sensor
+DiskPartition: /
+
+# Overrides the icon of the nth (in this case the first) workspace.
+# Please note the missing space between "," and the symbol. Adding a space here adds it to the bar too!
+#WorkspaceSymbol: 1,
 
 # The default symbol for the workspaces
 DefaultWorkspaceSymbol: 
@@ -34,10 +38,15 @@ WorkspaceScrollOnMonitor: true
 # When true: Scroll up -> Next workspace instead of previous workspace. Analogous with scroll down
 WorkspaceScrollInvert: false
 
+# Number of workspaces to display. Displayed workspace IDs are 1-n (Default: 1-9)
+NumWorkspaces: 9
+
 # Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
 # Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,
 # since the protocol is not as feature complete as Hyprland IPC.
-UseHyprlandIPC: false
+# NOTE: Hyprland no longer supports ext-workspace-unstable-v1 as of commit bb09334.
+# Hyprland IPC is thus *required* for workspace support under Hyprland >=v0.30.0!
+UseHyprlandIPC: true
 
 # The location of the bar
 # Needs to be capitalized!!
@@ -58,7 +67,10 @@ CenterTime: true
 TimeSpace: 300
 
 # Set datetime style
-# DateTimeStyle: %a %D - %H:%M:%S %Z
+DateTimeStyle: %a %D - %H:%M:%S %Z
+
+# Set datetime locale (defaults to system locale if not set or set to empty string)
+#DateTimeLocale: de_DE.utf8
 
 # Adds a audio input(aka. microphone) widget
 AudioInput: false
@@ -68,6 +80,9 @@ AudioRevealer: false
 
 # Sets the rate of change of the slider on each scroll. In Percent
 AudioScrollSpeed: 5
+
+# Display numbers instead of a slider for the two audio widgets. Doesn't affect the audio flyin
+AudioNumbers: false
 
 # Command that is run to check if there are out-of-date packages.
 # The script should return *ONLY* a number. If it doesn't output a number, updates are no longer checked.
@@ -89,6 +104,9 @@ NetworkAdapter: eno1
 # Disables the network widget when set to false
 NetworkWidget: true
 
+# Use tooltips instead of sliders for the sensors
+SensorTooltips: false
+
 # Enables tray icons
 EnableSNI: true
 
@@ -97,11 +115,11 @@ EnableSNI: true
 # For both: The first parameter is a filter of the tooltip(The text that pops up, when the icon is hovered) of the icon
 
 # Scale everything down to 25 pixels ('*' as filter means everything)
-SNIIconSize: *, 25
+#SNIIconSize: *, 25
 # Explicitly make OBS a bit smaller than default
-SNIIconSize: OBS, 23
+#SNIIconSize: OBS, 23
 # Nudges the Discord icon a bit down
-# SNIPaddingTop: Discord, 5
+#SNIPaddingTop: Discord, 5
 
 # These set the range for the network widget. The widget changes colors at six intervals:
 #    - Below Min...Bytes ("under")

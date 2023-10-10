@@ -130,7 +130,7 @@ namespace AudioFlyin
         parent.AddChild(std::move(icon));
     }
 
-    void Create(Window& window, int32_t monitor, Type type)
+    void Create(Window& window, UNUSED int32_t monitor, Type type)
     {
         DynCtx::win = &window;
         DynCtx::type = type;

@@ -202,10 +202,12 @@ namespace System
     DiskInfo GetDiskInfo()
     {
         struct statvfs stat;
-        int err = statvfs("/", &stat);
-        ASSERT(err == 0, "Cannot stat root!");
+        std::string partition = Config::Get().diskPartition;
+        int err = statvfs(partition.c_str(), &stat);
+        ASSERT(err == 0, "Cannot stat " + partition + "!");
 
         DiskInfo out{};
+        out.partition = partition;
         out.totalGiB = (double)(stat.f_blocks * stat.f_frsize) / (1024 * 1024 * 1024);
         out.usedGiB = (double)((stat.f_blocks - stat.f_bfree) * stat.f_frsize) / (1024 * 1024 * 1024);
         return out;
@@ -478,18 +480,20 @@ namespace System
     }
     std::string GetWorkspaceSymbol(int index)
     {
-        if (index < 0 || index > 9)
+        if (index < 0 || index > (int)Config::Get().numWorkspaces)
         {
             LOG("Workspace Symbol Index Out Of Bounds: " + std::to_string(index));
             return "";
         }
 
-        if (Config::Get().workspaceSymbols[index].empty())
+        // workspaceSymbols is from [1-n], wsidx is from [0-n[
+        auto it = Config::Get().workspaceSymbols.find(index + 1);
+        if (it == Config::Get().workspaceSymbols.end())
         {
             return Config::Get().defaultWorkspaceSymbol + " ";
         }
 
-        return Config::Get().workspaceSymbols[index] + " ";
+        return it->second + " ";
     }
 #endif
 
@@ -587,7 +591,7 @@ namespace System
                 {
                     returnVal(std::stoul(buf));
                 }
-                catch (std::invalid_argument)
+                catch (std::invalid_argument&)
                 {
                     configMutex.lock();
                     LOG("GetOutdatedPackages: Invalid output of the package script. Disabling package widget!");
@@ -605,6 +609,7 @@ namespace System
         time_t stdTime = time(NULL);
         tm* localTime = localtime(&stdTime);
         std::stringstream str;
+        str.imbue(std::locale(Config::Get().dateTimeLocale.c_str()));
         str << std::put_time(localTime, Config::Get().dateTimeStyle.c_str());
         return str.str();
     }

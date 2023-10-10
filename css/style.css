@@ -76,6 +76,10 @@ highlight {
   color: #ffb86c;
 }
 
+.audio-volume {
+  font-size: 16px;
+  color: #ffb86c;
+}
 .audio-volume trough {
   background-color: #44475a;
 }
@@ -91,6 +95,10 @@ highlight {
   color: #bd93f9;
 }
 
+.mic-volume {
+  font-size: 16px;
+  color: #bd93f9;
+}
 .mic-volume trough {
   background-color: #44475a;
 }

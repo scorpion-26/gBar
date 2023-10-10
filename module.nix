@@ -58,6 +58,11 @@ in {
                     default = "/sys/class/power_supply/BAT1";
                     description = "The folder, where the battery sensors reside";
                 };
+                DiskPartition = mkOption {
+                    type = types.str;
+                    default = "/";
+                    description = "The partition to monitor with disk sensor";
+                };
                 WorkspaceSymbols = mkOption {
                     type = types.nullOr (types.listOf types.str);
                     default = [];
@@ -118,6 +123,11 @@ in {
                     default = "%a %D - %H:%M:%S %Z";
                     description = "Set datetime style";
                 };
+                DateTimeLocale = mkOption {
+                    type = types.nullOr types.str;
+                    default = "";
+                    description = "Set datetime locale (defaults to system locale if not set or set to empty string). Example locale: \"de_DE.utf8\"";
+                };
                 AudioInput = mkOption {
                     type = types.bool;
                     default = false;
@@ -132,6 +142,11 @@ in {
                     type = types.nullOr types.int;
                     default = 5;
                     description = "Sets the rate of change of the slider on each scroll. In Percent";
+                };
+                AudioNumbers = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Display numbers instead of a slider for the two audio widgets. Doesn't affect the audio flyin";
                 };
                 AudioMinVolume = mkOption {
                     type = types.nullOr types.int;
@@ -152,6 +167,11 @@ in {
                     type = types.bool;
                     default = true;
                     description = "Disables the network widget when set to false";
+                };
+                SensorTooltips = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Use tooltips instead of sliders for the sensors";
                 };
                 EnableSNI = mkOption {
                     type = types.bool;
@@ -223,7 +243,7 @@ in {
           in attrsets.mapAttrs (name: value:
                       name + ": " + (anyToString value)) (filterAttrs (n2: v2: (isInt v2 || isString v2 || isBool v2))x);
       extractLists = l:
-          (imap1 (i: v: "WorkspaceSymbol-${toString i}: " + v) l.WorkspaceSymbols) ++
+          (imap1 (i: v: "WorkspaceSymbol: ${toString i}," + v) l.WorkspaceSymbols) ++
           (mapAttrsToList (n: v: "SNIIconSize: ${n}, ${toString v}") l.SNIIconSize) ++
           (mapAttrsToList (n: v: "SNIIconPaddingTop: ${n}, ${toString v}") l.SNIIconPaddingTop);
 

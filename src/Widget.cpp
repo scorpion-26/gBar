@@ -17,6 +17,8 @@ namespace Utils
         case Alignment::Center: return GTK_ALIGN_CENTER;
         case Alignment::Fill: return GTK_ALIGN_FILL;
         }
+        LOG("ToGtkAlign: Invalid alignment " << (int)align);
+        return GTK_ALIGN_FILL;
     }
     GtkOrientation ToGtkOrientation(Orientation orientation)
     {
@@ -25,6 +27,8 @@ namespace Utils
         case Orientation::Vertical: return GTK_ORIENTATION_VERTICAL;
         case Orientation::Horizontal: return GTK_ORIENTATION_HORIZONTAL;
         }
+        LOG("ToGtkOrientation: Invalid orientation " << (int)orientation);
+        return GTK_ORIENTATION_HORIZONTAL;
     }
     GtkRevealerTransitionType ToGtkRevealerTransitionType(TransitionType transition)
     {
@@ -36,6 +40,8 @@ namespace Utils
         case TransitionType::SlideDown: return GTK_REVEALER_TRANSITION_TYPE_SLIDE_DOWN;
         case TransitionType::SlideUp: return GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP;
         }
+        LOG("ToGtkRevealerTransitionType: Invalid transition " << (int)transition);
+        return GTK_REVEALER_TRANSITION_TYPE_NONE;
     }
 }
 
