@@ -63,9 +63,10 @@ in {
                     default = "/";
                     description = "The partition to monitor with disk sensor";
                 };
+                # Note: If the type here is null everything blows up
                 WorkspaceSymbols = mkOption {
-                    type = types.nullOr (types.listOf types.str);
-                    default = null;
+                    type = types.listOf types.str;
+                    default = [];
                     description = "A list of strings where the position in the list is the icon to change, overrides the default symbol";
                 };
                 DefaultWorkspaceSymbol = mkOption {
