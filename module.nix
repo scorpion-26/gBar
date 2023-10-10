@@ -65,13 +65,18 @@ in {
                 };
                 WorkspaceSymbols = mkOption {
                     type = types.nullOr (types.listOf types.str);
-                    default = [];
+                    default = null;
                     description = "A list of strings where the position in the list is the icon to change, overrides the default symbol";
                 };
                 DefaultWorkspaceSymbol = mkOption {
                     type = types.str;
                     default = "";
                     description = "The default symbol for the workspaces";
+                };
+                NumWorkspaces = mkOption {
+                    type = types.int;
+                    default = 9;
+                    description = "Number of workspaces to display. Displayed workspace IDs are 1-n (Default: 1-9)";
                 };
                 WorkspaceScrollOnMonitor = mkOption {
                     type = types.bool;
@@ -85,7 +90,7 @@ in {
                 };
                 UseHyprlandIPC = mkOption {
                     type = types.bool;
-                    default = false;
+                    default = true;
                     description = ''
                         Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
                         Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,
@@ -119,7 +124,7 @@ in {
                     '';
                 };
                 DateTimeStyle = mkOption {
-                    type = types.nullOr types.str;
+                    type = types.str;
                     default = "%a %D - %H:%M:%S %Z";
                     description = "Set datetime style";
                 };
@@ -139,7 +144,7 @@ in {
                     description = "Sets the audio slider to be on reveal (Just like the sensors) when true. Only affects the bar.";
                 };
                 AudioScrollSpeed = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 5;
                     description = "Sets the rate of change of the slider on each scroll. In Percent";
                 };
@@ -149,17 +154,17 @@ in {
                     description = "Display numbers instead of a slider for the two audio widgets. Doesn't affect the audio flyin";
                 };
                 AudioMinVolume = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 0;
                     description = "Limits the range of the audio slider. Only works for audio output. Slider 'empty' is AudioMinVolume, Slider 'full' is AudioMaxVolume";
                 };
                 AudioMaxVolume = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 100;
                     description = "";
                 };
                 NetworkAdapter = mkOption {
-                    type = types.nullOr types.str;
+                    type = types.str;
                     default = "eno1";
                     description = "The network adapter to use. You can query /sys/class/net for all possible values";
                 };
@@ -196,22 +201,22 @@ in {
                 #    - Between ]75%;100%]. 0% = Min...Bytes; 100% = Max...Bytes ("high")
                 #    - Above Max...Bytes ("over")
                 MinDownloadBytes = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 0;
                     description = "";
                 };
                 MaxDownloadBytes = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 10485760;
                     description = "";
                 };
                 MinUploadBytes = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 0;
                     description = "";
                 };
                 MaxUploadBytes = mkOption {
-                    type = types.nullOr types.int;
+                    type = types.int;
                     default = 5242880;
                     description = "";
                 };
