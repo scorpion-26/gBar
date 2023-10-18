@@ -96,6 +96,35 @@ void ApplyProperty(std::pair<First, Second>& propertyToSet, const std::string_vi
     ApplyProperty(propertyToSet.second, after);
 }
 
+template<typename T>
+void ApplyProperty(std::vector<T>& propertyToSet, const std::string_view& value)
+{
+    propertyToSet.clear();
+    // Delete []
+    size_t beginBracket = value.find('[');
+    size_t endBracket = value.find(']');
+    if (beginBracket == std::string::npos || endBracket == std::string::npos)
+    {
+        LOG("Error: Missing [ or ] for vector property!");
+        return;
+    }
+    std::string_view elems = value.substr(beginBracket, endBracket - beginBracket + 1);
+    size_t beginString = 0;
+    while (true)
+    {
+        // Find first not whitespace
+        beginString = elems.find_first_not_of("[ \t", beginString);
+        size_t endString = elems.find_first_of(",]", beginString);
+        if (beginString == std::string::npos || endString == std::string::npos)
+            break;
+
+        // Append to property
+        std::string_view elem = elems.substr(beginString, endString - beginString);
+        propertyToSet.push_back(std::string(elem));
+        beginString = ++endString;
+    }
+}
+
 template<typename T, std::enable_if_t<!Utils::IsMapLike<T>, bool> = true>
 void AddConfigVar(const std::string& propertyName, T& propertyToSet, std::string_view line, bool& setConfig)
 {
