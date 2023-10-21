@@ -423,14 +423,31 @@ namespace Utils
         return 0;
     }
 
-    inline TransitionType GetTransitionType()
+    // defaultTransition is the transition in top position
+    inline TransitionType GetTransitionType(TransitionType defaultTransition)
     {
         switch (Config::Get().location)
         {
         case 'T':
-        case 'B': return TransitionType::SlideLeft;
+        case 'B':
+        {
+            switch (defaultTransition)
+            {
+            case TransitionType::SlideLeft: return TransitionType::SlideLeft;
+            case TransitionType::SlideRight: return TransitionType::SlideRight;
+            default: ASSERT(false, "Utils::GetTransitionType(): Invalid defaultTransition!");
+            }
+        }
         case 'L':
-        case 'R': return TransitionType::SlideUp;
+        case 'R':
+        {
+            switch (defaultTransition)
+            {
+            case TransitionType::SlideLeft: return TransitionType::SlideUp;
+            case TransitionType::SlideRight: return TransitionType::SlideDown;
+            default: ASSERT(false, "Utils::GetTransitionType(): Invalid defaultTransition!");
+            }
+        }
         default: LOG("Invalid location char \"" << Config::Get().location << "\"!"); return TransitionType::SlideLeft;
         }
     }

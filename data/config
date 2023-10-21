@@ -7,6 +7,18 @@
 # - After the ':'
 # - After the value
 
+# The following three options control the ordering of the widgets.
+# Reordering can cause slight margin inconsistencies,
+# so it is recommend to only make minor adjustments to the default layout.
+# Adding the same widget multiple times to the layout is *not* supported and will cause issues.
+
+# Widgets to show on the left side
+WidgetsLeft: [Workspaces]
+# Widgets to center
+WidgetsCenter: [Time]
+# Widgets to display on the right side
+WidgetsRight: [Tray, Packages, Audio, Bluetooth, Network, Disk, VRAM, GPU, RAM, CPU, Battery, Power]
+
 # The CPU sensor to use
 CPUThermalZone: /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input
 

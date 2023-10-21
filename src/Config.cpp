@@ -220,6 +220,10 @@ void Config::Load()
         }
 
         bool foundProperty = false;
+        AddConfigVar("WidgetsLeft", config.widgetsLeft, lineView, foundProperty);
+        AddConfigVar("WidgetsCenter", config.widgetsCenter, lineView, foundProperty);
+        AddConfigVar("WidgetsRight", config.widgetsRight, lineView, foundProperty);
+
         AddConfigVar("CPUThermalZone", config.cpuThermalZone, lineView, foundProperty);
         AddConfigVar("NetworkAdapter", config.networkAdapter, lineView, foundProperty);
         AddConfigVar("SuspendCommand", config.suspendCommand, lineView, foundProperty);
