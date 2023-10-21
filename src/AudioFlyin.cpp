@@ -150,6 +150,8 @@ namespace AudioFlyin
         padding = Widget::Create<Box>();
         mainWidget->AddChild(std::move(padding));
 
+        // We want the audio flyin on top of fullscreen windows
+        window.SetLayer(Layer::Overlay);
         window.SetExclusive(false);
         window.SetAnchor(Anchor::Bottom);
         window.SetMainWidget(std::move(mainWidget));

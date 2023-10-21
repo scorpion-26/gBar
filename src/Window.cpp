@@ -48,7 +48,13 @@ void Window::Run()
     m_Window = (GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
     gtk_layer_init_for_window(m_Window);
-    gtk_layer_set_layer(m_Window, GTK_LAYER_SHELL_LAYER_TOP);
+
+    switch (m_Layer)
+    {
+    case Layer::Top: gtk_layer_set_layer(m_Window, GTK_LAYER_SHELL_LAYER_TOP); break;
+    case Layer::Overlay: gtk_layer_set_layer(m_Window, GTK_LAYER_SHELL_LAYER_OVERLAY); break;
+    }
+
     if (m_Exclusive)
         gtk_layer_auto_exclusive_zone_enable(m_Window);
 
