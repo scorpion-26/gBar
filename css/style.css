@@ -198,6 +198,10 @@ highlight {
   font-size: 16px;
 }
 
+.battery-charging {
+  color: #ffb86c;
+}
+
 .network-data-text {
   color: #50fa7b;
   font-size: 16px;

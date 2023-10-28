@@ -42,6 +42,7 @@ namespace Bar
         }
 
         static Text* batteryText;
+        static bool wasCharging = false;
         static TimerResult UpdateBattery(Sensor& sensor)
         {
             double percentage = System::GetBatteryPercentage();
@@ -56,6 +57,20 @@ namespace Bar
                 batteryText->SetText(text);
             }
             sensor.SetValue(percentage);
+
+            bool isCharging = System::IsBatteryCharging();
+            if (isCharging && !wasCharging && sensor.Get() != nullptr)
+            {
+                sensor.AddClass("battery-charging");
+                batteryText->AddClass("battery-charging");
+                wasCharging = true;
+            }
+            else if (!isCharging && wasCharging)
+            {
+                sensor.RemoveClass("battery-charging");
+                batteryText->RemoveClass("battery-charging");
+                wasCharging = false;
+            }
             return TimerResult::Ok;
         }
 

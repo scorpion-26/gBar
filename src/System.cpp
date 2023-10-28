@@ -89,6 +89,25 @@ namespace System
         return temp;
     }
 
+    bool IsBatteryCharging()
+    {
+        std::ifstream batteryStatus(Config::Get().batteryFolder + "/status");
+        if (batteryStatus.is_open())
+        {
+            std::string status;
+            std::getline(batteryStatus, status);
+            if (status == "Charging" || status == "Full")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return false;
+    }
+
     double GetBatteryPercentage()
     {
         std::ifstream fullChargeFile(Config::Get().batteryFolder + "/charge_full");

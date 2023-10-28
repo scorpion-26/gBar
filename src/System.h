@@ -11,6 +11,7 @@ namespace System
     // Tctl
     double GetCPUTemp();
 
+    bool IsBatteryCharging();
     double GetBatteryPercentage();
 
     struct RAMInfo

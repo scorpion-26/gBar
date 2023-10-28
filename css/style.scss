@@ -229,9 +229,14 @@ highlight {
     background-color: $inactive;
     font-size: $textsize;
 }
+
 .battery-data-text {
     color: $pink;
     font-size: $textsize;
+}
+
+.battery-charging {
+    color: $orange
 }
 
 .network-data-text {
