@@ -1056,7 +1056,7 @@ namespace Bar
             return;
         }
         LOG("Warning: Unkwown widget name " << widgetName << "!"
-                                            << "\n\tKnown names are: Workspaces, Time, Tray, Packages, Sound, Bluetooth, Network, Sensors, Disk, "
+                                            << "\n\tKnown names are: Workspaces, Time, Tray, Packages, Audio, Bluetooth, Network, Sensors, Disk, "
                                                "VRAM, GPU, RAM, CPU, Battery, Power");
     }
 

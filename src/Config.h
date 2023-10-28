@@ -10,7 +10,7 @@ class Config
 public:
     std::vector<std::string> widgetsLeft = {"Workspaces"};
     std::vector<std::string> widgetsCenter = {"Time"};
-    std::vector<std::string> widgetsRight = {"Tray", "Sound", "Bluetooth", "Network", "Disk", "VRAM", "GPU", "CPU", "Battery", "Power"};
+    std::vector<std::string> widgetsRight = {"Tray", "Audio", "Bluetooth", "Network", "Disk", "VRAM", "GPU", "CPU", "Battery", "Power"};
 
     std::string cpuThermalZone = "";     // idk, no standard way of doing this.
     std::string networkAdapter = "eno1"; // Is this standard?
