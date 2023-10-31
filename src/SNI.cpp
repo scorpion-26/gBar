@@ -438,6 +438,7 @@ namespace SNI
                       return a.name < b.name;
                   });
 
+        bool rotatedIcons = (Config::Get().location == 'L' || Config::Get().location == 'R') && Config::Get().iconsAlwaysUp;
         for (auto& item : items)
         {
             if (item.iconData)
@@ -494,7 +495,7 @@ namespace SNI
                         texture->AddPaddingTop(padding);
                     }
                 }
-                Utils::SetTransform(*texture, {size, true, Alignment::Fill}, {size, true, Alignment::Fill});
+                Utils::SetTransform(*texture, {size, true, Alignment::Fill}, {size, true, Alignment::Fill, 0, rotatedIcons ? 6 : 0});
                 texture->SetBuf(item.w, item.h, item.iconData);
                 texture->SetTooltip(item.tooltip);
                 texture->SetAngle(Utils::GetAngle() == 270 ? 90 : 0);

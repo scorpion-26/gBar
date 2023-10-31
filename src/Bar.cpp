@@ -9,6 +9,38 @@
 
 namespace Bar
 {
+    enum Side
+    {
+        Left,
+        Right,
+        Center
+    };
+
+    Alignment SideToAlignment(Side side)
+    {
+        switch (side)
+        {
+        case Left: return Alignment::Left;
+        case Right: return Alignment::Right;
+        case Center: return Alignment::Fill;
+        }
+    }
+
+    TransitionType SideToDefaultTransition(Side side)
+    {
+        switch (side)
+        {
+        case Right:
+        case Center: return TransitionType::SlideLeft;
+        case Left: return TransitionType::SlideRight;
+        }
+    }
+
+    bool RotatedIcons()
+    {
+        return (Config::Get().location == 'L' || Config::Get().location == 'R') && Config::Get().iconsAlwaysUp;
+    }
+
     static int32_t monitorID;
 
     namespace DynCtx
@@ -184,10 +216,18 @@ namespace Bar
                     std::string ico = System::BTTypeToIcon(dev);
                     tooltip += dev.name + " & ";
                     btDev += ico;
+
+                    if (RotatedIcons())
+                    {
+                        btDev += "\n";
+                    }
                 }
                 // Delete last delim
                 if (tooltip.size())
                     tooltip.erase(tooltip.end() - 3, tooltip.end());
+                if (btDev.size() && btDev.back() == '\n')
+                    btDev.erase(btDev.end() - 1);
+
                 btDevText->SetTooltip(tooltip);
                 btDevText->SetText(std::move(btDev));
             }
@@ -373,33 +413,6 @@ namespace Bar
 #endif
     }
 
-    enum Side
-    {
-        Left,
-        Right,
-        Center
-    };
-
-    Alignment SideToAlignment(Side side)
-    {
-        switch (side)
-        {
-        case Left: return Alignment::Left;
-        case Right: return Alignment::Right;
-        case Center: return Alignment::Fill;
-        }
-    }
-
-    TransitionType SideToDefaultTransition(Side side)
-    {
-        switch (side)
-        {
-        case Right:
-        case Center: return TransitionType::SlideLeft;
-        case Left: return TransitionType::SlideRight;
-        }
-    }
-
     void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorClass, const std::string& textClass, Text*& textPtr,
                       Side side)
     {
@@ -441,7 +454,7 @@ namespace Bar
                 case 'T':
                 case 'B': angle = -90; break;
                 case 'L':
-                case 'R': angle = 0; break;
+                case 'R': angle = RotatedIcons() ? -90 : 0; break;
                 }
                 sensor->SetStyle({angle});
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
@@ -559,7 +572,8 @@ namespace Bar
                 case AudioType::Output:
                     icon->SetClass("audio-icon");
                     icon->SetText("󰕾 ");
-                    Utils::SetTransform(*icon, {-1, true, Alignment::Fill, 0, 6});
+                    if (!RotatedIcons())
+                        Utils::SetTransform(*icon, {-1, true, Alignment::Fill, 0, 6});
                     DynCtx::audioIcon = icon.get();
                     break;
                 }
@@ -626,6 +640,13 @@ namespace Bar
         text->SetClass("package-empty");
         text->SetAngle(Utils::GetAngle());
         text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval, TimerDispatchBehaviour::ImmediateDispatch);
+
+        // Fix alignment when icons are always upside
+        if (RotatedIcons())
+        {
+            Utils::SetTransform(*text, Transform{}, 10, 0);
+        }
+
         parent.AddChild(std::move(text));
     }
 
@@ -641,14 +662,30 @@ namespace Bar
             devText->SetAngle(Utils::GetAngle());
             DynCtx::btDevText = devText.get();
             devText->SetClass("bt-num");
-            if (side == Side::Left)
+            if (side == Side::Left && !RotatedIcons())
+            {
                 Utils::SetTransform(*devText, {-1, true, Alignment::Fill, 6, 0});
+            }
+            else if(RotatedIcons())
+            {
+                Utils::SetTransform(*devText, {}, 6, 0);
+            }
 
             auto iconText = Widget::Create<Button>();
             iconText->OnClick(DynCtx::OnBTClick);
             iconText->SetAngle(Utils::GetAngle());
-            Utils::SetTransform(*iconText, {-1, true, Alignment::Fill, 0, 6});
             DynCtx::btIconText = iconText.get();
+
+            if (!RotatedIcons())
+            {
+                // Only add end margin when icon is rotated with the bar.
+                Utils::SetTransform(*iconText, {-1, true, Alignment::Fill, 0, 6});
+            }
+            else
+            {
+                // Align it more properly
+                Utils::SetTransform(*iconText, {}, 0, 6);
+            }
 
             switch (side)
             {
@@ -801,14 +838,22 @@ namespace Bar
                 {
                     auto powerBoxExpand = Widget::Create<Box>();
                     powerBoxExpand->SetClass("power-box-expand");
-                    powerBoxExpand->SetSpacing({8, true});
+                    if (!RotatedIcons())
+                    {
+                        powerBoxExpand->SetSpacing({8, true});
+                        Utils::SetTransform(*powerBoxExpand, {-1, true, Alignment::Fill, 0, 6});
+                    }
                     powerBoxExpand->SetOrientation(Utils::GetOrientation());
-                    Utils::SetTransform(*powerBoxExpand, {-1, true, Alignment::Fill, 0, 6});
                     {
                         auto exitButton = Widget::Create<Button>();
                         exitButton->SetClass("exit-button");
                         exitButton->SetText("󰗼");
                         exitButton->SetAngle(Utils::GetAngle());
+                        if (RotatedIcons())
+                        {
+                            // Align in center
+                            Utils::SetTransform(*exitButton, Transform{}, 0, 2);
+                        }
                         exitButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -827,6 +872,11 @@ namespace Bar
                         lockButton->SetClass("sleep-button");
                         lockButton->SetText("");
                         lockButton->SetAngle(Utils::GetAngle());
+                        if (RotatedIcons())
+                        {
+                            // Align in center
+                            Utils::SetTransform(*lockButton, Transform{}, 0, 2);
+                        }
                         lockButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -845,6 +895,11 @@ namespace Bar
                         sleepButton->SetClass("sleep-button");
                         sleepButton->SetText("󰏤");
                         sleepButton->SetAngle(Utils::GetAngle());
+                        if (RotatedIcons())
+                        {
+                            // Align in center
+                            Utils::SetTransform(*sleepButton, Transform{}, 0, 2);
+                        }
                         sleepButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -863,7 +918,17 @@ namespace Bar
                         rebootButton->SetClass("reboot-button");
                         rebootButton->SetText("󰑐");
                         rebootButton->SetAngle(Utils::GetAngle());
-                        Utils::SetTransform(*rebootButton, {-1, true, Alignment::Fill, 0, 6});
+
+                        if (!RotatedIcons())
+                        {
+                            Utils::SetTransform(*rebootButton, {-1, false, Alignment::Fill, 0, 6});
+                        }
+                        else
+                        {
+                            // Align in center
+                            Utils::SetTransform(*rebootButton, Transform{}, 0, 2);
+                        }
+
                         rebootButton->OnClick(
                             [setActivate](Button& but)
                             {
@@ -891,7 +956,9 @@ namespace Bar
                 powerButton->SetClass("power-button");
                 powerButton->SetText(" ");
                 powerButton->SetAngle(Utils::GetAngle());
-                Utils::SetTransform(*powerButton, {24, false, Alignment::Fill});
+
+                Utils::SetTransform(*powerButton, {24, false, Alignment::Fill}, RotatedIcons() ? 10 : 0, 0);
+
                 powerButton->OnClick(
                     [setActivate](Button& but)
                     {

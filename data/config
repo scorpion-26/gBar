@@ -69,6 +69,10 @@ UseHyprlandIPC: true
 # Values are: L (Left), R (Right), T (Top), B (bottom)
 Location: T
 
+# When the location is set to side, this option forces everything (even text) to be right-side up.
+# *Always* make sure to enable SensorTooltips when enabling this option. Failure to do so *will* cause graphical issues.
+IconsAlwaysUp: false
+
 # Forces the time to be centered.
 # This can cause the right widget to clip outside, if there is not enough space on screen (e.g. when opening the text)
 # Setting this to false will definitely fix this issue, but it won't look very good, since it will be off-center.

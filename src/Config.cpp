@@ -252,6 +252,7 @@ void Config::Load()
         AddConfigVar("UseHyprlandIPC", config.useHyprlandIPC, lineView, foundProperty);
         AddConfigVar("EnableSNI", config.enableSNI, lineView, foundProperty);
         AddConfigVar("SensorTooltips", config.sensorTooltips, lineView, foundProperty);
+        AddConfigVar("IconsAlwaysUp", config.iconsAlwaysUp, lineView, foundProperty);
 
         AddConfigVar("MinUploadBytes", config.minUploadBytes, lineView, foundProperty);
         AddConfigVar("MaxUploadBytes", config.maxUploadBytes, lineView, foundProperty);

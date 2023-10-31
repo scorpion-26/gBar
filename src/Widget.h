@@ -392,6 +392,11 @@ namespace Utils
         }
     }
 
+    inline void SetTransform(Widget& widget, const Transform& primary, int secondaryMarginBefore, int secondaryMarginAfter)
+    {
+        SetTransform(widget, primary, {-1, false, Alignment::Fill, secondaryMarginBefore, secondaryMarginAfter});
+    }
+
     inline Orientation GetOrientation()
     {
         switch (Config::Get().location)
@@ -406,7 +411,7 @@ namespace Utils
 
     inline double GetAngle()
     {
-        if (Config::Get().location == 'T' || Config::Get().location == 'B')
+        if (Config::Get().location == 'T' || Config::Get().location == 'B' || Config::Get().iconsAlwaysUp)
         {
             return 0;
         }

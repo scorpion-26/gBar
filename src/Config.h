@@ -39,6 +39,7 @@ public:
     bool useHyprlandIPC = true;           // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
     bool enableSNI = true;                // Enable tray icon
     bool sensorTooltips = false;          // Use tooltips instead of sliders for the sensors
+    bool iconsAlwaysUp = false;           // Force icons to always point upwards in sidebar mode
 
     // Controls for color progression of the network widget
     uint32_t minUploadBytes = 0;                  // Bottom limit of the network widgets upload. Everything below it is considered "under"
