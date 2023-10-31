@@ -17,6 +17,12 @@ template<>
 void ApplyProperty<std::string>(std::string& propertyToSet, const std::string_view& value)
 {
     propertyToSet = value;
+
+    // Escape characters. This is a very hacky way to this, I know.
+    // TODO: Do something more efficient
+    Utils::Replace(propertyToSet, "\\n", "\n");
+    Utils::Replace(propertyToSet, "\\\\", "\\");
+    Utils::Replace(propertyToSet, "\\t", "\t");
 }
 
 template<>

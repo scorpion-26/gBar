@@ -150,6 +150,18 @@ namespace Utils
         }
         return "";
     }
+
+    inline void Replace(std::string& str, const std::string& string, const std::string& replacement)
+    {
+        size_t curPos = 0;
+        curPos = str.find(string);
+        while (curPos != std::string::npos)
+        {
+            str.replace(curPos, string.length(), replacement);
+            curPos += string.length();
+            curPos = str.find(string, curPos);
+        }
+    }
 }
 
 struct Process

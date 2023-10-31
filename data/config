@@ -6,6 +6,10 @@
 # - Before the variable
 # - After the ':'
 # - After the value
+#
+# String variables can be escaped ([Notation in config] -> "Result"):
+# - foo\\bar -> "foo<backspace>bar"
+# - foo\nbar -> "foo<newline>bar"
 
 # The following three options control the ordering of the widgets.
 # Reordering can cause slight margin inconsistencies,
