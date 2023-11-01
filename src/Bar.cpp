@@ -423,9 +423,10 @@ namespace Bar
             box->SetSpacing({0, false});
             box->SetOrientation(Utils::GetOrientation());
             {
-                auto revealer = Widget::Create<Revealer>();
+                std::unique_ptr<Revealer> revealer = nullptr;
                 if (!Config::Get().sensorTooltips)
                 {
+                    revealer = Widget::Create<Revealer>();
                     revealer->SetTransition({Utils::GetTransitionType(SideToDefaultTransition(side)), 500});
                     // Add event to eventbox for the revealer to open
                     eventBox->SetHoverFn(
@@ -666,7 +667,7 @@ namespace Bar
             {
                 Utils::SetTransform(*devText, {-1, true, Alignment::Fill, 6, 0});
             }
-            else if(RotatedIcons())
+            else if (RotatedIcons())
             {
                 Utils::SetTransform(*devText, {}, 6, 0);
             }
