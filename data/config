@@ -124,6 +124,10 @@ NetworkAdapter: eno1
 # Disables the network widget when set to false
 NetworkWidget: true
 
+# The card to poll when using AMDGPU. If you don't have an AMD card, you can skip this config.
+# Possible values can be found by querying /sys/class/drm
+DrmAmdCard: card0
+
 # Use tooltips instead of sliders for the sensors
 SensorTooltips: false
 

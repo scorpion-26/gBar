@@ -6,16 +6,17 @@
 #ifdef WITH_AMD
 namespace AMDGPU
 {
-    static const char* utilizationFile = "/sys/class/drm/card0/device/gpu_busy_percent";
-    static const char* vramTotalFile = "/sys/class/drm/card0/device/mem_info_vram_total";
-    static const char* vramUsedFile = "/sys/class/drm/card0/device/mem_info_vram_used";
+    static const char* drmCardPrefix = "/sys/class/drm/";
+    static const char* utilizationFile = "/device/gpu_busy_percent";
+    static const char* vramTotalFile = "/device/mem_info_vram_total";
+    static const char* vramUsedFile = "/device/mem_info_vram_used";
     // TODO: Make this configurable
     static const char* tempFile = "/sys/class/drm/card0/device/hwmon/hwmon1/temp1_input";
 
     inline void Init()
     {
         // Test for drm device files
-        std::ifstream test(utilizationFile);
+        std::ifstream test(drmCardPrefix + Config::Get().drmAmdCard + utilizationFile);
         if (!test.is_open())
         {
             LOG("AMD GPU not found, disabling AMD GPU");
@@ -31,7 +32,7 @@ namespace AMDGPU
             return {};
         }
 
-        std::ifstream file(utilizationFile);
+        std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + utilizationFile);
         std::string line;
         std::getline(file, line);
         return atoi(line.c_str());
@@ -45,13 +46,13 @@ namespace AMDGPU
             return {};
         }
 
-        std::ifstream file(tempFile);
+        std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + tempFile);
         std::string line;
         std::getline(file, line);
         return atoi(line.c_str()) / 1000;
     }
 
-    struct VRAM 
+    struct VRAM
     {
         uint32_t totalB;
         uint32_t usedB;
@@ -66,12 +67,12 @@ namespace AMDGPU
         }
         VRAM mem{};
 
-        std::ifstream file(vramTotalFile);
+        std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + vramTotalFile);
         std::string line;
         std::getline(file, line);
         mem.totalB = atoi(line.c_str());
-    
-        file = std::ifstream(vramUsedFile);
+
+        file = std::ifstream(drmCardPrefix + Config::Get().drmAmdCard + vramUsedFile);
         std::getline(file, line);
         mem.usedB = atoi(line.c_str());
 

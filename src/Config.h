@@ -14,6 +14,7 @@ public:
 
     std::string cpuThermalZone = "";     // idk, no standard way of doing this.
     std::string networkAdapter = "eno1"; // Is this standard?
+    std::string drmAmdCard = "card0";    // The card to poll in AMDGPU.
     std::string suspendCommand = "systemctl suspend";
     std::string lockCommand = "";   // idk, no standard way of doing this.
     std::string exitCommand = "";   // idk, no standard way of doing this.

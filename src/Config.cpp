@@ -232,6 +232,7 @@ void Config::Load()
 
         AddConfigVar("CPUThermalZone", config.cpuThermalZone, lineView, foundProperty);
         AddConfigVar("NetworkAdapter", config.networkAdapter, lineView, foundProperty);
+        AddConfigVar("DrmAmdCard", config.drmAmdCard, lineView, foundProperty);
         AddConfigVar("SuspendCommand", config.suspendCommand, lineView, foundProperty);
         AddConfigVar("LockCommand", config.lockCommand, lineView, foundProperty);
         AddConfigVar("ExitCommand", config.exitCommand, lineView, foundProperty);
