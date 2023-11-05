@@ -47,9 +47,12 @@ namespace Utils
 
 Widget::~Widget()
 {
-    m_Childs.clear();
-    LOG("Destroy widget");
-    gtk_widget_destroy(m_Widget);
+    if (m_Widget)
+    {
+        LOG("Destroy widget and its children");
+        m_Childs.clear();
+        gtk_widget_destroy(m_Widget);
+    }
 }
 
 void Widget::CreateAndAddWidget(Widget* widget, GtkWidget* parentWidget)
@@ -144,8 +147,10 @@ void Widget::RemoveChild(Widget* widget)
     {
         if (m_Widget)
         {
+            LOG("Remove widget from parent");
+            // Ref the widget, so we don't mess up the RAII cleanup below
+            g_object_ref(it->get()->m_Widget);
             gtk_container_remove((GtkContainer*)m_Widget, it->get()->m_Widget);
-            it->get()->m_Widget = nullptr;
         }
         m_Childs.erase(it);
     }
