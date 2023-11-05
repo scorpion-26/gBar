@@ -162,7 +162,8 @@ void Widget::RemoveChild(Widget* widget)
 
 void Widget::SetVisible(bool visible)
 {
-    gtk_widget_set_visible(m_Widget, visible);
+    if (m_Widget)
+        gtk_widget_set_visible(m_Widget, visible);
 }
 
 void Widget::PropagateToParent(GdkEvent* event)
@@ -683,7 +684,8 @@ void Slider::SetOrientation(Orientation orientation)
 
 void Slider::SetValue(double value)
 {
-    gtk_range_set_value((GtkRange*)m_Widget, value);
+    if (m_Widget)
+        gtk_range_set_value((GtkRange*)m_Widget, value);
 }
 
 void Slider::SetInverted(bool inverted)
