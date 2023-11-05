@@ -144,10 +144,7 @@ namespace SNI
                 g_error_free(err);
                 return nullptr;
             }
-            // There's probably a better method than to use 3 variants
-            // g_variant_unref(params[0]);
-            // g_variant_unref(params[1]);
-            // g_variant_unref(param);
+            // g_dbus_connection_call_sync consumes the parameter and its children, so no need to unref
             return res;
         };
 
