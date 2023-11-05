@@ -285,8 +285,8 @@ public:
     Texture() = default;
     virtual ~Texture();
 
-    // Non-Owning, ARGB32
-    void SetBuf(size_t width, size_t height, uint8_t* buf);
+    // Non-Owning (Copies the pixbuf), ARGB32
+    void SetBuf(GdkPixbuf* pixbuf, size_t width, size_t height);
 
     void ForceHeight(size_t height) { m_ForcedHeight = height; };
     void AddPaddingTop(int32_t topPadding) { m_Padding = topPadding; };
@@ -300,7 +300,6 @@ private:
     size_t m_ForcedHeight = 0;
     double m_Angle;
     int32_t m_Padding = 0;
-    GBytes* m_Bytes;
     GdkPixbuf* m_Pixbuf;
 };
 

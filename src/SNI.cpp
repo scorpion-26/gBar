@@ -32,7 +32,7 @@ namespace SNI
         std::string object;
         size_t w = 0;
         size_t h = 0;
-        uint8_t* iconData = nullptr;
+        GdkPixbuf* pixbuf = nullptr;
 
         std::string tooltip = "";
 
@@ -53,6 +53,77 @@ namespace SNI
     //   HACK: Make an outer permanent and an inner box, which will be deleted and readded
     Widget* parentBox;
     Widget* iconBox;
+
+    // Swap channels for the render format and create a pixbuf out of it
+    static GdkPixbuf* ToPixbuf(uint8_t* sniData, int32_t width, int32_t height)
+    {
+        for (int i = 0; i < width * height; i++)
+        {
+            struct Px
+            {
+                // This should be bgra...
+                // Since source is ARGB32 in network order(=big-endian)
+                // and x86 Linux is little-endian, we *should* swap b and r...
+                uint8_t a, r, g, b;
+            };
+            Px& pixel = ((Px*)sniData)[i];
+            // Swap to create rgba
+            pixel = {pixel.r, pixel.g, pixel.b, pixel.a};
+        }
+        return gdk_pixbuf_new_from_data(
+            sniData, GDK_COLORSPACE_RGB, true, 8, width, height, width * 4,
+            +[](uint8_t* data, void*)
+            {
+                delete[] data;
+            },
+            nullptr);
+    }
+
+    // Allocates a pixbuf that contains a bitmap of the icon
+    static void ToPixbuf(const std::string& location, GdkPixbuf*& outPixbuf, size_t& outWidth, size_t& outHeight)
+    {
+        std::string ext = location.substr(location.find_last_of('.') + 1);
+        if (ext == "png" || ext == "jpg")
+        {
+            // png, load via svg
+            int width, height, channels;
+            stbi_uc* pixels = stbi_load(location.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+            if (!pixels)
+            {
+                LOG("SNI: Cannot open " << location);
+                return;
+            }
+            outWidth = width;
+            outHeight = height;
+            uint8_t* iconData = new uint8_t[width * height * 4];
+            // Already rgba32
+            memcpy(iconData, pixels, width * height * 4);
+            stbi_image_free(pixels);
+
+            outPixbuf = gdk_pixbuf_new_from_data(
+                iconData, GDK_COLORSPACE_RGB, true, 8, width, height, width * 4,
+                +[](uint8_t* data, void*)
+                {
+                    delete[] data;
+                },
+                nullptr);
+        }
+        else if (ext == "svg")
+        {
+            // Just a random size, this should be plenty enough wiggle room
+            outWidth = 64;
+            outHeight = 64;
+
+            // Use glib functions
+            GError* err = nullptr;
+            outPixbuf = gdk_pixbuf_new_from_file_at_scale(location.c_str(), outWidth, outHeight, true, &err);
+            if (err)
+            {
+                LOG("SNI: Error loading svg " << location << ": " << err->message);
+                return;
+            }
+        }
+    }
 
     static Item CreateItem(std::string&& name, std::string&& object)
     {
@@ -102,28 +173,16 @@ namespace SNI
                 LOG("SNI: Height: " << height);
                 item.w = width;
                 item.h = height;
-                item.iconData = new uint8_t[width * height * 4];
+                uint8_t* iconData = new uint8_t[width * height * 4];
 
                 uint8_t px = 0;
                 int i = 0;
                 while (g_variant_iter_next(data, "y", &px))
                 {
-                    item.iconData[i] = px;
+                    iconData[i] = px;
                     i++;
                 }
-                for (int i = 0; i < width * height; i++)
-                {
-                    struct Px
-                    {
-                        // This should be bgra...
-                        // Since source is ARGB32 in network order(=big-endian)
-                        // and x86 Linux is little-endian, we *should* swap b and r...
-                        uint8_t a, r, g, b;
-                    };
-                    Px& pixel = ((Px*)item.iconData)[i];
-                    // Swap to create rgba
-                    pixel = {pixel.r, pixel.g, pixel.b, pixel.a};
-                }
+                item.pixbuf = ToPixbuf(iconData, width, height);
 
                 g_variant_iter_free(data);
 
@@ -148,7 +207,7 @@ namespace SNI
                     for (auto& dataDir : Utils::Split(dataDirs, ':'))
                     {
                         LOG("SNI: Searching icon " << iconName << " in " << dataDir << "/icons");
-                        std::string path = Utils::FindFileWithName(dataDir + "/icons", iconName, ".png");
+                        std::string path = Utils::FindFileWithName(dataDir + "/icons", iconName);
                         if (path != "")
                         {
                             iconPath = path;
@@ -161,7 +220,7 @@ namespace SNI
                     // Fallback to /usr/share/icons
                     LOG("SNI: Searching icon " << iconName << " in "
                                                << "/usr/share/icons");
-                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName, ".png");
+                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName);
                 }
                 return iconPath;
             };
@@ -187,7 +246,8 @@ namespace SNI
                 }
                 else
                 {
-                    iconPath = std::string(themePath) + "/" + iconName + ".png"; // TODO: Find out if this is always png
+                    LOG("SNI: Searching icon " << iconName << " in " << themePath);
+                    iconPath = Utils::FindFileWithName(themePath, iconName);
                 }
 
                 g_variant_unref(themePathVariant);
@@ -222,20 +282,8 @@ namespace SNI
                 LOG("SNI: Cannot find icon path for " << name);
                 return item;
             }
-
-            int width, height, channels;
-            stbi_uc* pixels = stbi_load(iconPath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-            if (!pixels)
-            {
-                LOG("SNI: Cannot open " << iconPath);
-                return item;
-            }
-            item.w = width;
-            item.h = height;
-            item.iconData = new uint8_t[width * height * 4];
-            // Already rgba32
-            memcpy(item.iconData, pixels, width * height * 4);
-            stbi_image_free(pixels);
+            LOG("SNI: Creating icon from \"" << iconPath << "\"");
+            ToPixbuf(iconPath, item.pixbuf, item.w, item.h);
         }
 
         // Query tooltip(Steam e.g. doesn't have one)
@@ -303,6 +351,7 @@ namespace SNI
             LOG("SNI: " << name << " vanished!");
             g_bus_unwatch_name(it->watcherID);
             g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
+            g_free(it->pixbuf);
             items.erase(it);
             InvalidateWidget();
             return;
@@ -360,6 +409,7 @@ namespace SNI
         {
             g_bus_unwatch_name(it->watcherID);
             g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
+            g_free(it->pixbuf);
             items.erase(it);
         }
         else
@@ -441,7 +491,7 @@ namespace SNI
         bool rotatedIcons = (Config::Get().location == 'L' || Config::Get().location == 'R') && Config::Get().iconsAlwaysUp;
         for (auto& item : items)
         {
-            if (item.iconData)
+            if (item.pixbuf)
             {
                 auto eventBox = Widget::Create<EventBox>();
                 item.gtkEvent = eventBox.get();
@@ -496,7 +546,7 @@ namespace SNI
                     }
                 }
                 Utils::SetTransform(*texture, {size, true, Alignment::Fill}, {size, true, Alignment::Fill, 0, rotatedIcons ? 6 : 0});
-                texture->SetBuf(item.w, item.h, item.iconData);
+                texture->SetBuf(item.pixbuf, item.w, item.h);
                 texture->SetTooltip(item.tooltip);
                 texture->SetAngle(Utils::GetAngle() == 270 ? 90 : 0);
 

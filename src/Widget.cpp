@@ -525,16 +525,13 @@ Texture::~Texture()
 {
     if (m_Pixbuf)
         g_free(m_Pixbuf);
-    if (m_Bytes)
-        g_free(m_Bytes);
 }
 
-void Texture::SetBuf(size_t width, size_t height, uint8_t* buf)
+void Texture::SetBuf(GdkPixbuf* pixbuf, size_t width, size_t height)
 {
     m_Width = width;
     m_Height = height;
-    m_Bytes = g_bytes_new(buf, m_Width * m_Height * 4);
-    m_Pixbuf = gdk_pixbuf_new_from_bytes((GBytes*)m_Bytes, GDK_COLORSPACE_RGB, true, 8, m_Width, m_Height, m_Width * 4);
+    m_Pixbuf = gdk_pixbuf_copy(pixbuf);
 }
 
 void Texture::Draw(cairo_t* cr)

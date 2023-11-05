@@ -133,7 +133,7 @@ namespace Utils
         return result;
     }
 
-    inline std::string FindFileWithName(const std::string& directory, const std::string& name, const std::string& extension)
+    inline std::string FindFileWithName(const std::string& directory, const std::string& name)
     {
         if (!std::filesystem::exists(directory))
         {
@@ -143,7 +143,7 @@ namespace Utils
         {
             if (path.is_directory())
                 continue;
-            if (path.path().filename().string().find(name) != std::string::npos && path.path().extension().string() == extension)
+            if (path.path().filename().string().find(name) != std::string::npos)
             {
                 return path.path().string();
             }
