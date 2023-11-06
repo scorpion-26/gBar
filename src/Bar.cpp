@@ -24,6 +24,7 @@ namespace Bar
         case Right: return Alignment::Right;
         case Center: return Alignment::Fill;
         }
+        return Alignment::Right;
     }
 
     TransitionType SideToDefaultTransition(Side side)
@@ -94,13 +95,15 @@ namespace Bar
             if (isCharging && !wasCharging && sensor.Get() != nullptr)
             {
                 sensor.AddClass("battery-charging");
-                batteryText->AddClass("battery-charging");
+                if (batteryText)
+                    batteryText->AddClass("battery-charging");
                 wasCharging = true;
             }
             else if (!isCharging && wasCharging)
             {
                 sensor.RemoveClass("battery-charging");
-                batteryText->RemoveClass("battery-charging");
+                if (batteryText)
+                    batteryText->RemoveClass("battery-charging");
                 wasCharging = false;
             }
             return TimerResult::Ok;
