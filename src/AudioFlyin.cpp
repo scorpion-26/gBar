@@ -47,11 +47,11 @@ namespace AudioFlyin
                     muted = info.sinkMuted;
                     if (info.sinkMuted)
                     {
-                        icon->SetText("󰝟");
+                        icon->SetText(Config::Get().speakerMutedIcon);
                     }
                     else
                     {
-                        icon->SetText("󰕾");
+                        icon->SetText(Config::Get().speakerHighIcon);
                     }
                 }
             }
@@ -68,11 +68,11 @@ namespace AudioFlyin
                     muted = info.sourceMuted;
                     if (info.sourceMuted)
                     {
-                        icon->SetText("󰍭");
+                        icon->SetText(Config::Get().micMutedIcon);
                     }
                     else
                     {
-                        icon->SetText("󰍬");
+                        icon->SetText(Config::Get().micHighIcon);
                     }
                 }
             }
@@ -116,12 +116,12 @@ namespace AudioFlyin
         if (DynCtx::type == Type::Speaker)
         {
             icon->SetClass("audio-icon");
-            icon->SetText("󰕾 ");
+            icon->SetText(Config::Get().speakerHighIcon);
         }
         else if (DynCtx::type == Type::Microphone)
         {
             icon->SetClass("mic-icon");
-            icon->SetText("󰍬");
+            icon->SetText(Config::Get().speakerMutedIcon);
         }
 
         DynCtx::icon = icon.get();

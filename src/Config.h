@@ -26,6 +26,29 @@ public:
     std::string dateTimeLocale = "";                   // use system locale
     std::string diskPartition = "/";                   // should be expectable on every linux system
 
+    // Icons
+    std::string shutdownIcon = " ";
+    std::string rebootIcon = "󰑐";
+    std::string sleepIcon = "󰏤";
+    std::string lockIcon = "";
+    std::string exitIcon = "󰗼";
+    std::string btOffIcon = "󰂲";
+    std::string btOnIcon = "󰂯";
+    std::string btConnectedIcon = "󰂱";
+    std::string devKeyboardIcon = "󰌌 ";
+    std::string devMouseIcon = "󰍽 ";
+    std::string devHeadsetIcon = "󰋋 ";
+    std::string devControllerIcon = "󰖺 ";
+    std::string devUnknownIcon = " ";
+    std::string speakerMutedIcon = "󰝟";
+    std::string speakerHighIcon = "󰕾";
+    std::string micMutedIcon = "󰍭";
+    std::string micHighIcon = "󰍬";
+    std::string packageOutOfDateIcon = "󰏔 ";
+    // WS is handled by workspaceSymbols
+    // TODO: Deprecate workspaceSymbols in favor of e.g. workspaceIcon-x
+    // TODO: BluetoothDevices Refresh and close icons
+
     // Script that returns how many packages are out-of-date. The script should only print a number!
     // See data/update.sh for a human-readable version
     std::string checkPackagesCommand =

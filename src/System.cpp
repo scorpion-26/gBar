@@ -449,21 +449,21 @@ namespace System
     {
         if (dev.type == "input-keyboard")
         {
-            return "󰌌 ";
+            return Config::Get().devKeyboardIcon;
         }
         else if (dev.type == "input-mouse")
         {
-            return "󰍽 ";
+            return Config::Get().devMouseIcon;
         }
         else if (dev.type == "audio-headset")
         {
-            return "󰋋 ";
+            return Config::Get().devHeadsetIcon;
         }
         else if (dev.type == "input-gaming")
         {
-            return "󰖺 ";
+            return Config::Get().devControllerIcon;
         }
-        return " ";
+        return Config::Get().devUnknownIcon;
     }
 #endif
 

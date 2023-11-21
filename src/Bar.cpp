@@ -198,19 +198,19 @@ namespace Bar
             if (info.defaultController.empty())
             {
                 btIconText->SetClass("bt-label-off");
-                btIconText->SetText("󰂲");
+                btIconText->SetText(Config::Get().btOffIcon);
                 btDevText->SetText("");
             }
             else if (info.devices.empty())
             {
                 btIconText->SetClass("bt-label-on");
-                btIconText->SetText("󰂯");
+                btIconText->SetText(Config::Get().btOnIcon);
                 btDevText->SetText("");
             }
             else
             {
                 btIconText->SetClass("bt-label-connected");
-                btIconText->SetText("󰂱");
+                btIconText->SetText(Config::Get().btConnectedIcon);
                 std::string btDev;
                 std::string tooltip;
                 for (auto& dev : info.devices)
@@ -253,7 +253,7 @@ namespace Bar
                     packageTextLock.lock();
                     if (numOutdatedPackages)
                     {
-                        text.SetText("󰏔 ");
+                        text.SetText(Config::Get().packageOutOfDateIcon);
                         text.SetVisible(true);
                         text.SetClass("package-outofdate");
                         text.SetTooltip("Updates available! (" + std::to_string(numOutdatedPackages) + " packages)");
@@ -315,11 +315,11 @@ namespace Bar
             }
             if (info.sinkMuted)
             {
-                audioIcon->SetText("󰝟");
+                audioIcon->SetText(Config::Get().speakerMutedIcon);
             }
             else
             {
-                audioIcon->SetText("󰕾");
+                audioIcon->SetText(Config::Get().speakerHighIcon);
             }
             if (Config::Get().audioInput)
             {
@@ -334,11 +334,11 @@ namespace Bar
                 }
                 if (info.sourceMuted)
                 {
-                    micIcon->SetText("󰍭");
+                    micIcon->SetText(Config::Get().micMutedIcon);
                 }
                 else
                 {
-                    micIcon->SetText("󰍬");
+                    micIcon->SetText(Config::Get().micHighIcon);
                 }
             }
             return TimerResult::Ok;
@@ -571,12 +571,12 @@ namespace Bar
                 {
                 case AudioType::Input:
                     icon->SetClass("mic-icon");
-                    icon->SetText("󰍬");
+                    icon->SetText(Config::Get().speakerHighIcon);
                     DynCtx::micIcon = icon.get();
                     break;
                 case AudioType::Output:
                     icon->SetClass("audio-icon");
-                    icon->SetText("󰕾 ");
+                    icon->SetText(Config::Get().micHighIcon);
                     if (!RotatedIcons())
                         Utils::SetTransform(*icon, {-1, true, Alignment::Fill, 0, 6});
                     DynCtx::audioIcon = icon.get();
@@ -852,7 +852,7 @@ namespace Bar
                     {
                         auto exitButton = Widget::Create<Button>();
                         exitButton->SetClass("exit-button");
-                        exitButton->SetText("󰗼");
+                        exitButton->SetText(Config::Get().exitIcon);
                         exitButton->SetAngle(Utils::GetAngle());
                         if (RotatedIcons())
                         {
@@ -875,7 +875,7 @@ namespace Bar
 
                         auto lockButton = Widget::Create<Button>();
                         lockButton->SetClass("sleep-button");
-                        lockButton->SetText("");
+                        lockButton->SetText(Config::Get().lockIcon);
                         lockButton->SetAngle(Utils::GetAngle());
                         if (RotatedIcons())
                         {
@@ -898,7 +898,7 @@ namespace Bar
 
                         auto sleepButton = Widget::Create<Button>();
                         sleepButton->SetClass("sleep-button");
-                        sleepButton->SetText("󰏤");
+                        sleepButton->SetText(Config::Get().sleepIcon);
                         sleepButton->SetAngle(Utils::GetAngle());
                         if (RotatedIcons())
                         {
@@ -921,7 +921,7 @@ namespace Bar
 
                         auto rebootButton = Widget::Create<Button>();
                         rebootButton->SetClass("reboot-button");
-                        rebootButton->SetText("󰑐");
+                        rebootButton->SetText(Config::Get().rebootIcon);
                         rebootButton->SetAngle(Utils::GetAngle());
 
                         if (!RotatedIcons())
@@ -959,7 +959,7 @@ namespace Bar
 
                 auto powerButton = Widget::Create<Button>();
                 powerButton->SetClass("power-button");
-                powerButton->SetText(" ");
+                powerButton->SetText(Config::Get().shutdownIcon);
                 powerButton->SetAngle(Utils::GetAngle());
 
                 Utils::SetTransform(*powerButton, {24, false, Alignment::Fill}, RotatedIcons() ? 10 : 0, 0);

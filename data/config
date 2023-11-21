@@ -49,6 +49,27 @@ DiskPartition: /
 # The default symbol for the workspaces
 DefaultWorkspaceSymbol: 
 
+# All of the icons that can be modified.
+# Please note that some icons require a space ("\s") (e.g. default ShutdownIcon)
+ShutdownIcon: \s
+RebootIcon: 󰑐
+SleepIcon: 󰏤
+LockIcon: 
+ExitIcon: 󰗼
+BTOffIcon: 󰂲
+BTOnIcon: 󰂯
+BTConnectedIcon: 󰂱
+DevKeyboardIcon: 󰌌\s
+DevMouseIcon: 󰍽\s
+DevHeadsetIcon: 󰋋\s
+DevControllerIcon: 󰖺\s
+DevUnknownIcon: \s
+SpeakerMutedIcon: 󰝟
+SpeakerHighIcon: 󰕾
+MicMutedIcon: 󰍭
+MicHighIcon: 󰍬
+PackageOutOfDateIcon: 󰏔\s
+
 # Scroll through the workspaces of the current monitor instead of all workspaces
 WorkspaceScrollOnMonitor: true
 

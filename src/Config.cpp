@@ -244,6 +244,26 @@ void Config::Load()
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
         AddConfigVar("DiskPartition", config.diskPartition, lineView, foundProperty);
 
+
+        AddConfigVar("ShutdownIcon", config.shutdownIcon, lineView, foundProperty);
+        AddConfigVar("RebootIcon", config.rebootIcon, lineView, foundProperty);
+        AddConfigVar("sleepIcon", config.sleepIcon, lineView, foundProperty);
+        AddConfigVar("LockIcon", config.lockIcon, lineView, foundProperty);
+        AddConfigVar("ExitIcon", config.exitIcon, lineView, foundProperty);
+        AddConfigVar("BTOffIcon", config.btOffIcon, lineView, foundProperty);
+        AddConfigVar("BTOnIcon", config.btOnIcon, lineView, foundProperty);
+        AddConfigVar("BTConnectedIcon", config.btConnectedIcon, lineView, foundProperty);
+        AddConfigVar("DevKeyboardIcon", config.devKeyboardIcon, lineView, foundProperty);
+        AddConfigVar("DevMouseIcon", config.devMouseIcon, lineView, foundProperty);
+        AddConfigVar("DevHeadsetIcon", config.devHeadsetIcon, lineView, foundProperty);
+        AddConfigVar("DevControllerIcon", config.devControllerIcon, lineView, foundProperty);
+        AddConfigVar("DevUnknownIcon", config.devUnknownIcon, lineView, foundProperty);
+        AddConfigVar("SpeakerMutedIcon", config.speakerMutedIcon, lineView, foundProperty);
+        AddConfigVar("SpeakerHighIcon", config.speakerHighIcon, lineView, foundProperty);
+        AddConfigVar("MicMutedIcon", config.micMutedIcon, lineView, foundProperty);
+        AddConfigVar("MicHighIcon", config.micHighIcon, lineView, foundProperty);
+        AddConfigVar("PackageOutOfDateIcon", config.packageOutOfDateIcon, lineView, foundProperty);
+
         AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);

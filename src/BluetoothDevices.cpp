@@ -258,7 +258,7 @@ namespace BluetoothDevices
         headerBox->SetClass("bt-header-box");
         {
             auto headerText = Widget::Create<Text>();
-            headerText->SetText("󰂯 Bluetooth");
+            headerText->SetText(Config::Get().btOnIcon + " Bluetooth");
             headerBox->AddChild(std::move(headerText));
 
             auto headerRefresh = Widget::Create<Button>();
