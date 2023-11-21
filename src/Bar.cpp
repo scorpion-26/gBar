@@ -35,6 +35,7 @@ namespace Bar
         case Center: return TransitionType::SlideLeft;
         case Left: return TransitionType::SlideRight;
         }
+        return TransitionType::SlideLeft;
     }
 
     bool RotatedIcons()
