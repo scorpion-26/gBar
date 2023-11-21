@@ -23,6 +23,7 @@ void ApplyProperty<std::string>(std::string& propertyToSet, const std::string_vi
     Utils::Replace(propertyToSet, "\\n", "\n");
     Utils::Replace(propertyToSet, "\\\\", "\\");
     Utils::Replace(propertyToSet, "\\t", "\t");
+    Utils::Replace(propertyToSet, "\\s", " ");
 }
 
 template<>

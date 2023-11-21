@@ -8,8 +8,9 @@
 # - After the value
 #
 # String variables can be escaped ([Notation in config] -> "Result"):
-# - foo\\bar -> "foo<backspace>bar"
+# - foo\\bar -> "foo<backlash>bar"
 # - foo\nbar -> "foo<newline>bar"
+# - foo\sbar -> "foo bar"
 
 # The following three options control the ordering of the widgets.
 # Reordering can cause slight margin inconsistencies,
