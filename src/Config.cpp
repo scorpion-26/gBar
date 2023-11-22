@@ -247,7 +247,7 @@ void Config::Load()
 
         AddConfigVar("ShutdownIcon", config.shutdownIcon, lineView, foundProperty);
         AddConfigVar("RebootIcon", config.rebootIcon, lineView, foundProperty);
-        AddConfigVar("sleepIcon", config.sleepIcon, lineView, foundProperty);
+        AddConfigVar("SleepIcon", config.sleepIcon, lineView, foundProperty);
         AddConfigVar("LockIcon", config.lockIcon, lineView, foundProperty);
         AddConfigVar("ExitIcon", config.exitIcon, lineView, foundProperty);
         AddConfigVar("BTOffIcon", config.btOffIcon, lineView, foundProperty);
