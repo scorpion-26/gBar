@@ -244,7 +244,6 @@ void Config::Load()
         AddConfigVar("CheckPackagesCommand", config.checkPackagesCommand, lineView, foundProperty);
         AddConfigVar("DiskPartition", config.diskPartition, lineView, foundProperty);
 
-
         AddConfigVar("ShutdownIcon", config.shutdownIcon, lineView, foundProperty);
         AddConfigVar("RebootIcon", config.rebootIcon, lineView, foundProperty);
         AddConfigVar("SleepIcon", config.sleepIcon, lineView, foundProperty);
@@ -285,6 +284,8 @@ void Config::Load()
         AddConfigVar("TimeSpace", config.timeSpace, lineView, foundProperty);
         AddConfigVar("NumWorkspaces", config.numWorkspaces, lineView, foundProperty);
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
+        AddConfigVar("SensorSize", config.sensorSize, lineView, foundProperty);
+        AddConfigVar("NetworkIconSize", config.networkIconSize, lineView, foundProperty);
 
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
         AddConfigVar("AudioMaxVolume", config.audioMaxVolume, lineView, foundProperty);

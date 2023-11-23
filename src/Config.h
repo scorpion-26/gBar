@@ -76,6 +76,8 @@ public:
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
     uint32_t timeSpace = 300;              // How much time should be reserved for the time widget.
     uint32_t numWorkspaces = 9;            // How many workspaces to display
+    uint32_t sensorSize = 24;              // The size of the circular sensors
+    uint32_t networkIconSize = 24;         // The size of the two network arrows
 
     char location = 'T'; // The Location of the bar. Can be L,R,T,B
 

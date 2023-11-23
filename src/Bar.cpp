@@ -463,7 +463,7 @@ namespace Bar
                 }
                 sensor->SetStyle({angle});
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
-                Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
+                Utils::SetTransform(*sensor, {(int)Config::Get().sensorSize, true, Alignment::Fill});
 
                 switch (side)
                 {
@@ -751,7 +751,7 @@ namespace Bar
                 sensor->SetLimitDown({(double)Config::Get().minDownloadBytes, (double)Config::Get().maxDownloadBytes});
                 sensor->SetAngle(Utils::GetAngle());
                 sensor->AddTimer<NetworkSensor>(DynCtx::UpdateNetwork, DynCtx::updateTime);
-                Utils::SetTransform(*sensor, {24, true, Alignment::Fill});
+                Utils::SetTransform(*sensor, {(int)Config::Get().networkIconSize, true, Alignment::Fill});
 
                 switch (side)
                 {

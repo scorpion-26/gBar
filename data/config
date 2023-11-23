@@ -153,6 +153,12 @@ DrmAmdCard: card0
 # Use tooltips instead of sliders for the sensors
 SensorTooltips: false
 
+# The size of the of the circular sensors
+SensorSize: 24
+
+# The size of the network icon
+NetworkIconSize: 24
+
 # Enables tray icons
 EnableSNI: true
 
