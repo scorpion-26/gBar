@@ -562,6 +562,17 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, false});
+            box->AddClass("widget");
+            switch (type)
+            {
+            case AudioType::Input:
+                box->AddClass("mic");
+                break;
+            case AudioType::Output:
+                box->AddClass("audio");
+                break;
+            }
+
             Utils::SetTransform(*box, {-1, false, SideToAlignment(side)});
             box->SetOrientation(Utils::GetOrientation());
             {
@@ -643,6 +654,7 @@ namespace Bar
         text->SetText("");
         text->SetVisible(false);
         text->SetClass("package-empty");
+        text->AddClass("widget");
         text->SetAngle(Utils::GetAngle());
         text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval, TimerDispatchBehaviour::ImmediateDispatch);
 
@@ -660,6 +672,8 @@ namespace Bar
     {
         auto box = Widget::Create<Box>();
         box->SetSpacing({0, false});
+        box->AddClass("widget");
+        box->AddClass("bluetooth");
         box->SetOrientation(Utils::GetOrientation());
         Utils::SetTransform(*box, {-1, false, SideToAlignment(side)});
         {
@@ -723,6 +737,8 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({0, false});
+            box->AddClass("widget");
+            box->AddClass("network");
             box->SetOrientation(Utils::GetOrientation());
             {
                 auto revealer = Widget::Create<Revealer>();
@@ -834,6 +850,7 @@ namespace Bar
         {
             auto powerBox = Widget::Create<Box>();
             powerBox->SetClass("power-box");
+            powerBox->AddClass("widget");
             powerBox->SetSpacing({0, false});
             powerBox->SetOrientation(Utils::GetOrientation());
             {
@@ -874,7 +891,7 @@ namespace Bar
                             });
 
                         auto lockButton = Widget::Create<Button>();
-                        lockButton->SetClass("sleep-button");
+                        lockButton->SetClass("lock-button");
                         lockButton->SetText(Config::Get().lockIcon);
                         lockButton->SetAngle(Utils::GetAngle());
                         if (RotatedIcons())
@@ -1011,6 +1028,8 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, true});
+            box->AddClass("workspaces");
+            box->AddClass("widget");
             box->SetOrientation(Utils::GetOrientation());
             {
                 DynCtx::workspaces.resize(Config::Get().numWorkspaces);
@@ -1039,7 +1058,8 @@ namespace Bar
         auto time = Widget::Create<Text>();
         Utils::SetTransform(*time, {-1, false, SideToAlignment(side)});
         time->SetAngle(Utils::GetAngle());
-        time->SetClass("time-text");
+        time->SetClass("widget");
+        time->AddClass("time-text");
         time->SetText("Uninitialized");
         time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
         parent.AddChild(std::move(time));
@@ -1171,6 +1191,7 @@ namespace Bar
 
             auto left = Widget::Create<Box>();
             left->SetSpacing({6, false});
+            left->SetClass("left");
             left->SetOrientation(Utils::GetOrientation());
             // For centerTime the width of the left widget handles the centering.
             // For not centerTime we want to set it as much right as possible. So let this expand as much as possible.
@@ -1182,6 +1203,7 @@ namespace Bar
             }
 
             auto center = Widget::Create<Box>();
+            center->SetClass("center");
             center->SetOrientation(Utils::GetOrientation());
             Utils::SetTransform(*center, {(int)Config::Get().timeSpace, false, Alignment::Left});
             center->SetSpacing({6, false});
