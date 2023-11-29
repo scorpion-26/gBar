@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include <unordered_set>
 
 enum class Alignment
 {
@@ -175,6 +176,7 @@ protected:
     std::vector<std::unique_ptr<Widget>> m_Childs;
 
     std::string m_CssClass;
+    std::unordered_set<std::string> m_AdditionalClasses;
     std::string m_Tooltip;
     Transform m_HorizontalTransform; // X
     Transform m_VerticalTransform;   // Y

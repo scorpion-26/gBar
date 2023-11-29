@@ -87,6 +87,7 @@ void Widget::AddClass(const std::string& cssClass)
         auto style = gtk_widget_get_style_context(m_Widget);
         gtk_style_context_add_class(style, cssClass.c_str());
     }
+    m_AdditionalClasses.insert(cssClass);
 }
 void Widget::RemoveClass(const std::string& cssClass)
 {
@@ -95,6 +96,7 @@ void Widget::RemoveClass(const std::string& cssClass)
         auto style = gtk_widget_get_style_context(m_Widget);
         gtk_style_context_remove_class(style, cssClass.c_str());
     }
+    m_AdditionalClasses.erase(cssClass);
 }
 
 void Widget::SetVerticalTransform(const Transform& transform)
@@ -176,6 +178,9 @@ void Widget::ApplyPropertiesToWidget()
     // Apply style
     auto style = gtk_widget_get_style_context(m_Widget);
     gtk_style_context_add_class(style, m_CssClass.c_str());
+    for (auto& cssClass : m_AdditionalClasses) {
+        gtk_style_context_add_class(style, cssClass.c_str());
+    }
 
     gtk_widget_set_tooltip_text(m_Widget, m_Tooltip.c_str());
 
