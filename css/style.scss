@@ -177,61 +177,35 @@ highlight {
     color: $btblue;
 }
 
-.disk-util-progress {
+.disk-widget * {
     color: $purple;
     background-color: $inactive;
     font-size: $textsize;
 }
-.disk-data-text {
-    color: $purple;
-    font-size: $textsize;
-}
 
-.vram-util-progress {
+.vram-widget * {
     color: $orange;
     background-color: $inactive;
 }
-.vram-data-text {
-    color: $orange;
-    font-size: $textsize;
-}
 
-.ram-util-progress {
+.ram-widget * {
     color: $yellow;
     background-color: $inactive;
 }
-.ram-data-text {
-    color: $yellow;
-    font-size: $textsize;
-}
 
-.gpu-util-progress {
+.gpu-widget * {
     color: $cyan;
     background-color: $inactive;
 }
-.gpu-data-text {
-    color: $cyan;
-    font-size: $textsize;
-}
 
-.cpu-util-progress {
+.cpu-widget * {
     color: $green;
     background-color: $inactive;
-    font-size: $textsize;
-}
-.cpu-data-text {
-    color: $green;
-    font-size: $textsize;
 }
 
-.battery-util-progress {
+.battery-widget * {
     color: $pink;
     background-color: $inactive;
-    font-size: $textsize;
-}
-
-.battery-data-text {
-    color: $pink;
     font-size: $textsize;
 }
 

@@ -417,14 +417,18 @@ namespace Bar
 #endif
     }
 
-    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorClass, const std::string& textClass, Text*& textPtr,
+    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorName, Text*& textPtr,
                       Side side)
     {
         auto eventBox = Widget::Create<EventBox>();
         Utils::SetTransform(*eventBox, {-1, false, SideToAlignment(side)});
         {
             auto box = Widget::Create<Box>();
+            auto widgetClass = sensorName + "-widget";
             box->SetSpacing({0, false});
+            box->SetClass(widgetClass);
+            box->AddClass("widget");
+            box->AddClass("sensor");
             box->SetOrientation(Utils::GetOrientation());
             {
                 std::unique_ptr<Revealer> revealer = nullptr;
@@ -440,8 +444,9 @@ namespace Bar
                         });
                     {
                         auto text = Widget::Create<Text>();
-                        text->SetClass(textClass);
                         text->SetAngle(Utils::GetAngle());
+                        auto textClass = sensorName + "-data-text";
+                        text->SetClass(textClass);
                         // Since we don't know, on which side the text is, add padding to both sides.
                         // This creates double padding on the side opposite to the sensor.
                         // TODO: Remove that padding.
@@ -452,7 +457,6 @@ namespace Bar
                 }
 
                 auto sensor = Widget::Create<Sensor>();
-                sensor->SetClass(sensorClass);
                 double angle = -90;
                 switch (Config::Get().location)
                 {
@@ -462,6 +466,8 @@ namespace Bar
                 case 'R': angle = RotatedIcons() ? -90 : 0; break;
                 }
                 sensor->SetStyle({angle});
+                auto sensorClass = sensorName + "-util-progress";
+                sensor->SetClass(sensorClass);
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
                 Utils::SetTransform(*sensor, {(int)Config::Get().sensorSize, true, Alignment::Fill});
 
@@ -797,21 +803,26 @@ namespace Bar
 
     void WidgetSensors(Widget& parent, Side side)
     {
-        WidgetSensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText, side);
+        auto box = Widget::Create<Box>();
+        box->SetClass("sensors");
+        {
+            WidgetSensor(*box, DynCtx::UpdateDisk, "disk", DynCtx::diskText, side);
 #if defined WITH_NVIDIA || defined WITH_AMD
-        if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
-        {
-            WidgetSensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText, side);
-            WidgetSensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText, side);
-        }
+            if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
+            {
+                WidgetSensor(*box, DynCtx::UpdateVRAM, "vram", DynCtx::vramText, side);
+                WidgetSensor(*box, DynCtx::UpdateGPU, "gpu", DynCtx::gpuText, side);
+            }
 #endif
-        WidgetSensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText, side);
-        WidgetSensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText, side);
-        // Only show battery percentage if battery folder is set and exists
-        if (System::GetBatteryPercentage() >= 0)
-        {
-            WidgetSensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText, side);
+            WidgetSensor(*box, DynCtx::UpdateRAM, "ram", DynCtx::ramText, side);
+            WidgetSensor(*box, DynCtx::UpdateCPU, "cpu", DynCtx::cpuText, side);
+            // Only show battery percentage if battery folder is set and exists
+            if (System::GetBatteryPercentage() >= 0)
+            {
+                WidgetSensor(*box, DynCtx::UpdateBattery, "battery", DynCtx::batteryText, side);
+            }
         }
+        parent.AddChild(std::move(box));
     }
 
     void WidgetPower(Widget& parent, Side side)
@@ -1121,14 +1132,14 @@ namespace Bar
         }
         if (widgetName == "Disk")
         {
-            WidgetSensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText, side);
+            WidgetSensor(parent, DynCtx::UpdateDisk, "disk", DynCtx::diskText, side);
             return;
         }
         if (widgetName == "VRAM")
         {
 #if defined WITH_NVIDIA || defined WITH_AMD
             if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
-                WidgetSensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText, side);
+                WidgetSensor(parent, DynCtx::UpdateVRAM, "vram", DynCtx::vramText, side);
             return;
 #endif
         }
@@ -1136,25 +1147,25 @@ namespace Bar
         {
 #if defined WITH_NVIDIA || defined WITH_AMD
             if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
-                WidgetSensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText, side);
+                WidgetSensor(parent, DynCtx::UpdateGPU, "gpu", DynCtx::gpuText, side);
             return;
 #endif
         }
         if (widgetName == "RAM")
         {
-            WidgetSensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText, side);
+            WidgetSensor(parent, DynCtx::UpdateRAM, "ram", DynCtx::ramText, side);
             return;
         }
         if (widgetName == "CPU")
         {
-            WidgetSensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText, side);
+            WidgetSensor(parent, DynCtx::UpdateCPU, "cpu", DynCtx::cpuText, side);
             return;
         }
         if (widgetName == "Battery")
         {
             // Only show battery percentage if battery folder is set and exists
             if (System::GetBatteryPercentage() >= 0)
-                WidgetSensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText, side);
+                WidgetSensor(parent, DynCtx::UpdateBattery, "battery", DynCtx::batteryText, side);
             return;
         }
         if (widgetName == "Power")
