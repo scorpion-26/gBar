@@ -184,34 +184,50 @@ highlight {
 
 .disk-widget * {
     color: $purple;
-    background-color: $inactive;
     font-size: $textsize;
+}
+.disk-util-progress {
+    background-color: $inactive;
 }
 
 .vram-widget * {
     color: $orange;
+    font-size: $textsize;
+}
+.vram-util-progress {
     background-color: $inactive;
 }
 
 .ram-widget * {
     color: $yellow;
+    font-size: $textsize;
+}
+.ram-util-progress {
     background-color: $inactive;
 }
 
 .gpu-widget * {
     color: $cyan;
+    font-size: $textsize;
+}
+.gpu-util-progress {
     background-color: $inactive;
 }
 
 .cpu-widget * {
     color: $green;
+    font-size: $textsize;
+}
+.cpu-util-progress {
     background-color: $inactive;
 }
 
 .battery-widget * {
     color: $pink;
-    background-color: $inactive;
     font-size: $textsize;
+}
+.battery-util-progress {
+    background-color: $inactive;
 }
 
 .battery-charging {
