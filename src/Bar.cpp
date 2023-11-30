@@ -417,14 +417,18 @@ namespace Bar
 #endif
     }
 
-    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorClass, const std::string& textClass, Text*& textPtr,
+    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorName, Text*& textPtr,
                       Side side)
     {
         auto eventBox = Widget::Create<EventBox>();
         Utils::SetTransform(*eventBox, {-1, false, SideToAlignment(side)});
         {
             auto box = Widget::Create<Box>();
+            auto widgetClass = sensorName + "-widget";
             box->SetSpacing({0, false});
+            box->SetClass(widgetClass);
+            box->AddClass("widget");
+            box->AddClass("sensor");
             box->SetOrientation(Utils::GetOrientation());
             {
                 std::unique_ptr<Revealer> revealer = nullptr;
@@ -440,8 +444,9 @@ namespace Bar
                         });
                     {
                         auto text = Widget::Create<Text>();
-                        text->SetClass(textClass);
                         text->SetAngle(Utils::GetAngle());
+                        auto textClass = sensorName + "-data-text";
+                        text->SetClass(textClass);
                         // Since we don't know, on which side the text is, add padding to both sides.
                         // This creates double padding on the side opposite to the sensor.
                         // TODO: Remove that padding.
@@ -452,7 +457,6 @@ namespace Bar
                 }
 
                 auto sensor = Widget::Create<Sensor>();
-                sensor->SetClass(sensorClass);
                 double angle = -90;
                 switch (Config::Get().location)
                 {
@@ -462,6 +466,8 @@ namespace Bar
                 case 'R': angle = RotatedIcons() ? -90 : 0; break;
                 }
                 sensor->SetStyle({angle});
+                auto sensorClass = sensorName + "-util-progress";
+                sensor->SetClass(sensorClass);
                 sensor->AddTimer<Sensor>(std::move(callback), DynCtx::updateTime);
                 Utils::SetTransform(*sensor, {(int)Config::Get().sensorSize, true, Alignment::Fill});
 
@@ -562,6 +568,17 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, false});
+            box->AddClass("widget");
+            switch (type)
+            {
+            case AudioType::Input:
+                box->AddClass("mic");
+                break;
+            case AudioType::Output:
+                box->AddClass("audio");
+                break;
+            }
+
             Utils::SetTransform(*box, {-1, false, SideToAlignment(side)});
             box->SetOrientation(Utils::GetOrientation());
             {
@@ -643,6 +660,7 @@ namespace Bar
         text->SetText("");
         text->SetVisible(false);
         text->SetClass("package-empty");
+        text->AddClass("widget");
         text->SetAngle(Utils::GetAngle());
         text->AddTimer<Text>(DynCtx::UpdatePackages, 1000 * Config::Get().checkUpdateInterval, TimerDispatchBehaviour::ImmediateDispatch);
 
@@ -660,6 +678,8 @@ namespace Bar
     {
         auto box = Widget::Create<Box>();
         box->SetSpacing({0, false});
+        box->AddClass("widget");
+        box->AddClass("bluetooth");
         box->SetOrientation(Utils::GetOrientation());
         Utils::SetTransform(*box, {-1, false, SideToAlignment(side)});
         {
@@ -723,6 +743,8 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({0, false});
+            box->AddClass("widget");
+            box->AddClass("network");
             box->SetOrientation(Utils::GetOrientation());
             {
                 auto revealer = Widget::Create<Revealer>();
@@ -781,21 +803,26 @@ namespace Bar
 
     void WidgetSensors(Widget& parent, Side side)
     {
-        WidgetSensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText, side);
+        auto box = Widget::Create<Box>();
+        box->SetClass("sensors");
+        {
+            WidgetSensor(*box, DynCtx::UpdateDisk, "disk", DynCtx::diskText, side);
 #if defined WITH_NVIDIA || defined WITH_AMD
-        if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
-        {
-            WidgetSensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText, side);
-            WidgetSensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText, side);
-        }
+            if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
+            {
+                WidgetSensor(*box, DynCtx::UpdateVRAM, "vram", DynCtx::vramText, side);
+                WidgetSensor(*box, DynCtx::UpdateGPU, "gpu", DynCtx::gpuText, side);
+            }
 #endif
-        WidgetSensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText, side);
-        WidgetSensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText, side);
-        // Only show battery percentage if battery folder is set and exists
-        if (System::GetBatteryPercentage() >= 0)
-        {
-            WidgetSensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText, side);
+            WidgetSensor(*box, DynCtx::UpdateRAM, "ram", DynCtx::ramText, side);
+            WidgetSensor(*box, DynCtx::UpdateCPU, "cpu", DynCtx::cpuText, side);
+            // Only show battery percentage if battery folder is set and exists
+            if (System::GetBatteryPercentage() >= 0)
+            {
+                WidgetSensor(*box, DynCtx::UpdateBattery, "battery", DynCtx::batteryText, side);
+            }
         }
+        parent.AddChild(std::move(box));
     }
 
     void WidgetPower(Widget& parent, Side side)
@@ -834,6 +861,7 @@ namespace Bar
         {
             auto powerBox = Widget::Create<Box>();
             powerBox->SetClass("power-box");
+            powerBox->AddClass("widget");
             powerBox->SetSpacing({0, false});
             powerBox->SetOrientation(Utils::GetOrientation());
             {
@@ -874,7 +902,7 @@ namespace Bar
                             });
 
                         auto lockButton = Widget::Create<Button>();
-                        lockButton->SetClass("sleep-button");
+                        lockButton->SetClass("lock-button");
                         lockButton->SetText(Config::Get().lockIcon);
                         lockButton->SetAngle(Utils::GetAngle());
                         if (RotatedIcons())
@@ -1011,6 +1039,8 @@ namespace Bar
         {
             auto box = Widget::Create<Box>();
             box->SetSpacing({8, true});
+            box->AddClass("workspaces");
+            box->AddClass("widget");
             box->SetOrientation(Utils::GetOrientation());
             {
                 DynCtx::workspaces.resize(Config::Get().numWorkspaces);
@@ -1039,7 +1069,8 @@ namespace Bar
         auto time = Widget::Create<Text>();
         Utils::SetTransform(*time, {-1, false, SideToAlignment(side)});
         time->SetAngle(Utils::GetAngle());
-        time->SetClass("time-text");
+        time->SetClass("widget");
+        time->AddClass("time-text");
         time->SetText("Uninitialized");
         time->AddTimer<Text>(DynCtx::UpdateTime, 1000);
         parent.AddChild(std::move(time));
@@ -1101,14 +1132,14 @@ namespace Bar
         }
         if (widgetName == "Disk")
         {
-            WidgetSensor(parent, DynCtx::UpdateDisk, "disk-util-progress", "disk-data-text", DynCtx::diskText, side);
+            WidgetSensor(parent, DynCtx::UpdateDisk, "disk", DynCtx::diskText, side);
             return;
         }
         if (widgetName == "VRAM")
         {
 #if defined WITH_NVIDIA || defined WITH_AMD
             if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
-                WidgetSensor(parent, DynCtx::UpdateVRAM, "vram-util-progress", "vram-data-text", DynCtx::vramText, side);
+                WidgetSensor(parent, DynCtx::UpdateVRAM, "vram", DynCtx::vramText, side);
             return;
 #endif
         }
@@ -1116,25 +1147,25 @@ namespace Bar
         {
 #if defined WITH_NVIDIA || defined WITH_AMD
             if (RuntimeConfig::Get().hasNvidia || RuntimeConfig::Get().hasAMD)
-                WidgetSensor(parent, DynCtx::UpdateGPU, "gpu-util-progress", "gpu-data-text", DynCtx::gpuText, side);
+                WidgetSensor(parent, DynCtx::UpdateGPU, "gpu", DynCtx::gpuText, side);
             return;
 #endif
         }
         if (widgetName == "RAM")
         {
-            WidgetSensor(parent, DynCtx::UpdateRAM, "ram-util-progress", "ram-data-text", DynCtx::ramText, side);
+            WidgetSensor(parent, DynCtx::UpdateRAM, "ram", DynCtx::ramText, side);
             return;
         }
         if (widgetName == "CPU")
         {
-            WidgetSensor(parent, DynCtx::UpdateCPU, "cpu-util-progress", "cpu-data-text", DynCtx::cpuText, side);
+            WidgetSensor(parent, DynCtx::UpdateCPU, "cpu", DynCtx::cpuText, side);
             return;
         }
         if (widgetName == "Battery")
         {
             // Only show battery percentage if battery folder is set and exists
             if (System::GetBatteryPercentage() >= 0)
-                WidgetSensor(parent, DynCtx::UpdateBattery, "battery-util-progress", "battery-data-text", DynCtx::batteryText, side);
+                WidgetSensor(parent, DynCtx::UpdateBattery, "battery", DynCtx::batteryText, side);
             return;
         }
         if (widgetName == "Power")
@@ -1171,6 +1202,7 @@ namespace Bar
 
             auto left = Widget::Create<Box>();
             left->SetSpacing({6, false});
+            left->SetClass("left");
             left->SetOrientation(Utils::GetOrientation());
             // For centerTime the width of the left widget handles the centering.
             // For not centerTime we want to set it as much right as possible. So let this expand as much as possible.
@@ -1182,6 +1214,7 @@ namespace Bar
             }
 
             auto center = Widget::Create<Box>();
+            center->SetClass("center");
             center->SetOrientation(Utils::GetOrientation());
             Utils::SetTransform(*center, {(int)Config::Get().timeSpace, false, Alignment::Left});
             center->SetSpacing({6, false});

@@ -562,6 +562,8 @@ namespace SNI
         }
         // Add parent box
         auto box = Widget::Create<Box>();
+        box->AddClass("widget");
+        box->AddClass("sni");
         Utils::SetTransform(*box, {-1, false, Alignment::Fill});
         auto container = Widget::Create<Box>();
         container->AddTimer<Box>(UpdateWidgets, 1000, TimerDispatchBehaviour::LateDispatch);

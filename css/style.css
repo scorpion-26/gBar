@@ -30,6 +30,11 @@
   color: #6272a4;
 }
 
+.lock-button {
+  font-size: 28px;
+  color: #6272a4;
+}
+
 .exit-button {
   font-size: 28px;
   color: #6272a4;
@@ -135,66 +140,35 @@ highlight {
   color: #1793D1;
 }
 
-.disk-util-progress {
+.disk-widget * {
   color: #bd93f9;
   background-color: #44475a;
   font-size: 16px;
 }
 
-.disk-data-text {
-  color: #bd93f9;
-  font-size: 16px;
-}
-
-.vram-util-progress {
+.vram-widget * {
   color: #ffb86c;
   background-color: #44475a;
 }
 
-.vram-data-text {
-  color: #ffb86c;
-  font-size: 16px;
-}
-
-.ram-util-progress {
+.ram-widget * {
   color: #f1fa8c;
   background-color: #44475a;
 }
 
-.ram-data-text {
-  color: #f1fa8c;
-  font-size: 16px;
-}
-
-.gpu-util-progress {
+.gpu-widget * {
   color: #8be9fd;
   background-color: #44475a;
 }
 
-.gpu-data-text {
-  color: #8be9fd;
-  font-size: 16px;
-}
-
-.cpu-util-progress {
+.cpu-widget * {
   color: #50fa7b;
   background-color: #44475a;
-  font-size: 16px;
 }
 
-.cpu-data-text {
-  color: #50fa7b;
-  font-size: 16px;
-}
-
-.battery-util-progress {
+.battery-widget * {
   color: #ff79c6;
   background-color: #44475a;
-  font-size: 16px;
-}
-
-.battery-data-text {
-  color: #ff79c6;
   font-size: 16px;
 }
 
@@ -384,5 +358,3 @@ highlight {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
-
-/*# sourceMappingURL=style.css.map */
