@@ -299,6 +299,7 @@ void Config::Load()
         AddConfigVar("SNIIconSize", config.sniIconSizes, lineView, foundProperty);
         AddConfigVar("SNIPaddingTop", config.sniPaddingTop, lineView, foundProperty);
         AddConfigVar("SNIIconName", config.sniIconNames, lineView, foundProperty);
+        AddConfigVar("SNIDisabled", config.sniDisabled, lineView, foundProperty);
         // Modern map syntax
         AddConfigVar("WorkspaceSymbol", config.workspaceSymbols, lineView, foundProperty);
         // Legacy syntax

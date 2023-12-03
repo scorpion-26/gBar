@@ -165,7 +165,9 @@ EnableSNI: true
 # SNIIconSize sets the icon size for a SNI icon.
 # SNIPaddingTop Can be used to push the Icon down. Negative values are allowed
 # SNIIconName overrides what icon from an icon theme to display.
+# SNIDisabled prevents an icon from being registered.
 # For all SNI properties: The first parameter is a filter of the tooltip(The text that pops up, when the icon is hovered) of the icon.
+# The wildcard filter '*' does not work for SNIIconName and SNIDisabled
 
 # Scale everything down to 25 pixels ('*' as filter means everything)
 #SNIIconSize: *, 25
@@ -175,6 +177,8 @@ EnableSNI: true
 #SNIPaddingTop: Discord, 5
 # Override the default icon given to gBar by discord to an icon theme supplied one (Example is from papirus theme)
 #SNIIconName: Discord, discord-tray
+# Prevents steam from displaying. Note: Steam doesn't have a tooltip, which means the object path is filtered instead.
+#SNIDisabled: steam, true
 
 # These set the range for the network widget. The widget changes colors at six intervals:
 #    - Below Min...Bytes ("under")

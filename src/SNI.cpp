@@ -166,8 +166,22 @@ namespace SNI
         }
 
         bool wasExplicitOverride = false;
+        for (auto& [filter, disabled] : Config::Get().sniDisabled)
+        {
+            if (ItemMatchesFilter(item, filter, wasExplicitOverride))
+            {
+                if (disabled)
+                {
+                    LOG("SNI: Disabling item due to config");
+                    // We're done here.
+                    return item;
+                }
+            }
+        }
+
         // First try icon theme querying
         std::string iconName;
+        wasExplicitOverride = false;
         for (auto& [filter, name] : Config::Get().sniIconNames)
         {
             if (ItemMatchesFilter(item, filter, wasExplicitOverride))
