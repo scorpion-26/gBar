@@ -99,6 +99,10 @@ void ApplyProperty(std::pair<First, Second>& propertyToSet, const std::string_vi
     size_t endBefore = before.find_last_not_of(whitespace);
     before = before.substr(beginBefore, endBefore - beginBefore + 1);
 
+    // Strip whitespace for after
+    size_t beginAfter = after.find_first_not_of(whitespace);
+    after = after.substr(beginAfter);
+
     ApplyProperty(propertyToSet.first, before);
     ApplyProperty(propertyToSet.second, after);
 }
