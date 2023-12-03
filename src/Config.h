@@ -84,6 +84,7 @@ public:
     // SNIIconSize: ["Title String"], ["Size"]
     std::unordered_map<std::string, uint32_t> sniIconSizes;
     std::unordered_map<std::string, int32_t> sniPaddingTop;
+    std::unordered_map<std::string, std::string> sniIconNames;
 
     // Only affects outputs (i.e.: speakers, not microphones). This remaps the range of the volume; In percent
     double audioMinVolume = 0.f;   // Map the minimum volume to this value

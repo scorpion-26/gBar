@@ -79,50 +79,19 @@ namespace SNI
             nullptr);
     }
 
-    // Allocates a pixbuf that contains a bitmap of the icon
-    static void ToPixbuf(const std::string& location, GdkPixbuf*& outPixbuf, size_t& outWidth, size_t& outHeight)
+    static bool ItemMatchesFilter(const Item& item, const std::string& filter, bool& wasExplicitOverride)
     {
-        std::string ext = location.substr(location.find_last_of('.') + 1);
-        if (ext == "png" || ext == "jpg")
+        auto& filterString = item.tooltip == "" ? item.object : item.tooltip;
+        if (filterString.find(filter) != std::string::npos)
         {
-            // png, load via svg
-            int width, height, channels;
-            stbi_uc* pixels = stbi_load(location.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-            if (!pixels)
-            {
-                LOG("SNI: Cannot open " << location);
-                return;
-            }
-            outWidth = width;
-            outHeight = height;
-            uint8_t* iconData = new uint8_t[width * height * 4];
-            // Already rgba32
-            memcpy(iconData, pixels, width * height * 4);
-            stbi_image_free(pixels);
-
-            outPixbuf = gdk_pixbuf_new_from_data(
-                iconData, GDK_COLORSPACE_RGB, true, 8, width, height, width * 4,
-                +[](uint8_t* data, void*)
-                {
-                    delete[] data;
-                },
-                nullptr);
+            wasExplicitOverride = true;
+            return true;
         }
-        else if (ext == "svg")
+        else if (filter == "*" && !wasExplicitOverride)
         {
-            // Just a random size, this should be plenty enough wiggle room
-            outWidth = 64;
-            outHeight = 64;
-
-            // Use glib functions
-            GError* err = nullptr;
-            outPixbuf = gdk_pixbuf_new_from_file_at_scale(location.c_str(), outWidth, outHeight, true, &err);
-            if (err)
-            {
-                LOG("SNI: Error loading svg " << location << ": " << err->message);
-                return;
-            }
+            return true;
         }
+        return false;
     }
 
     static Item CreateItem(std::string&& name, std::string&& object)
@@ -147,141 +116,6 @@ namespace SNI
             // g_dbus_connection_call_sync consumes the parameter and its children, so no need to unref
             return res;
         };
-
-        bool hasPixmap = false;
-        GVariant* iconPixmap = getProperty("IconPixmap");
-        if (iconPixmap)
-        {
-            // Only get first item
-            GVariant* arr = nullptr;
-            g_variant_get(iconPixmap, "(v)", &arr);
-
-            GVariantIter* arrIter = nullptr;
-            g_variant_get(arr, "a(iiay)", &arrIter);
-
-            if (g_variant_iter_n_children(arrIter) != 0)
-            {
-                int width;
-                int height;
-                GVariantIter* data = nullptr;
-                g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
-
-                LOG("SNI: Width: " << width);
-                LOG("SNI: Height: " << height);
-                item.w = width;
-                item.h = height;
-                uint8_t* iconData = new uint8_t[width * height * 4];
-
-                uint8_t px = 0;
-                int i = 0;
-                while (g_variant_iter_next(data, "y", &px))
-                {
-                    iconData[i] = px;
-                    i++;
-                }
-                item.pixbuf = ToPixbuf(iconData, width, height);
-
-                g_variant_iter_free(data);
-
-                hasPixmap = true;
-            }
-            g_variant_iter_free(arrIter);
-            g_variant_unref(arr);
-            g_variant_unref(iconPixmap);
-        }
-
-        // Pixmap querying has failed, try IconName
-        if (!hasPixmap)
-        {
-            auto findIconWithoutPath = [](const char* iconName) -> std::string
-            {
-                std::string iconPath;
-                const char* dataDirs = getenv("XDG_DATA_DIRS");
-                // Nothing defined, look in $XDG_DATA_DIRS/icons
-                // network-manager-applet does this e.g.
-                if (dataDirs)
-                {
-                    for (auto& dataDir : Utils::Split(dataDirs, ':'))
-                    {
-                        LOG("SNI: Searching icon " << iconName << " in " << dataDir << "/icons");
-                        std::string path = Utils::FindFileWithName(dataDir + "/icons", iconName);
-                        if (path != "")
-                        {
-                            iconPath = path;
-                            break;
-                        }
-                    }
-                }
-                if (iconPath == "")
-                {
-                    // Fallback to /usr/share/icons
-                    LOG("SNI: Searching icon " << iconName << " in "
-                                               << "/usr/share/icons");
-                    iconPath = Utils::FindFileWithName("/usr/share/icons", iconName);
-                }
-                return iconPath;
-            };
-
-            // Get icon theme path
-            GVariant* themePathVariant = getProperty("IconThemePath"); // Not defined by freedesktop, I think ayatana does this...
-            GVariant* iconNameVariant = getProperty("IconName");
-
-            std::string iconPath;
-            if (themePathVariant && iconNameVariant)
-            {
-                // Why GLib?
-                GVariant* themePathStr = nullptr;
-                g_variant_get(themePathVariant, "(v)", &themePathStr);
-                GVariant* iconNameStr = nullptr;
-                g_variant_get(iconNameVariant, "(v)", &iconNameStr);
-
-                const char* themePath = g_variant_get_string(themePathStr, nullptr);
-                const char* iconName = g_variant_get_string(iconNameStr, nullptr);
-                if (strlen(themePath) == 0)
-                {
-                    iconPath = findIconWithoutPath(iconName);
-                }
-                else
-                {
-                    LOG("SNI: Searching icon " << iconName << " in " << themePath);
-                    iconPath = Utils::FindFileWithName(themePath, iconName);
-                }
-
-                g_variant_unref(themePathVariant);
-                g_variant_unref(themePathStr);
-                g_variant_unref(iconNameVariant);
-                g_variant_unref(iconNameStr);
-            }
-            else if (iconNameVariant)
-            {
-                GVariant* iconNameStr = nullptr;
-                g_variant_get(iconNameVariant, "(v)", &iconNameStr);
-
-                const char* iconName = g_variant_get_string(iconNameStr, nullptr);
-                iconPath = findIconWithoutPath(iconName);
-                if (iconPath == "")
-                {
-                    // Try our luck with just using iconName, maybe its just an absolute path
-                    iconPath = iconName;
-                }
-
-                g_variant_unref(iconNameVariant);
-                g_variant_unref(iconNameStr);
-            }
-            else
-            {
-                LOG("SNI: Unknown path!");
-                return item;
-            }
-
-            if (iconPath == "")
-            {
-                LOG("SNI: Cannot find icon path for " << name);
-                return item;
-            }
-            LOG("SNI: Creating icon from \"" << iconPath << "\"");
-            ToPixbuf(iconPath, item.pixbuf, item.w, item.h);
-        }
 
         // Query tooltip(Steam e.g. doesn't have one)
         GVariant* tooltip = getProperty("ToolTip");
@@ -329,6 +163,89 @@ namespace SNI
 
             g_variant_unref(menuVariant);
             g_variant_unref(menuPath);
+        }
+
+        bool wasExplicitOverride = false;
+        // First try icon theme querying
+        std::string iconName;
+        for (auto& [filter, name] : Config::Get().sniIconNames)
+        {
+            if (ItemMatchesFilter(item, filter, wasExplicitOverride))
+            {
+                iconName = name;
+            }
+        }
+        if (iconName == "")
+        {
+            GVariant* iconNameVariant = getProperty("IconName");
+            if (iconNameVariant)
+            {
+                GVariant* iconNameStr;
+                g_variant_get(iconNameVariant, "(v)", &iconNameStr);
+
+                iconName = g_variant_get_string(iconNameStr, nullptr);
+
+                g_variant_unref(iconNameVariant);
+                g_variant_unref(iconNameStr);
+            }
+        }
+        if (iconName != "")
+        {
+            GError* err = nullptr;
+            GtkIconTheme* defaultTheme = gtk_icon_theme_get_default();
+            GdkPixbuf* pixbuf = gtk_icon_theme_load_icon(defaultTheme, iconName.c_str(), 64, GTK_ICON_LOOKUP_FORCE_SVG, &err);
+            if (err)
+            {
+                LOG("SNI: gtk_icon_theme_load_icon failed: " << err->message);
+                g_error_free(err);
+            }
+            else if (pixbuf)
+            {
+                LOG("SNI: Creating icon from \"" << iconName << "\"");
+                item.pixbuf = pixbuf;
+                item.w = gdk_pixbuf_get_width(pixbuf);
+                item.h = gdk_pixbuf_get_height(pixbuf);
+            }
+        }
+
+        if (item.pixbuf == nullptr)
+        {
+            GVariant* iconPixmap = getProperty("IconPixmap");
+            // Only get first item
+            GVariant* arr = nullptr;
+            g_variant_get(iconPixmap, "(v)", &arr);
+
+            GVariantIter* arrIter = nullptr;
+            g_variant_get(arr, "a(iiay)", &arrIter);
+
+            if (g_variant_iter_n_children(arrIter) != 0)
+            {
+                int width;
+                int height;
+                GVariantIter* data = nullptr;
+                g_variant_iter_next(arrIter, "(iiay)", &width, &height, &data);
+
+                LOG("SNI: Width: " << width);
+                LOG("SNI: Height: " << height);
+                item.w = width;
+                item.h = height;
+                uint8_t* iconData = new uint8_t[width * height * 4];
+
+                uint8_t px = 0;
+                int i = 0;
+                while (g_variant_iter_next(data, "y", &px))
+                {
+                    iconData[i] = px;
+                    i++;
+                }
+                LOG("SNI: Creating icon from pixmap");
+                item.pixbuf = ToPixbuf(iconData, width, height);
+
+                g_variant_iter_free(data);
+            }
+            g_variant_iter_free(arrIter);
+            g_variant_unref(arr);
+            g_variant_unref(iconPixmap);
         }
 
         return item;
@@ -519,12 +436,7 @@ namespace SNI
                 int size = 24;
                 for (auto& [filter, iconSize] : Config::Get().sniIconSizes)
                 {
-                    if (item.tooltip.find(filter) != std::string::npos)
-                    {
-                        wasExplicitOverride = true;
-                        size = iconSize;
-                    }
-                    else if (filter == "*" && !wasExplicitOverride)
+                    if (ItemMatchesFilter(item, filter, wasExplicitOverride))
                     {
                         size = iconSize;
                     }
@@ -532,12 +444,7 @@ namespace SNI
                 wasExplicitOverride = false;
                 for (auto& [filter, padding] : Config::Get().sniPaddingTop)
                 {
-                    if (item.tooltip.find(filter) != std::string::npos)
-                    {
-                        wasExplicitOverride = true;
-                        texture->AddPaddingTop(padding);
-                    }
-                    else if (filter == "*" && !wasExplicitOverride)
+                    if (ItemMatchesFilter(item, filter, wasExplicitOverride))
                     {
                         texture->AddPaddingTop(padding);
                     }
