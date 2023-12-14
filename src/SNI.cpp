@@ -279,7 +279,7 @@ namespace SNI
             LOG("SNI: " << name << " vanished!");
             g_bus_unwatch_name(it->watcherID);
             g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
-            g_free(it->pixbuf);
+            g_object_unref(it->pixbuf);
             items.erase(it);
             InvalidateWidget();
             return;
@@ -337,7 +337,7 @@ namespace SNI
         {
             g_bus_unwatch_name(it->watcherID);
             g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
-            g_free(it->pixbuf);
+            g_object_unref(it->pixbuf);
             items.erase(it);
         }
         else
