@@ -15,31 +15,31 @@ namespace CSS
 
         std::vector<std::string> locations;
         const char* home = std::getenv("HOME");
-        const char* env;
 
-        if ((env = std::getenv("XDG_CONFIG_HOME")) && strlen(env))
+        const char* configHome = std::getenv("XDG_CONFIG_HOME");
+        if (configHome && strlen(configHome) != 0)
         {
-            locations.push_back(env);
+            locations.push_back(configHome);
         }
         else if (home)
         {
-            std::string s(home);
-            locations.push_back(s + "/.config");
+            locations.push_back(std::string(home) + "/.config");
         }
 
-        if ((env = std::getenv("XDG_DATA_HOME")) && strlen(env))
+        const char* dataHome = std::getenv("XDG_DATA_HOME");
+        if (dataHome && strlen(dataHome) != 0)
         {
-            locations.push_back(env);
+            locations.push_back(dataHome);
         }
         else if (home)
         {
-            std::string s(home);
-            locations.push_back(s + "/.local/share");
+            locations.push_back(std::string(home) + "/.local/share");
         }
 
-        if ((env = std::getenv("XDG_DATA_DIRS")))
+        const char* dataDirs = std::getenv("XDG_DATA_DIRS");
+        if (dataDirs && strlen(dataDirs) != 0)
         {
-            std::stringstream ss(env);
+            std::stringstream ss(dataDirs);
             std::string dir;
             while (std::getline(ss, dir, ':'))
                 locations.push_back(dir);
