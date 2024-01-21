@@ -13,36 +13,51 @@ namespace CSS
     {
         sProvider = gtk_css_provider_new();
 
-        struct CSSDir
+        std::vector<std::string> locations;
+        const char* home = std::getenv("HOME");
+
+        const char* configHome = std::getenv("XDG_CONFIG_HOME");
+        if (configHome && strlen(configHome) != 0)
         {
-            std::string xdgEnv;
-            std::string fallbackPath;
-            std::string relPath;
-        };
-        std::string home = getenv("HOME");
-        std::array<CSSDir, 4> locations = {
-            CSSDir{"XDG_CONFIG_HOME", home + "/.config",      "/gBar/style.css"}, // Local config
-            CSSDir{"XDG_DATA_HOME",   home + "/.local/share", "/gBar/style.css"}, // local user install
-            CSSDir{"",                "/usr/local/share",     "/gBar/style.css"}, // local all install
-            CSSDir{"",                "/usr/share",           "/gBar/style.css"}, // package manager all install
-        };
+            locations.push_back(configHome);
+        }
+        else if (home)
+        {
+            locations.push_back(std::string(home) + "/.config");
+        }
+
+        const char* dataHome = std::getenv("XDG_DATA_HOME");
+        if (dataHome && strlen(dataHome) != 0)
+        {
+            locations.push_back(dataHome);
+        }
+        else if (home)
+        {
+            locations.push_back(std::string(home) + "/.local/share");
+        }
+
+        const char* dataDirs = std::getenv("XDG_DATA_DIRS");
+        if (dataDirs && strlen(dataDirs) != 0)
+        {
+            std::stringstream ss(dataDirs);
+            std::string dir;
+            while (std::getline(ss, dir, ':'))
+                locations.push_back(dir);
+        }
+        else
+        {
+            locations.push_back("/usr/local/share");
+            locations.push_back("/usr/share");
+        }
 
         GError* err = nullptr;
         for (auto& dir : locations)
         {
-            const char* xdgConfig = dir.xdgEnv.size() ? getenv(dir.xdgEnv.c_str()) : nullptr;
-            std::string file;
-            if (xdgConfig)
-            {
-                file = (std::string(xdgConfig) + dir.relPath).c_str();
-            }
-            else
-            {
-                file = (dir.fallbackPath + dir.relPath).c_str();
-            }
+            std::string file = dir + "/gBar/style.css";
+
             if (!std::ifstream(file).is_open())
             {
-                LOG("Info: No CSS found in " << dir.fallbackPath);
+                LOG("Info: No CSS found in " << dir);
                 continue;
             }
 
@@ -53,7 +68,7 @@ namespace CSS
                 LOG("CSS found and loaded successfully!");
                 return;
             }
-            LOG("Warning: Failed loading config for " << dir.fallbackPath << ", trying next one!");
+            LOG("Warning: Failed loading config for " << dir << ", trying next one!");
             // Log any errors
             LOG(err->message);
             g_error_free(err);

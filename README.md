@@ -175,6 +175,7 @@ The colors are from the Dracula theme: https://draculatheme.com
 
 ### I want to customize the colors
 First, find where the data is located for gBar. Possible locations: 
+ - In a 'gBar' directory found in any of the directories listed by `echo $XDG_DATA_DIRS`
  - /usr/share/gBar
  - /usr/local/share/gBar
  - ~/.local/share/gBar
