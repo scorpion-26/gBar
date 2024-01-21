@@ -19,12 +19,12 @@ Window::~Window()
     }
 }
 
-void Window::Init(int argc, char** argv)
+void Window::Init(const std::string& overideConfigLocation)
 {
-    gtk_init(&argc, &argv);
+    gtk_init(NULL, NULL);
 
     // Style
-    CSS::Load();
+    CSS::Load(overideConfigLocation);
 
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), (GtkStyleProvider*)CSS::GetProvider(), GTK_STYLE_PROVIDER_PRIORITY_USER);
 

@@ -197,11 +197,15 @@ void AddConfigVar(const std::string& propertyName, MapLike& propertyToSet, std::
     }
 }
 
-void Config::Load()
+void Config::Load(const std::string& overrideConfigLocation)
 {
     const char* xdgConfigHome = getenv("XDG_CONFIG_HOME");
     std::ifstream file;
-    if (xdgConfigHome)
+    if (overrideConfigLocation != "")
+    {
+        file = std::ifstream(overrideConfigLocation + "/config");
+    }
+    else if (xdgConfigHome)
     {
         file = std::ifstream(std::string(xdgConfigHome) + "/gBar/config");
     }

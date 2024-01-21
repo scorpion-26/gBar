@@ -27,7 +27,7 @@ public:
     Window& operator=(Window&& other) noexcept = default;
     ~Window();
 
-    void Init(int argc, char** argv);
+    void Init(const std::string& overrideConfigLocation);
     void Run();
 
     void Close();

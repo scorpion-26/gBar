@@ -55,24 +55,27 @@ void PrintHelp()
         "\tgBar [OPTIONS...] WIDGET [MONITOR]\n"
         "\n"
         "Sample usage:\n"
-        "\tgBar bar 0\tOpens the status bar on monitor 0\n"
-        "\tgBar audio\tOpens the audio flyin on the current monitor\n"
+        "\tgBar bar 0 \tOpens the status bar on monitor 0\n"
+        "\tgBar audio \tOpens the audio flyin on the current monitor\n"
         "\n"
         "All options:\n"
-        "\t--help/-h \tPrints this help page and exits afterwards\n"
+        "\t--help/-h      \tPrints this help page and exits afterwards\n"
+        "\t--config/-c DIR\tOverrides the config search path to DIR and appends DIR to the CSS search path.\n"
+        "\t               \t   DIR cannot contain path shorthands like e.g. \"~\""
         "\n"
         "All available widgets:\n"
-        "\tbar       \tThe main status bar\n"
-        "\taudio     \tAn audio volume slider flyin\n"
-        "\tmic       \tA microphone volume slider flyin\n"
-        "\tbluetooth \tA bluetooth connection widget\n"
-        "\t[plugin]  \tTries to open and run the plugin lib[plugin].so\n");
+        "\tbar            \tThe main status bar\n"
+        "\taudio          \tAn audio volume slider flyin\n"
+        "\tmic            \tA microphone volume slider flyin\n"
+        "\tbluetooth      \tA bluetooth connection widget\n"
+        "\t[plugin]       \tTries to open and run the plugin lib[plugin].so\n");
 }
 
 int main(int argc, char** argv)
 {
     std::string widget;
     int32_t monitor = -1;
+    std::string overrideConfigLocation = "";
 
     // Arg parsing
     for (int i = 1; i < argc; i++)
@@ -103,6 +106,12 @@ int main(int argc, char** argv)
             PrintHelp();
             return 0;
         }
+        else if (arg == "-c" || arg == "--config")
+        {
+            ASSERT(i + 1 < argc, "Not enough arguments provided for -c/--config!");
+            overrideConfigLocation = argv[i + 1];
+            i += 1;
+        }
         else
         {
             LOG("Warning: Unknown CLI option \"" << arg << "\"")
@@ -122,10 +131,10 @@ int main(int argc, char** argv)
     }
 
     signal(SIGINT, CloseTmpFiles);
-    System::Init();
+    System::Init(overrideConfigLocation);
 
     Window window(monitor);
-    window.Init(argc, argv);
+    window.Init(overrideConfigLocation);
     if (widget == "bar")
     {
         Bar::Create(window, monitor);

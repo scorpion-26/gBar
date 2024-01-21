@@ -9,31 +9,36 @@ namespace CSS
 {
     static GtkCssProvider* sProvider;
 
-    void Load()
+    void Load(const std::string& overrideConfigLocation)
     {
         sProvider = gtk_css_provider_new();
 
         std::vector<std::string> locations;
         const char* home = std::getenv("HOME");
 
+        if (overrideConfigLocation != "")
+        {
+            locations.push_back(overrideConfigLocation);
+        }
+
         const char* configHome = std::getenv("XDG_CONFIG_HOME");
         if (configHome && strlen(configHome) != 0)
         {
-            locations.push_back(configHome);
+            locations.push_back(std::string(configHome) + "/gBar");
         }
         else if (home)
         {
-            locations.push_back(std::string(home) + "/.config");
+            locations.push_back(std::string(home) + "/.config/gBar");
         }
 
         const char* dataHome = std::getenv("XDG_DATA_HOME");
         if (dataHome && strlen(dataHome) != 0)
         {
-            locations.push_back(dataHome);
+            locations.push_back(std::string(dataHome) + "/gBar");
         }
         else if (home)
         {
-            locations.push_back(std::string(home) + "/.local/share");
+            locations.push_back(std::string(home) + "/.local/share/gBar");
         }
 
         const char* dataDirs = std::getenv("XDG_DATA_DIRS");
@@ -42,18 +47,18 @@ namespace CSS
             std::stringstream ss(dataDirs);
             std::string dir;
             while (std::getline(ss, dir, ':'))
-                locations.push_back(dir);
+                locations.push_back(dir + "/gBar");
         }
         else
         {
-            locations.push_back("/usr/local/share");
-            locations.push_back("/usr/share");
+            locations.push_back("/usr/local/share/gBar");
+            locations.push_back("/usr/share/gBar");
         }
 
         GError* err = nullptr;
         for (auto& dir : locations)
         {
-            std::string file = dir + "/gBar/style.css";
+            std::string file = dir + "/style.css";
 
             if (!std::ifstream(file).is_open())
             {

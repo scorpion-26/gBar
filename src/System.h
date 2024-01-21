@@ -118,6 +118,6 @@ namespace System
     void Lock();
     void Suspend();
 
-    void Init();
+    void Init(const std::string& overrideConfigLocation);
     void FreeResources();
 }

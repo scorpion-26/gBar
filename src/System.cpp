@@ -658,11 +658,11 @@ namespace System
         system(Config::Get().suspendCommand.c_str());
     }
 
-    void Init()
+    void Init(const std::string& overrideConfigLocation)
     {
         Logging::Init();
 
-        Config::Load();
+        Config::Load(overrideConfigLocation);
 
         Wayland::Init();
 

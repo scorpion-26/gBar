@@ -91,7 +91,7 @@ public:
     double audioMinVolume = 0.f;   // Map the minimum volume to this value
     double audioMaxVolume = 100.f; // Map the maximum volume to this value
 
-    static void Load();
+    static void Load(const std::string& overrideConfigLocation);
     static const Config& Get();
 };
 
