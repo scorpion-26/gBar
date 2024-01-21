@@ -44,34 +44,102 @@ void CloseTmpFiles(int sig)
         exit(1);
 }
 
+void PrintHelp()
+{
+    LOG("==============================================\n"
+        "|                gBar                        |\n"
+        "==============================================\n"
+        "gBar, a fast status bar + widgets\n"
+        "\n"
+        "Basic usage: \n"
+        "\tgBar [OPTIONS...] WIDGET [MONITOR]\n"
+        "\n"
+        "Sample usage:\n"
+        "\tgBar bar 0\tOpens the status bar on monitor 0\n"
+        "\tgBar audio\tOpens the audio flyin on the current monitor\n"
+        "\n"
+        "All options:\n"
+        "\t--help/-h \tPrints this help page and exits afterwards\n"
+        "\n"
+        "All available widgets:\n"
+        "\tbar       \tThe main status bar\n"
+        "\taudio     \tAn audio volume slider flyin\n"
+        "\tmic       \tA microphone volume slider flyin\n"
+        "\tbluetooth \tA bluetooth connection widget\n"
+        "\t[plugin]  \tTries to open and run the plugin lib[plugin].so\n");
+}
+
 int main(int argc, char** argv)
 {
+    std::string widget;
+    int32_t monitor = -1;
+
+    // Arg parsing
+    for (int i = 1; i < argc; i++)
+    {
+        std::string arg = argv[i];
+        if (arg.size() < 1 || arg[0] != '-')
+        {
+            // This must be the widget selection
+            widget = arg;
+            if (i + 1 < argc)
+            {
+                std::string mon = argv[i + 1];
+                if (mon.size() < 1 || mon[0] != '-')
+                {
+                    // Next comes the monitor
+                    monitor = std::stoi(mon);
+                    i += 1;
+                }
+                else
+                {
+                    // Not the monitor
+                    continue;
+                }
+            }
+        }
+        else if (arg == "-h" || arg == "--help")
+        {
+            PrintHelp();
+            return 0;
+        }
+        else
+        {
+            LOG("Warning: Unknown CLI option \"" << arg << "\"")
+        }
+    }
+    if (widget == "")
+    {
+        LOG("Error: Widget to open not specified!\n");
+        PrintHelp();
+        return 0;
+    }
+    if (argc <= 1)
+    {
+        LOG("Error: Too little arguments\n");
+        PrintHelp();
+        return 0;
+    }
+
     signal(SIGINT, CloseTmpFiles);
     System::Init();
 
-    int32_t monitor = -1;
-    if (argc >= 3)
-    {
-        monitor = atoi(argv[2]);
-    }
-
     Window window(monitor);
     window.Init(argc, argv);
-    ASSERT(argc >= 2, "Too little arguments!");
-    if (strcmp(argv[1], "bar") == 0)
+    if (widget == "bar")
     {
         Bar::Create(window, monitor);
     }
-    else if (strcmp(argv[1], "audio") == 0)
+    else if (widget == "audio")
     {
         OpenAudioFlyin(window, monitor, AudioFlyin::Type::Speaker);
     }
-    else if (strcmp(argv[1], "mic") == 0)
+    else if (widget == "mic")
     {
         OpenAudioFlyin(window, monitor, AudioFlyin::Type::Microphone);
     }
 #ifdef WITH_BLUEZ
-    else if (strcmp(argv[1], "bluetooth") == 0)
+    else if (widget == "bluetooth")
     {
         if (RuntimeConfig::Get().hasBlueZ)
         {
@@ -98,7 +166,7 @@ int main(int argc, char** argv)
 #endif
     else
     {
-        Plugin::LoadWidgetFromPlugin(argv[1], window, monitor);
+        Plugin::LoadWidgetFromPlugin(widget, window, monitor);
     }
 
     window.Run();

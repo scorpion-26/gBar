@@ -1,6 +1,7 @@
 #include "Plugin.h"
 #include "Common.h"
 #include "Window.h"
+#include "src/Log.h"
 
 #include <dlfcn.h>
 
@@ -17,7 +18,8 @@ void Plugin::LoadWidgetFromPlugin(const std::string& pluginName, Window& window,
         if (dl)
             break;
     }
-    ASSERT(dl, "Cannot find plugin library!");
+    ASSERT(dl, "Error: Cannot find plugin \"" << pluginName << "\"!\n"
+               "Note: Did you mean to run \"gBar bar\" instead?");
 
     typedef void (*PFN_InvokeCreateFun)(void*, int32_t);
     typedef int32_t (*PFN_GetVersion)();
@@ -32,4 +34,3 @@ void Plugin::LoadWidgetFromPlugin(const std::string& pluginName, Window& window,
     // Execute
     invokeCreateFun(&window, monitor);
 }
-
