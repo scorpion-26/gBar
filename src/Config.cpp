@@ -294,6 +294,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
         AddConfigVar("SensorSize", config.sensorSize, lineView, foundProperty);
         AddConfigVar("NetworkIconSize", config.networkIconSize, lineView, foundProperty);
+        AddConfigVar("BatteryWarnThreshold", config.batteryWarnThreshold, lineView, foundProperty);
 
         AddConfigVar("AudioMinVolume", config.audioMinVolume, lineView, foundProperty);
         AddConfigVar("AudioMaxVolume", config.audioMaxVolume, lineView, foundProperty);

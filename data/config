@@ -39,6 +39,9 @@ ExitCommand: killall Hyprland
 # The folder, where the battery sensors reside
 BatteryFolder: /sys/class/power_supply/BAT1
 
+# Threshold, when the battery is considered low and a different color (as specified by the 'battery-warning' CSS property) is applied
+BatteryWarnThreshold: 20
+
 # The partition to monitor with disk sensor
 DiskPartition: /
 

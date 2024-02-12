@@ -231,7 +231,11 @@ highlight {
 }
 
 .battery-charging {
-    color: $orange
+    color: $orange;
+}
+
+.battery-warning {
+    color: $red;
 }
 
 .network-data-text {

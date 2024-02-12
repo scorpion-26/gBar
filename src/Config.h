@@ -78,6 +78,7 @@ public:
     uint32_t numWorkspaces = 9;            // How many workspaces to display
     uint32_t sensorSize = 24;              // The size of the circular sensors
     uint32_t networkIconSize = 24;         // The size of the two network arrows
+    uint32_t batteryWarnThreshold = 20;    // Threshold for color change when on battery
 
     char location = 'T'; // The Location of the bar. Can be L,R,T,B
 

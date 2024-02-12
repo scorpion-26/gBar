@@ -107,6 +107,20 @@ namespace Bar
                     batteryText->RemoveClass("battery-charging");
                 wasCharging = false;
             }
+
+            // Add warning if color falls below threshold
+            if (!isCharging && percentage * 100 <= Config::Get().batteryWarnThreshold)
+            {
+                sensor.AddClass("battery-warning");
+                if (batteryText)
+                    batteryText->AddClass("battery-warning");
+            }
+            else
+            {
+                sensor.RemoveClass("battery-warning");
+                if (batteryText)
+                    batteryText->RemoveClass("battery-warning");
+            }
             return TimerResult::Ok;
         }
 
@@ -417,8 +431,7 @@ namespace Bar
 #endif
     }
 
-    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorName, Text*& textPtr,
-                      Side side)
+    void WidgetSensor(Widget& parent, TimerCallback<Sensor>&& callback, const std::string& sensorName, Text*& textPtr, Side side)
     {
         auto eventBox = Widget::Create<EventBox>();
         Utils::SetTransform(*eventBox, {-1, false, SideToAlignment(side)});
@@ -571,12 +584,8 @@ namespace Bar
             box->AddClass("widget");
             switch (type)
             {
-            case AudioType::Input:
-                box->AddClass("mic");
-                break;
-            case AudioType::Output:
-                box->AddClass("audio");
-                break;
+            case AudioType::Input: box->AddClass("mic"); break;
+            case AudioType::Output: box->AddClass("audio"); break;
             }
 
             Utils::SetTransform(*box, {-1, false, SideToAlignment(side)});
