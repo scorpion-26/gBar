@@ -132,6 +132,10 @@ namespace System
             uint32_t intCapacity = atoi(capacityStr.c_str());
             return (double)intCapacity / 100.0;
         }
+
+        // TODO: This is the wrong place to do this, since we don't know whether it is actually disabled.
+        // A RuntimeConfig would be better, but it works for now.
+        LOG("Couldn't open battery charge files! Disabling battery widget.")
         return -1;
     }
 
