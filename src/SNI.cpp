@@ -39,6 +39,7 @@ namespace SNI
         std::string menuObjectPath = "";
 
         EventBox* gtkEvent = nullptr;
+        GtkMenu* dbusMenu = nullptr;
 
         int watcherID = -1;
         int propertyChangeWatcherID = -1;
@@ -265,6 +266,18 @@ namespace SNI
         return item;
     }
 
+    static void DestroyItem(Item& item)
+    {
+        g_bus_unwatch_name(item.watcherID);
+        g_dbus_connection_signal_unsubscribe(dbusConnection, item.propertyChangeWatcherID);
+        g_object_unref(item.pixbuf);
+        if (item.dbusMenu)
+        {
+            gtk_menu_detach(item.dbusMenu);
+            g_free(item.dbusMenu);
+        }
+    }
+
     static void InvalidateWidget();
 
     static void DBusNameVanished(GDBusConnection*, const char* name, void*)
@@ -277,9 +290,7 @@ namespace SNI
         if (it != items.end())
         {
             LOG("SNI: " << name << " vanished!");
-            g_bus_unwatch_name(it->watcherID);
-            g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
-            g_object_unref(it->pixbuf);
+            DestroyItem(*it);
             items.erase(it);
             InvalidateWidget();
             return;
@@ -335,9 +346,7 @@ namespace SNI
         LOG("SNI: Actual object path: " << itemObjectPath)
         if (it != items.end())
         {
-            g_bus_unwatch_name(it->watcherID);
-            g_dbus_connection_signal_unsubscribe(dbusConnection, it->propertyChangeWatcherID);
-            g_object_unref(it->pixbuf);
+            DestroyItem(*it);
             items.erase(it);
         }
         else
@@ -433,10 +442,13 @@ namespace SNI
                             {
                                 Item* item = (Item*)data;
 
-                                GtkMenu* menu = (GtkMenu*)dbusmenu_gtkmenu_new(item->name.data(), item->menuObjectPath.data());
-                                LOG(menu);
-                                gtk_menu_attach_to_widget(menu, item->gtkEvent->Get(), nullptr);
-                                gtk_menu_popup_at_pointer(menu, (GdkEvent*)event);
+                                // Create the menu if it wasn't already created
+                                if (!item->dbusMenu)
+                                {
+                                    item->dbusMenu = (GtkMenu*)dbusmenu_gtkmenu_new(item->name.data(), item->menuObjectPath.data());
+                                    gtk_menu_attach_to_widget(item->dbusMenu, item->gtkEvent->Get(), nullptr);
+                                }
+                                gtk_menu_popup_at_pointer(item->dbusMenu, (GdkEvent*)event);
                                 LOG(item->menuObjectPath << " click");
                             }
                             return GDK_EVENT_STOP;
