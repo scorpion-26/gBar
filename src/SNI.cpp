@@ -274,7 +274,6 @@ namespace SNI
         if (item.dbusMenu)
         {
             gtk_menu_detach(item.dbusMenu);
-            g_free(item.dbusMenu);
         }
     }
 
