@@ -226,6 +226,12 @@ namespace SNI
         if (item.pixbuf == nullptr)
         {
             GVariant* iconPixmap = getProperty("IconPixmap");
+            if (iconPixmap == nullptr)
+            {
+                // All icon locations have failed, bail.
+                LOG("SNI: Cannot create item due to missing icon!");
+                return {};
+            }
             // Only get first item
             GVariant* arr = nullptr;
             g_variant_get(iconPixmap, "(v)", &arr);
@@ -375,6 +381,10 @@ namespace SNI
         {
             LOG("SNI: Creating Item " << client.name << " " << client.object);
             Item item = CreateItem(std::move(client.name), std::move(client.object));
+            if (item.pixbuf == nullptr)
+            {
+                continue;
+            }
             // Add handler for removing
             item.watcherID = g_bus_watch_name_on_connection(dbusConnection, item.name.c_str(), G_BUS_NAME_WATCHER_FLAGS_NONE, nullptr,
                                                             DBusNameVanished, nullptr, nullptr);
