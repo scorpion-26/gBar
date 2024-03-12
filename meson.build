@@ -28,10 +28,7 @@ gtk_layer_shell = dependency('gtk-layer-shell-0')
 
 pulse = dependency('libpulse')
 
-
-comp = meson.get_compiler('cpp')
-
-sass_lib = comp.find_library('libsass')
+sass = dependency('libsass')
 
 
 headers = [
@@ -64,7 +61,7 @@ sources = [
    'src/SNI.cpp',
    ]
 
-dependencies = [gtk, gtk_layer_shell, pulse, wayland_client, sass_lib]
+dependencies = [gtk, gtk_layer_shell, pulse, wayland_client, sass]
 
 if get_option('WithHyprland')
   add_global_arguments('-DWITH_HYPRLAND', language: 'cpp')
