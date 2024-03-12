@@ -68,13 +68,13 @@ namespace CSS
                 Sass_File_Context* ctx =  sass_make_file_context(file.c_str());
                 Sass_Context* ctxout = sass_file_context_get_context(ctx);
                 sass_compile_file_context(ctx);
-                std::string data = sass_context_get_output_string(ctxout);
                 if(sass_context_get_error_status(ctxout))
                 {
                     LOG("Error Compiling SCSS: " << sass_context_get_error_message(ctxout));
                 }
                 else
                 {
+                    std::string data = sass_context_get_output_string(ctxout);
                     gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
                     scss_suceeded = true;
                 }
