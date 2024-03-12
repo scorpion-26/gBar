@@ -1,11 +1,11 @@
 #include "CSS.h"
 #include "Common.h"
 
-#include <sass/context.h>
 #include <string>
 #include <array>
 #include <fstream>
-#include "sass.h"
+
+#include <sass.h>
 
 namespace CSS
 {
@@ -61,20 +61,31 @@ namespace CSS
         for (auto& dir : locations)
         {
             std::string file = dir + "/style.scss";
-            std::ifstream scss(file);
+            bool scss_suceeded = false;
+
             if (std::ifstream(file).is_open())
             {
                 Sass_File_Context* ctx =  sass_make_file_context(file.c_str());
                 Sass_Context* ctxout = sass_file_context_get_context(ctx);
                 sass_compile_file_context(ctx);
                 std::string data = sass_context_get_output_string(ctxout);
-                gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
+                if(sass_context_get_error_status(ctxout))
+                {
+                    LOG("Error Compiling SCSS: " << sass_context_get_error_message(ctxout));
+                }
+                else
+                {
+                    gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
+                    scss_suceeded = true;
+                }
                 sass_delete_file_context(ctx);
             }
-            else
+
+            if (!scss_suceeded)
             {
-                LOG("Info: no SCSS found in " << dir);
+                LOG("Info: couldn't load SCSS from " << dir);
                 file = dir + "/style.css";
+
                 if (!std::ifstream(file).is_open())
                 {
                     LOG("Info: No CSS found in " << dir);
@@ -91,6 +102,7 @@ namespace CSS
                 LOG("CSS found and loaded successfully!");
                 return;
             }
+
             LOG("Warning: Failed loading config for " << dir << ", trying next one!");
             // Log any errors
             LOG(err->message);
