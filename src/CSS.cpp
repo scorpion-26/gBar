@@ -1,9 +1,11 @@
 #include "CSS.h"
 #include "Common.h"
 
+#include <sass/context.h>
 #include <string>
 #include <array>
 #include <fstream>
+#include "sass.h"
 
 namespace CSS
 {
@@ -58,15 +60,31 @@ namespace CSS
         GError* err = nullptr;
         for (auto& dir : locations)
         {
-            std::string file = dir + "/style.css";
-
-            if (!std::ifstream(file).is_open())
+            std::string file = dir + "/style.scss";
+            std::ifstream scss(file);
+            if (std::ifstream(file).is_open())
             {
-                LOG("Info: No CSS found in " << dir);
-                continue;
+                Sass_File_Context* ctx =  sass_make_file_context(file.c_str());
+                Sass_Context* ctxout = sass_file_context_get_context(ctx);
+                sass_compile_file_context(ctx);
+                std::string data = sass_context_get_output_string(ctxout);
+                gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
+                sass_delete_file_context(ctx);
             }
+            else
+            {
+                LOG("Info: no SCSS found in " << dir);
+                file = dir + "/style.css";
+                if (!std::ifstream(file).is_open())
+                {
+                    LOG("Info: No CSS found in " << dir);
+                    continue;
+                }
+               
+                gtk_css_provider_load_from_path(sProvider, file.c_str(), &err);
 
-            gtk_css_provider_load_from_path(sProvider, file.c_str(), &err);
+            }
+            
 
             if (!err)
             {
