@@ -22,7 +22,7 @@ jobs:
           pacman -Syu --noconfirm base-devel gcc git ninja meson gtk-layer-shell pulseaudio wayland libdbusmenu-gtk3 libsass
 
       - name: Download gBar
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v4.1.2
 
       - name: Run meson
         run: |
