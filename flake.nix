@@ -31,6 +31,7 @@
           libpulseaudio
           stb
           libdbusmenu-gtk3
+          libsass
         ];
       });
     in {

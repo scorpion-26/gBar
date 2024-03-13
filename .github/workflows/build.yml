@@ -19,7 +19,7 @@ jobs:
           pacman-key --populate archlinux
       - name: Download pacman packages
         run: |
-          pacman -Syu --noconfirm base-devel gcc git ninja meson gtk-layer-shell pulseaudio wayland libdbusmenu-gtk3
+          pacman -Syu --noconfirm base-devel gcc git ninja meson gtk-layer-shell pulseaudio wayland libdbusmenu-gtk3 libsass
 
       - name: Download gBar
         uses: actions/checkout@v3.3.0
