@@ -28,6 +28,9 @@ gtk_layer_shell = dependency('gtk-layer-shell-0')
 
 pulse = dependency('libpulse')
 
+sass = dependency('libsass')
+
+
 headers = [
   'src/Common.h',
   'src/Log.h',
@@ -58,7 +61,7 @@ sources = [
    'src/SNI.cpp',
    ]
 
-dependencies = [gtk, gtk_layer_shell, pulse, wayland_client ]
+dependencies = [gtk, gtk_layer_shell, pulse, wayland_client, sass]
 
 if get_option('WithHyprland')
   add_global_arguments('-DWITH_HYPRLAND', language: 'cpp')

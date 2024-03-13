@@ -5,6 +5,8 @@
 #include <array>
 #include <fstream>
 
+#include <sass.h>
+
 namespace CSS
 {
     static GtkCssProvider* sProvider;
@@ -58,21 +60,49 @@ namespace CSS
         GError* err = nullptr;
         for (auto& dir : locations)
         {
-            std::string file = dir + "/style.css";
+            std::string file = dir + "/style.scss";
+            bool scss_suceeded = false;
 
-            if (!std::ifstream(file).is_open())
+            if (std::ifstream(file).is_open())
             {
-                LOG("Info: No CSS found in " << dir);
-                continue;
+                Sass_File_Context* ctx =  sass_make_file_context(file.c_str());
+                Sass_Context* ctxout = sass_file_context_get_context(ctx);
+                sass_compile_file_context(ctx);
+                if(sass_context_get_error_status(ctxout))
+                {
+                    LOG("Error Compiling SCSS: " << sass_context_get_error_message(ctxout));
+                }
+                else
+                {
+                    std::string data = sass_context_get_output_string(ctxout);
+                    gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
+                    scss_suceeded = true;
+                }
+                sass_delete_file_context(ctx);
             }
 
-            gtk_css_provider_load_from_path(sProvider, file.c_str(), &err);
+            if (!scss_suceeded)
+            {
+                LOG("Info: couldn't load SCSS from " << dir);
+                file = dir + "/style.css";
+
+                if (!std::ifstream(file).is_open())
+                {
+                    LOG("Info: No CSS found in " << dir);
+                    continue;
+                }
+               
+                gtk_css_provider_load_from_path(sProvider, file.c_str(), &err);
+
+            }
+            
 
             if (!err)
             {
                 LOG("CSS found and loaded successfully!");
                 return;
             }
+
             LOG("Warning: Failed loading config for " << dir << ", trying next one!");
             // Log any errors
             LOG(err->message);
