@@ -121,16 +121,9 @@ endif
 
 add_global_arguments('-DUSE_LOGFILE', language: 'cpp')
 
-# stb
-fs = import('fs')
-stb = include_directories('thirdparty')
-add_global_arguments('-DHAS_STB', language: 'cpp')
-
-
 libgBar = library('gBar',
   sources,
   dependencies: dependencies,
-  include_directories: stb,
   install: true)
 
 pkg = import('pkgconfig')

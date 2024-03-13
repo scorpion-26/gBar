@@ -11,9 +11,6 @@
 #include <gio/gio.h>
 #include <libdbusmenu-gtk/menu.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
 #include <fstream>
 #include <cstdio>
 #include <unordered_set>

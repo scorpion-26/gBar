@@ -23,8 +23,6 @@ jobs:
 
       - name: Download gBar
         uses: actions/checkout@v3.3.0
-        with:
-          submodules: recursive
 
       - name: Run meson
         run: |

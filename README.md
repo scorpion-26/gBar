@@ -17,9 +17,9 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 - meson, gcc/clang, ninja
 
 ## Building and installation (Manually)
-1. Clone gBar recursively
+1. Clone gBar
     ```
-    git clone https://github.com/scorpion-26/gBar --recursive
+    git clone https://github.com/scorpion-26/gBar
     ```
 2. Configure with meson
     

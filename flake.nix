@@ -29,7 +29,6 @@
           gtk3
           gtk-layer-shell
           libpulseaudio
-          stb
           libdbusmenu-gtk3
           libsass
         ];

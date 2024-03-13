@@ -123,7 +123,7 @@ public:
     bool hasBlueZ = false;
 #endif
 
-#if defined WITH_SNI && defined HAS_STB
+#ifdef WITH_SNI
     bool hasSNI = true;
 #else
     bool hasSNI = false;
