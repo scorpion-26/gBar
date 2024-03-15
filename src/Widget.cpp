@@ -49,7 +49,12 @@ Widget::~Widget()
 {
     if (m_Widget)
     {
-        LOG("Destroy widget and its children");
+        // LOG("Destroy widget and its children");
+        for (guint timeout : m_Timeouts)
+        {
+            g_source_remove(timeout);
+        }
+        m_Timeouts.clear();
         m_Childs.clear();
         gtk_widget_destroy(m_Widget);
     }
@@ -178,7 +183,8 @@ void Widget::ApplyPropertiesToWidget()
     // Apply style
     auto style = gtk_widget_get_style_context(m_Widget);
     gtk_style_context_add_class(style, m_CssClass.c_str());
-    for (auto& cssClass : m_AdditionalClasses) {
+    for (auto& cssClass : m_AdditionalClasses)
+    {
         gtk_style_context_add_class(style, cssClass.c_str());
     }
 
