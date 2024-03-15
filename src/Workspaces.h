@@ -16,7 +16,7 @@ namespace Workspaces
 {
     void Init();
 
-    void PollStatus(uint32_t monitorID, uint32_t numWorkspaces);
+    void PollStatus(const std::string& monitor, uint32_t numWorkspaces);
 
     System::WorkspaceStatus GetStatus(uint32_t workspaceId);
 

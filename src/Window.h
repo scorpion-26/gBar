@@ -23,6 +23,7 @@ class Window
 public:
     Window() = default;
     Window(int32_t monitor);
+    Window(const std::string& monitor);
     Window(Window&& window) noexcept = default;
     Window& operator=(Window&& other) noexcept = default;
     ~Window();
@@ -35,14 +36,23 @@ public:
     void SetAnchor(Anchor anchor) { m_Anchor = anchor; }
     void SetMargin(Anchor anchor, int32_t margin);
     void SetExclusive(bool exclusive) { m_Exclusive = exclusive; }
-    void SetLayer(Layer layer) { m_Layer = layer;}
+    void SetLayer(Layer layer) { m_Layer = layer; }
 
     void SetMainWidget(std::unique_ptr<Widget>&& mainWidget);
 
     int GetWidth() const;
     int GetHeight() const;
 
+    // Returns the connector name of the currnet monitor
+    std::string GetName() const { return m_MonitorName; }
+
+    // Callback when the widget should be recreated
+    std::function<void()> OnWidget;
+
 private:
+    void Create();
+    void Destroy();
+
     void UpdateMargin();
 
     void LoadCSS(GtkCssProvider* provider);
@@ -60,6 +70,13 @@ private:
     bool m_Exclusive = true;
     Layer m_Layer = Layer::Top;
 
-    int32_t m_MonitorID;
+    // The monitor we are currently on.
+    std::string m_MonitorName;
+
+    // The monitor we want to be on.
+    std::string m_TargetMonitor;
+
     GdkMonitor* m_Monitor = nullptr;
+
+    bool bHandleMonitorChanges = false;
 };

@@ -12,19 +12,19 @@ namespace Workspaces
         using WaylandWorkspaceGroup = ::Wayland::WorkspaceGroup;
         using WaylandWorkspace = ::Wayland::Workspace;
 
-        static uint32_t lastPolledMonitor;
-        void PollStatus(uint32_t monitorID, uint32_t)
+        static std::string lastPolledMonitor;
+        void PollStatus(const std::string& monitor, uint32_t)
         {
             ::Wayland::PollEvents();
-            lastPolledMonitor = monitorID;
+            lastPolledMonitor = monitor;
         }
         System::WorkspaceStatus GetStatus(uint32_t workspaceId)
         {
             auto& mons = ::Wayland::GetMonitors();
             auto it = std::find_if(mons.begin(), mons.end(),
-                                   [&](const std::pair<std::string, ::Wayland::Monitor>& mon)
+                                   [&](const std::pair<wl_output*, ::Wayland::Monitor>& mon)
                                    {
-                                       return mon.second.ID == workspaceId;
+                                       return mon.second.name == lastPolledMonitor;
                                    });
             if (it == mons.end())
             {
@@ -147,7 +147,7 @@ namespace Workspaces
 
         static std::vector<System::WorkspaceStatus> workspaceStati;
 
-        void PollStatus(uint32_t monitorID, uint32_t numWorkspaces)
+        void PollStatus(const std::string& monitor, uint32_t numWorkspaces)
         {
             if (RuntimeConfig::Get().hasWorkspaces == false)
             {
@@ -182,11 +182,11 @@ namespace Workspaces
             parseIdx = 0;
             while ((parseIdx = monitors.find("Monitor ", parseIdx)) != std::string::npos)
             {
-                // Goto ( and remove ID (=Advance 4 spaces, 1 for (, two for ID, one for space)
-                size_t begMonNum = monitors.find('(', parseIdx) + 4;
-                size_t endMonNum = monitors.find(')', begMonNum);
+                // Query monitor name
+                // Format: Monitor <name> (ID <id>)
+                size_t begMonNum = monitors.find(' ', parseIdx) + 1;
+                size_t endMonNum = monitors.find(' ', begMonNum);
                 std::string mon = monitors.substr(begMonNum, endMonNum - begMonNum);
-                int32_t monIdx = std::atoi(mon.c_str());
 
                 // Parse active workspace
                 parseIdx = monitors.find("active workspace: ", parseIdx);
@@ -205,7 +205,7 @@ namespace Workspaces
 
                 if (wsId >= 1 && wsId <= (int32_t)numWorkspaces)
                 {
-                    if ((uint32_t)monIdx == monitorID)
+                    if (mon == monitor)
                     {
                         if (focused)
                         {
@@ -248,16 +248,16 @@ namespace Workspaces
 #endif
     }
 
-    void PollStatus(uint32_t monitorID, uint32_t numWorkspaces)
+    void PollStatus(const std::string& monitor, uint32_t numWorkspaces)
     {
 #ifdef WITH_HYPRLAND
         if (Config::Get().useHyprlandIPC)
         {
-            Hyprland::PollStatus(monitorID, numWorkspaces);
+            Hyprland::PollStatus(monitor, numWorkspaces);
             return;
         }
 #endif
-        Wayland::PollStatus(monitorID, numWorkspaces);
+        Wayland::PollStatus(monitor, numWorkspaces);
     }
 
     System::WorkspaceStatus GetStatus(uint32_t workspaceId)
