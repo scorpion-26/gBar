@@ -8,17 +8,15 @@
 namespace Wayland
 {
     // There's probably a better way to avoid the LUTs
-    static std::unordered_map<std::string, Monitor> monitors;
+    static std::unordered_map<wl_output*, Monitor> monitors;
     static std::unordered_map<zext_workspace_group_handle_v1*, WorkspaceGroup> workspaceGroups;
     static std::unordered_map<zext_workspace_handle_v1*, Workspace> workspaces;
-
-    static uint32_t curID = 0;
 
     static wl_display* display;
     static wl_registry* registry;
     static zext_workspace_manager_v1* workspaceManager;
 
-    static bool registeredMonitors = false;
+    static bool registeredMonitor = false;
     static bool registeredGroup = false;
     static bool registeredWorkspace = false;
     static bool registeredWorkspaceInfo = false;
@@ -87,22 +85,14 @@ namespace Wayland
     // Workspace Group callbacks
     static void OnWSGroupOutputEnter(void*, zext_workspace_group_handle_v1* group, wl_output* output)
     {
-        auto monitor = std::find_if(monitors.begin(), monitors.end(),
-                                    [&](const std::pair<std::string, Monitor>& mon)
-                                    {
-                                        return mon.second.output == output;
-                                    });
+        auto monitor = monitors.find(output);
         ASSERT(monitor != monitors.end(), "Wayland: Registered WS group before monitor!");
         LOG("Wayland: Added group to monitor");
         monitor->second.workspaceGroup = group;
     }
     static void OnWSGroupOutputLeave(void*, zext_workspace_group_handle_v1*, wl_output* output)
     {
-        auto monitor = std::find_if(monitors.begin(), monitors.end(),
-                                    [&](const std::pair<std::string, Monitor>& mon)
-                                    {
-                                        return mon.second.output == output;
-                                    });
+        auto monitor = monitors.find(output);
         ASSERT(monitor != monitors.end(), "Wayland: Registered WS group before monitor!");
         LOG("Wayland: Added group to monitor");
         monitor->second.workspaceGroup = nullptr;
@@ -140,24 +130,22 @@ namespace Wayland
     // Output Callbacks
     // Very bloated, indeed
     static void OnOutputGeometry(void*, wl_output*, int32_t, int32_t, int32_t, int32_t, int32_t, const char*, const char*, int32_t) {}
-    static void OnOutputMode(void*, wl_output*, uint32_t, int32_t, int32_t, int32_t) {}
-    static void OnOutputDone(void*, wl_output*) {}
+    static void OnOutputMode(void*, wl_output* output, uint32_t, int32_t width, int32_t height, int32_t)
+    {
+        auto it = monitors.find(output);
+        ASSERT(it != monitors.end(), "Error: OnOutputMode called on unknown monitor");
+        it->second.width = width;
+        it->second.height = height;
+    }
+    static void OnOutputDone(void*, wl_output* output) {}
     static void OnOutputScale(void*, wl_output*, int32_t) {}
     static void OnOutputName(void*, wl_output* output, const char* name)
     {
-        std::string nameStr = name;
-        auto it = monitors.find(nameStr);
-        if (it == monitors.end())
-        {
-            LOG("Wayland: Registering monitor " << name << " at ID " << curID);
-            registeredMonitors = true;
-            Monitor mon = {nameStr, output, nullptr, curID++};
-            monitors.try_emplace(nameStr, mon);
-        }
-        else
-        {
-            LOG("Wayland: Recovering monitor " << name << " at ID " << curID);
-        }
+        auto it = monitors.find(output);
+        ASSERT(it != monitors.end(), "Error: OnOutputName called on unknown monitor");
+        it->second.name = name;
+        LOG("Wayland: Monitor at ID " << it->second.ID << " got name " << name);
+        registeredMonitor = true;
     }
     static void OnOutputDescription(void*, wl_output*, const char*) {}
     wl_output_listener outputListener = {OnOutputGeometry, OnOutputMode, OnOutputDone, OnOutputScale, OnOutputName, OnOutputDescription};
@@ -168,6 +156,10 @@ namespace Wayland
         if (strcmp(interface, "wl_output") == 0)
         {
             wl_output* output = (wl_output*)wl_registry_bind(registry, name, &wl_output_interface, 4);
+            Monitor mon = Monitor{"", name, 0, 0, nullptr, (uint32_t)monitors.size()};
+            monitors.emplace(output, mon);
+
+            LOG("Wayland: Register <pending> at ID " << mon.ID);
             wl_output_add_listener(output, &outputListener, nullptr);
         }
         if (strcmp(interface, "zext_workspace_manager_v1") == 0 && !Config::Get().useHyprlandIPC)
@@ -176,7 +168,31 @@ namespace Wayland
             zext_workspace_manager_v1_add_listener(workspaceManager, &workspaceManagerListener, nullptr);
         }
     }
-    static void OnRegistryRemove(void*, wl_registry*, uint32_t) {}
+    static void OnRegistryRemove(void*, wl_registry*, uint32_t name)
+    {
+        auto it = std::find_if(monitors.begin(), monitors.end(),
+                               [&](const std::pair<wl_output*, const Monitor&>& elem)
+                               {
+                                   return elem.second.wlName == name;
+                               });
+        if (it != monitors.end())
+        {
+            LOG("Wayland: Removing monitor " << it->second.name << " at ID " << it->second.ID);
+            // Monitor has been removed. Update the ids of the other accordingly
+            for (auto& mon : monitors)
+            {
+                if (mon.second.ID > it->second.ID)
+                {
+                    mon.second.ID -= 1;
+                    auto name = mon.second.name.empty() ? "<pending>" : mon.second.name;
+                    LOG("Wayland: " << name << " got new ID " << mon.second.ID);
+                }
+            }
+            registeredMonitor = true;
+            monitors.erase(it);
+        }
+    }
+
     wl_registry_listener registryListener = {OnRegistryAdd, OnRegistryRemove};
 
     // Dispatch events.
@@ -201,8 +217,8 @@ namespace Wayland
         wl_registry_add_listener(registry, &registryListener, nullptr);
         wl_display_roundtrip(display);
 
-        WaitFor(registeredMonitors);
-        registeredMonitors = false;
+        WaitFor(registeredMonitor);
+        registeredMonitor = false;
 
         if (!workspaceManager && !Config::Get().useHyprlandIPC)
         {
@@ -255,7 +271,6 @@ namespace Wayland
         registeredGroup = false;
         registeredWorkspace = false;
         registeredWorkspaceInfo = false;
-        return;
     }
 
     void Shutdown()
@@ -264,7 +279,33 @@ namespace Wayland
             wl_display_disconnect(display);
     }
 
-    const std::unordered_map<std::string, Monitor>& GetMonitors()
+    std::string GtkMonitorIDToName(int32_t monitorID)
+    {
+        auto it = std::find_if(monitors.begin(), monitors.end(),
+                               [&](const std::pair<wl_output*, Monitor>& el)
+                               {
+                                   return el.second.ID == (uint32_t)monitorID;
+                               });
+        if (it == monitors.end())
+        {
+            LOG("Wayland: No monitor registered with ID " << monitorID);
+            return "";
+        }
+        return it->second.name;
+    }
+    int32_t NameToGtkMonitorID(const std::string& name)
+    {
+        auto it = std::find_if(monitors.begin(), monitors.end(),
+                               [&](const std::pair<wl_output*, Monitor>& el)
+                               {
+                                   return el.second.name == name;
+                               });
+        if (it == monitors.end())
+            return -1;
+        return it->second.ID;
+    }
+
+    const std::unordered_map<wl_output*, Monitor>& GetMonitors()
     {
         return monitors;
     }

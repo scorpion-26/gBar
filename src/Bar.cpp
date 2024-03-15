@@ -43,7 +43,7 @@ namespace Bar
         return (Config::Get().location == 'L' || Config::Get().location == 'R') && Config::Get().iconsAlwaysUp;
     }
 
-    static int32_t monitorID;
+    static std::string monitor;
 
     namespace DynCtx
     {
@@ -393,7 +393,7 @@ namespace Bar
         static std::vector<Button*> workspaces;
         TimerResult UpdateWorkspaces(Box&)
         {
-            System::PollWorkspaces((uint32_t)monitorID, workspaces.size());
+            System::PollWorkspaces(monitor, workspaces.size());
             for (size_t i = 0; i < workspaces.size(); i++)
             {
                 switch (System::GetWorkspaceStatus(i + 1))
@@ -1187,9 +1187,10 @@ namespace Bar
                                                "VRAM, GPU, RAM, CPU, Battery, Power");
     }
 
-    void Create(Window& window, int32_t monitor)
+    void Create(Window& window, const std::string& monitorName)
     {
-        monitorID = monitor;
+        ASSERT(!window.GetName().empty(), "Error: The bar requires a specified monitor. Use 'gBar bar <monitor>' instead!");
+        monitor = monitorName;
 
         auto mainWidget = Widget::Create<Box>();
         mainWidget->SetOrientation(Utils::GetOrientation());

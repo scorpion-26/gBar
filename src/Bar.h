@@ -4,5 +4,5 @@
 
 namespace Bar
 {
-    void Create(Window& window, int32_t monitor);
+    void Create(Window& window, const std::string& monitor);
 }

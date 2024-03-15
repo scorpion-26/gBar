@@ -1,14 +1,15 @@
 #include "Window.h"
 #include "Common.h"
 #include "CSS.h"
+#include "Wayland.h"
 
-#include <tuple>
-#include <fstream>
+#include <thread>
 
 #include <gtk/gtk.h>
 #include <gtk-layer-shell.h>
 
-Window::Window(int32_t monitor) : m_MonitorID(monitor) {}
+Window::Window(int32_t monitor) : m_MonitorName(Wayland::GtkMonitorIDToName(monitor)) {}
+Window::Window(const std::string& monitor) : m_MonitorName(monitor) {}
 
 Window::~Window()
 {
@@ -21,6 +22,8 @@ Window::~Window()
 
 void Window::Init(const std::string& overideConfigLocation)
 {
+    m_TargetMonitor = m_MonitorName;
+
     gtk_init(NULL, NULL);
 
     // Style
@@ -30,13 +33,14 @@ void Window::Init(const std::string& overideConfigLocation)
 
     GdkDisplay* defaultDisplay = gdk_display_get_default();
     ASSERT(defaultDisplay != nullptr, "Cannot get display!");
-    if (m_MonitorID != -1)
+    if (!m_MonitorName.empty())
     {
-        m_Monitor = gdk_display_get_monitor(defaultDisplay, m_MonitorID);
-        ASSERT(m_Monitor, "Cannot get monitor!");
+        m_Monitor = gdk_display_get_monitor(defaultDisplay, Wayland::NameToGtkMonitorID(m_MonitorName));
+        ASSERT(m_Monitor, "Cannot get monitor \"" << m_MonitorName << "\"!");
     }
     else
     {
+        LOG("Window: Requested monitor not found. Falling back to current monitor!")
         m_Monitor = gdk_display_get_primary_monitor(defaultDisplay);
     }
 
@@ -55,11 +59,86 @@ void Window::Init(const std::string& overideConfigLocation)
 
 void Window::Run()
 {
-    ASSERT(m_MainWidget, "Main Widget not set!");
+    Create();
+    while (gtk_main_iteration())
+    {
+        if (bHandleMonitorChanges)
+        {
+            // Flush the event loop
+            while (gtk_events_pending())
+            {
+                if (!gtk_main_iteration())
+                    break;
+            }
 
+            LOG("Window: Handling monitor changes");
+            bHandleMonitorChanges = false;
+
+            if (m_MonitorName == m_TargetMonitor)
+            {
+                // Don't care
+                continue;
+            }
+            // Process Wayland
+            Wayland::PollEvents();
+
+            GdkDisplay* display = gdk_display_get_default();
+            auto& mons = Wayland::GetMonitors();
+
+            // HACK: Discrepancies are mostly caused by the HEADLESS monitor. Assume that.
+            bool bGotHeadless = (size_t)gdk_display_get_n_monitors(display) != mons.size();
+            if (bGotHeadless)
+            {
+                LOG("Window: Found discrepancy between GDK and Wayland!");
+            }
+
+            // Try to find our target monitor
+            auto it = std::find_if(mons.begin(), mons.end(),
+                                   [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
+                                   {
+                                       return mon.second.name == m_TargetMonitor;
+                                   });
+            if (it != mons.end())
+            {
+                // Found target monitor, snap back.
+                if (m_MainWidget)
+                    Destroy();
+                m_MonitorName = m_TargetMonitor;
+                m_Monitor = gdk_display_get_monitor(display, bGotHeadless ? it->second.ID + 1 : it->second.ID);
+                Create();
+                continue;
+            }
+
+            // We haven't yet created, check if we can.
+            if (m_MainWidget == nullptr)
+            {
+                // Find a non-headless monitor
+                auto it = std::find_if(mons.begin(), mons.end(),
+                                       [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
+                                       {
+                                           return mon.second.name.find("HEADLESS") == std::string::npos;
+                                       });
+                if (it == mons.end())
+                    continue;
+                m_MonitorName = it->second.name;
+                m_Monitor = gdk_display_get_monitor(display, bGotHeadless ? it->second.ID + 1 : it->second.ID);
+                Create();
+                continue;
+            }
+        }
+    }
+}
+
+void Window::Create()
+{
+    LOG("Window: Create on monitor " << m_MonitorName);
     m_Window = (GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
     gtk_layer_init_for_window(m_Window);
+
+    // Notify our main method, that we want to init
+    OnWidget();
+
+    ASSERT(m_MainWidget, "Main Widget not set!");
 
     switch (m_Layer)
     {
@@ -94,13 +173,18 @@ void Window::Run()
     Widget::CreateAndAddWidget(m_MainWidget.get(), (GtkWidget*)m_Window);
 
     gtk_widget_show_all((GtkWidget*)m_Window);
+}
 
-    gtk_main();
+void Window::Destroy()
+{
+    LOG("Window: Destroy");
+    m_MainWidget = nullptr;
+    gtk_widget_destroy((GtkWidget*)m_Window);
 }
 
 void Window::Close()
 {
-    gtk_widget_hide((GtkWidget*)m_Window);
+    Destroy();
     gtk_main_quit();
 }
 
@@ -159,42 +243,52 @@ void Window::SetMargin(Anchor anchor, int32_t margin)
 
 int Window::GetWidth() const
 {
-    GdkRectangle rect{};
+    // gdk_monitor_get_geometry is really unreliable for some reason.
+    // Use our wayland backend instead
+
+    /*GdkRectangle rect{};
     gdk_monitor_get_geometry(m_Monitor, &rect);
-    return rect.width;
+    return rect.width;*/
+    auto& mons = Wayland::GetMonitors();
+    auto it = std::find_if(mons.begin(), mons.end(),
+                           [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
+                           {
+                               return mon.second.name == m_MonitorName;
+                           });
+    ASSERT(it != mons.end(), "Window: Couldn't find monitor");
+    return it->second.width;
 }
 
 int Window::GetHeight() const
 {
-    GdkRectangle rect{};
+    /*GdkRectangle rect{};
     gdk_monitor_get_geometry(m_Monitor, &rect);
-    return rect.height;
+    return rect.height;*/
+
+    auto& mons = Wayland::GetMonitors();
+    auto it = std::find_if(mons.begin(), mons.end(),
+                           [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
+                           {
+                               return mon.second.name == m_MonitorName;
+                           });
+    ASSERT(it != mons.end(), "Window: Couldn't find monitor");
+    return it->second.width;
 }
 
-void Window::MonitorAdded(GdkDisplay* display, GdkMonitor* mon)
+void Window::MonitorAdded(GdkDisplay*, GdkMonitor*)
 {
-    LOG("Window: Monitor added: " << mon);
-    if (!m_Monitor)
-    {
-        LOG("Window: Activating window");
-        gtk_layer_set_monitor(m_Window, mon);
-        m_Monitor = mon;
-        gtk_widget_show_all((GtkWidget*)m_Window);
-    }
+    bHandleMonitorChanges = true;
 }
 
-void Window::MonitorRemoved(GdkDisplay* display, GdkMonitor* mon)
+void Window::MonitorRemoved(GdkDisplay*, GdkMonitor* mon)
 {
-    LOG("Window: Monitor removed: " << mon);
+    bHandleMonitorChanges = true;
+    // Immediately react
     if (mon == m_Monitor)
     {
-        // Hide the window, so it doesn't get rendered on an invalid monitor
-        gtk_widget_hide((GtkWidget*)m_Window);
-        // Notify gtk layer shell and redisplay window
-        gtk_layer_set_monitor(m_Window, nullptr);
-        m_Monitor = gtk_layer_get_monitor(m_Window);
-        LOG("Window: New Monitor: " << m_Monitor);
-        if (m_Monitor)
-            gtk_widget_show_all((GtkWidget*)m_Window);
+        LOG("Window: Current monitor removed!")
+        m_Monitor = nullptr;
+        m_MonitorName = "";
+        Destroy();
     }
 }

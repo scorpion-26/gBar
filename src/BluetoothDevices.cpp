@@ -286,7 +286,7 @@ namespace BluetoothDevices
         parentWidget.AddChild(std::move(bodyBox));
     }
 
-    void Create(Window& window, UNUSED int32_t monitor)
+    void Create(Window& window, UNUSED const std::string& monitor)
     {
         DynCtx::win = &window;
         auto mainWidget = Widget::Create<Box>();

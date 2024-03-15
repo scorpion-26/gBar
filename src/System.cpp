@@ -485,7 +485,7 @@ namespace System
     }
 
 #ifdef WITH_WORKSPACES
-    void PollWorkspaces(uint32_t monitor, uint32_t numWorkspaces)
+    void PollWorkspaces(const std::string& monitor, uint32_t numWorkspaces)
     {
         Workspaces::PollStatus(monitor, numWorkspaces);
     }

@@ -4,5 +4,5 @@
 
 namespace Plugin
 {
-    void LoadWidgetFromPlugin(const std::string& pluginName, Window& window, int32_t monitor);
+    void LoadWidgetFromPlugin(const std::string& pluginName, Window& window, const std::string& monitor);
 }

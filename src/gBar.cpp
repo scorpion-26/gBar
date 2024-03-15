@@ -16,7 +16,7 @@ const char* bluetoothTmpFilePath = "/tmp/gBar__bluetooth";
 
 static bool tmpFileOpen = false;
 
-void OpenAudioFlyin(Window& window, int32_t monitor, AudioFlyin::Type type)
+void OpenAudioFlyin(Window& window, const std::string& monitor, AudioFlyin::Type type)
 {
     tmpFileOpen = true;
     if (access(audioTmpFilePath, F_OK) != 0)
@@ -71,10 +71,57 @@ void PrintHelp()
         "\t[plugin]       \tTries to open and run the plugin lib[plugin].so\n");
 }
 
+void CreateWidget(const std::string& widget, Window& window)
+{
+    if (widget == "bar")
+    {
+        Bar::Create(window, window.GetName());
+    }
+    else if (widget == "audio")
+    {
+        OpenAudioFlyin(window, window.GetName(), AudioFlyin::Type::Speaker);
+    }
+    else if (widget == "mic")
+    {
+        OpenAudioFlyin(window, window.GetName(), AudioFlyin::Type::Microphone);
+    }
+#ifdef WITH_BLUEZ
+    else if (widget == "bluetooth")
+    {
+        if (RuntimeConfig::Get().hasBlueZ)
+        {
+            if (access(bluetoothTmpFilePath, F_OK) != 0)
+            {
+                tmpFileOpen = true;
+                FILE* bluetoothTmpFile = fopen(bluetoothTmpFilePath, "w");
+                BluetoothDevices::Create(window, window.GetName());
+                fclose(bluetoothTmpFile);
+            }
+            else
+            {
+                // Already open, close
+                LOG("Bluetooth widget already open (/tmp/gBar__bluetooth exists)! Exiting...");
+                exit(0);
+            }
+        }
+        else
+        {
+            LOG("Blutooth disabled, cannot open bluetooth widget!");
+            exit(1);
+        }
+    }
+#endif
+    else
+    {
+        Plugin::LoadWidgetFromPlugin(widget, window, window.GetName());
+    }
+}
+
 int main(int argc, char** argv)
 {
     std::string widget;
     int32_t monitor = -1;
+    std::string monitorName;
     std::string overrideConfigLocation = "";
 
     // Arg parsing
@@ -83,20 +130,27 @@ int main(int argc, char** argv)
         std::string arg = argv[i];
         if (arg.size() < 1 || arg[0] != '-')
         {
-            // This must be the widget selection
+            // This must be the widget selection.
             widget = arg;
             if (i + 1 < argc)
             {
                 std::string mon = argv[i + 1];
-                if (mon.size() < 1 || mon[0] != '-')
+
+                // Check if a monitor was supplied
+                if (mon.empty() || mon[0] == '-')
+                    continue;
+
+                if (std::isdigit(mon[0]))
                 {
-                    // Next comes the monitor
+                    // Monitor using ID
                     monitor = std::stoi(mon);
                     i += 1;
                 }
                 else
                 {
-                    // Not the monitor
+                    // Monitor using connector name
+                    monitorName = std::move(mon);
+                    i += 1;
                     continue;
                 }
             }
@@ -133,51 +187,21 @@ int main(int argc, char** argv)
     signal(SIGINT, CloseTmpFiles);
     System::Init(overrideConfigLocation);
 
-    Window window(monitor);
-    window.Init(overrideConfigLocation);
-    if (widget == "bar")
+    Window window;
+    if (monitor != -1)
     {
-        Bar::Create(window, monitor);
+        window = Window(monitor);
     }
-    else if (widget == "audio")
-    {
-        OpenAudioFlyin(window, monitor, AudioFlyin::Type::Speaker);
-    }
-    else if (widget == "mic")
-    {
-        OpenAudioFlyin(window, monitor, AudioFlyin::Type::Microphone);
-    }
-#ifdef WITH_BLUEZ
-    else if (widget == "bluetooth")
-    {
-        if (RuntimeConfig::Get().hasBlueZ)
-        {
-            if (access(bluetoothTmpFilePath, F_OK) != 0)
-            {
-                tmpFileOpen = true;
-                FILE* bluetoothTmpFile = fopen(bluetoothTmpFilePath, "w");
-                BluetoothDevices::Create(window, monitor);
-                fclose(bluetoothTmpFile);
-            }
-            else
-            {
-                // Already open, close
-                LOG("Bluetooth widget already open (/tmp/gBar__bluetooth exists)! Exiting...");
-                exit(0);
-            }
-        }
-        else
-        {
-            LOG("Blutooth disabled, cannot open bluetooth widget!");
-            exit(1);
-        }
-    }
-#endif
     else
     {
-        Plugin::LoadWidgetFromPlugin(widget, window, monitor);
+        window = Window(monitorName);
     }
 
+    window.Init(overrideConfigLocation);
+    window.OnWidget = [&]()
+    {
+        CreateWidget(widget, window);
+    };
     window.Run();
 
     System::FreeResources();

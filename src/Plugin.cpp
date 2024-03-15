@@ -5,7 +5,7 @@
 
 #include <dlfcn.h>
 
-void Plugin::LoadWidgetFromPlugin(const std::string& pluginName, Window& window, int32_t monitor)
+void Plugin::LoadWidgetFromPlugin(const std::string& pluginName, Window& window, const std::string& monitor)
 {
     std::string home = std::getenv("HOME");
     std::array<std::string, 3> paths = {home + "/.local/lib/gBar", "/usr/local/lib/gBar", "/usr/lib/gBar"};
@@ -18,19 +18,19 @@ void Plugin::LoadWidgetFromPlugin(const std::string& pluginName, Window& window,
         if (dl)
             break;
     }
-    ASSERT(dl, "Error: Cannot find plugin \"" << pluginName << "\"!\n"
-               "Note: Did you mean to run \"gBar bar\" instead?");
+    ASSERT(dl, "Error: Cannot find plugin \"" << pluginName
+                                              << "\"!\n"
+                                                 "Note: Did you mean to run \"gBar bar\" instead?");
 
-    typedef void (*PFN_InvokeCreateFun)(void*, int32_t);
+    typedef void (*PFN_InvokeCreateFun)(void*, void*);
     typedef int32_t (*PFN_GetVersion)();
     auto getVersion = (PFN_GetVersion)dlsym(dl, "Plugin_GetVersion");
     ASSERT(getVersion, "DL is not a valid gBar plugin!");
     ASSERT(getVersion() == DL_VERSION, "Mismatching version, please recompile your plugin!");
 
-    typedef void (*PFN_InvokeCreateFun)(void*, int32_t);
     auto invokeCreateFun = (PFN_InvokeCreateFun)dlsym(dl, "Plugin_InvokeCreateFun");
     ASSERT(invokeCreateFun, "DL is not a valid gBar plugin!");
 
     // Execute
-    invokeCreateFun(&window, monitor);
+    invokeCreateFun(&window, (void*)&monitor);
 }

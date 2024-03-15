@@ -95,7 +95,7 @@ namespace System
         Current,
         Active
     };
-    void PollWorkspaces(uint32_t monitor, uint32_t numWorkspaces);
+    void PollWorkspaces(const std::string& monitor, uint32_t numWorkspaces);
     WorkspaceStatus GetWorkspaceStatus(uint32_t workspace);
     void GotoWorkspace(uint32_t workspace);
     // direction: + or -
