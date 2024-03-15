@@ -78,5 +78,6 @@ private:
 
     GdkMonitor* m_Monitor = nullptr;
 
+    bool bShouldQuit = false;
     bool bHandleMonitorChanges = false;
 };

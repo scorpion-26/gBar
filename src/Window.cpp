@@ -60,8 +60,9 @@ void Window::Init(const std::string& overideConfigLocation)
 void Window::Run()
 {
     Create();
-    while (gtk_main_iteration())
+    while (!bShouldQuit)
     {
+        gtk_main_iteration();
         if (bHandleMonitorChanges)
         {
             // Flush the event loop
@@ -185,7 +186,7 @@ void Window::Destroy()
 void Window::Close()
 {
     Destroy();
-    gtk_main_quit();
+    bShouldQuit = true;
 }
 
 void Window::UpdateMargin()
