@@ -576,17 +576,28 @@ namespace System
 
     void GetOutdatedPackagesAsync(std::function<void(uint32_t)>&& returnVal)
     {
+        static bool currentlyRunning = false;
+        static std::function<void(uint32_t)> handlerFunction;
         static std::mutex configMutex;
-        configMutex.lock();
-        if (!RuntimeConfig::Get().hasPackagesScript)
+
         {
-            configMutex.unlock();
-            return; // Don't bother
+            std::scoped_lock<std::mutex> lock(configMutex);
+            if (!RuntimeConfig::Get().hasPackagesScript)
+            {
+                return; // Don't bother
+            }
+            handlerFunction = returnVal;
+            if (currentlyRunning)
+            {
+                // Thread is running, only update handler
+                return;
+            }
+
+            currentlyRunning = true;
         }
-        configMutex.unlock();
 
         std::thread(
-            [](std::function<void(uint32_t)> returnVal)
+            [&]()
             {
                 // We need a pipe, since there is no "libpacman". This should only be called every so often anyways
                 std::string number;
@@ -601,29 +612,28 @@ namespace System
                 ASSERT(feof(pipe), "GetOutdatedPackages: Cannot read to eof!");
 
                 int exitCode = pclose(pipe) / 256;
-                if (exitCode != 0)
                 {
-                    configMutex.lock();
-                    // Invalid script/error
-                    LOG("GetOutdatedPackages: Invalid command. Disabling package widget!");
-                    RuntimeConfig::Get().hasPackagesScript = false;
-                    configMutex.unlock();
-                    return;
+                    std::scoped_lock<std::mutex> lock(configMutex);
+                    if (exitCode != 0)
+                    {
+                        // Invalid script/error
+                        LOG("GetOutdatedPackages: Invalid command. Disabling package widget!");
+                        RuntimeConfig::Get().hasPackagesScript = false;
+                        currentlyRunning = false;
+                        return;
+                    }
+                    try
+                    {
+                        handlerFunction(std::stoul(buf));
+                    }
+                    catch (std::invalid_argument&)
+                    {
+                        LOG("GetOutdatedPackages: Invalid output of the package script. Disabling package widget!");
+                        RuntimeConfig::Get().hasPackagesScript = false;
+                    }
+                    currentlyRunning = false;
                 }
-                try
-                {
-                    returnVal(std::stoul(buf));
-                }
-                catch (std::invalid_argument&)
-                {
-                    configMutex.lock();
-                    LOG("GetOutdatedPackages: Invalid output of the package script. Disabling package widget!");
-                    RuntimeConfig::Get().hasPackagesScript = false;
-                    configMutex.unlock();
-                    return;
-                }
-            },
-            std::move(returnVal))
+            })
             .detach();
     }
 
