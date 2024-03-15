@@ -135,6 +135,7 @@ public:
         {
             TimerCallback<TWidget> timeoutFn;
             Widget* thisWidget;
+            guint id;
         };
         TimerPayload* payload = new TimerPayload();
         payload->thisWidget = this;
@@ -145,6 +146,7 @@ public:
             TimerResult result = payload->timeoutFn(*(TWidget*)payload->thisWidget);
             if (result == TimerResult::Delete)
             {
+                payload->thisWidget->m_Timeouts.erase(payload->id);
                 delete payload;
                 return false;
             }
@@ -157,7 +159,8 @@ public:
                 return;
             }
         }
-        g_timeout_add(timeoutMS, +fn, payload);
+        payload->id = g_timeout_add(timeoutMS, +fn, payload);
+        m_Timeouts.insert(payload->id);
     }
 
     GtkWidget* Get() { return m_Widget; };
@@ -182,6 +185,8 @@ protected:
     Transform m_VerticalTransform;   // Y
 
     Callback<Widget> m_OnCreate;
+
+    std::unordered_set<guint> m_Timeouts;
 };
 
 class Box : public Widget
