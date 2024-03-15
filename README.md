@@ -67,7 +67,11 @@ home-manager.users.user = {
 ```
 
 ## Running gBar
-*Open bar on monitor 0*
+*Open bar on monitor "DP-1"
+```
+gBar bar DP-1
+```
+*Open bar on monitor 0 (Legacy way of specifying the monitor)*
 ```
 gBar bar 0
 ```
