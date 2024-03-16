@@ -3,8 +3,6 @@
 #include "CSS.h"
 #include "Wayland.h"
 
-#include <thread>
-
 #include <gtk/gtk.h>
 #include <gtk-layer-shell.h>
 
@@ -84,28 +82,23 @@ void Window::Run()
             Wayland::PollEvents();
 
             GdkDisplay* display = gdk_display_get_default();
-            auto& mons = Wayland::GetMonitors();
 
-            // HACK: Discrepancies are mostly caused by the HEADLESS monitor. Assume that.
-            bool bGotHeadless = (size_t)gdk_display_get_n_monitors(display) != mons.size();
+            // HACK: Discrepancies are mostly caused by the HEADLESS monitor. Assume that Gdk ID 0 is headless
+            bool bGotHeadless = (size_t)gdk_display_get_n_monitors(display) != Wayland::GetMonitors().size();
             if (bGotHeadless)
             {
                 LOG("Window: Found discrepancy between GDK and Wayland!");
             }
 
             // Try to find our target monitor
-            auto it = std::find_if(mons.begin(), mons.end(),
-                                   [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
-                                   {
-                                       return mon.second.name == m_TargetMonitor;
-                                   });
-            if (it != mons.end())
+            const Wayland::Monitor* targetMonitor = Wayland::FindMonitorByName(m_TargetMonitor);
+            if (targetMonitor)
             {
                 // Found target monitor, snap back.
                 if (m_MainWidget)
                     Destroy();
                 m_MonitorName = m_TargetMonitor;
-                m_Monitor = gdk_display_get_monitor(display, bGotHeadless ? it->second.ID + 1 : it->second.ID);
+                m_Monitor = gdk_display_get_monitor(display, bGotHeadless ? targetMonitor->ID + 1 : targetMonitor->ID);
                 Create();
                 continue;
             }
@@ -114,15 +107,15 @@ void Window::Run()
             if (m_MainWidget == nullptr)
             {
                 // Find a non-headless monitor
-                auto it = std::find_if(mons.begin(), mons.end(),
-                                       [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
-                                       {
-                                           return mon.second.name.find("HEADLESS") == std::string::npos;
-                                       });
-                if (it == mons.end())
+                const Wayland::Monitor* replacementMonitor = Wayland::FindMonitor(
+                    [&](const Wayland::Monitor& mon)
+                    {
+                        return mon.name.find("HEADLESS") == std::string::npos;
+                    });
+                if (!replacementMonitor)
                     continue;
-                m_MonitorName = it->second.name;
-                m_Monitor = gdk_display_get_monitor(display, bGotHeadless ? it->second.ID + 1 : it->second.ID);
+                m_MonitorName = replacementMonitor->name;
+                m_Monitor = gdk_display_get_monitor(display, bGotHeadless ? replacementMonitor->ID + 1 : replacementMonitor->ID);
                 Create();
                 continue;
             }
@@ -250,14 +243,10 @@ int Window::GetWidth() const
     /*GdkRectangle rect{};
     gdk_monitor_get_geometry(m_Monitor, &rect);
     return rect.width;*/
-    auto& mons = Wayland::GetMonitors();
-    auto it = std::find_if(mons.begin(), mons.end(),
-                           [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
-                           {
-                               return mon.second.name == m_MonitorName;
-                           });
-    ASSERT(it != mons.end(), "Window: Couldn't find monitor");
-    return it->second.width;
+
+    const Wayland::Monitor* mon = Wayland::FindMonitorByName(m_MonitorName);
+    ASSERT(mon, "Window: Couldn't find monitor");
+    return mon->width;
 }
 
 int Window::GetHeight() const
@@ -266,14 +255,9 @@ int Window::GetHeight() const
     gdk_monitor_get_geometry(m_Monitor, &rect);
     return rect.height;*/
 
-    auto& mons = Wayland::GetMonitors();
-    auto it = std::find_if(mons.begin(), mons.end(),
-                           [&](const std::pair<wl_output*, Wayland::Monitor>& mon)
-                           {
-                               return mon.second.name == m_MonitorName;
-                           });
-    ASSERT(it != mons.end(), "Window: Couldn't find monitor");
-    return it->second.width;
+    const Wayland::Monitor* mon = Wayland::FindMonitorByName(m_MonitorName);
+    ASSERT(mon, "Window: Couldn't find monitor");
+    return mon->width;
 }
 
 void Window::MonitorAdded(GdkDisplay*, GdkMonitor*)

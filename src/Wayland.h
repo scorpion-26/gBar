@@ -40,5 +40,26 @@ namespace Wayland
     std::string GtkMonitorIDToName(int32_t monitorID);
     int32_t NameToGtkMonitorID(const std::string& name);
 
+    template<typename Predicate>
+    inline const Monitor* FindMonitor(Predicate&& pred)
+    {
+        auto& mons = GetMonitors();
+        auto it = std::find_if(mons.begin(), mons.end(),
+                               [&](const std::pair<wl_output*, Monitor>& mon)
+                               {
+                                   return pred(mon.second);
+                               });
+        return it != mons.end() ? &it->second : nullptr;
+    }
+
+    inline const Monitor* FindMonitorByName(const std::string& name)
+    {
+        return FindMonitor(
+            [&](const Monitor& mon)
+            {
+                return mon.name == name;
+            });
+    }
+
     void Shutdown();
 }
