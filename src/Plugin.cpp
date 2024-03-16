@@ -20,7 +20,7 @@ void Plugin::LoadWidgetFromPlugin(const std::string& pluginName, Window& window,
     }
     ASSERT(dl, "Error: Cannot find plugin \"" << pluginName
                                               << "\"!\n"
-                                                 "Note: Did you mean to run \"gBar bar\" instead?");
+                                                 "Note: Did you mean to run \"gBar bar <monitor>\" instead?");
 
     typedef void (*PFN_InvokeCreateFun)(void*, void*);
     typedef int32_t (*PFN_GetVersion)();
