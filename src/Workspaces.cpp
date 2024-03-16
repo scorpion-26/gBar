@@ -20,18 +20,12 @@ namespace Workspaces
         }
         System::WorkspaceStatus GetStatus(uint32_t workspaceId)
         {
-            auto& mons = ::Wayland::GetMonitors();
-            auto it = std::find_if(mons.begin(), mons.end(),
-                                   [&](const std::pair<wl_output*, ::Wayland::Monitor>& mon)
-                                   {
-                                       return mon.second.name == lastPolledMonitor;
-                                   });
-            if (it == mons.end())
+            const ::Wayland::Monitor* monitor = ::Wayland::FindMonitorByName(lastPolledMonitor);
+            if (!monitor)
             {
                 LOG("Polled monitor doesn't exist!");
                 return System::WorkspaceStatus::Dead;
             }
-            const ::Wayland::Monitor& monitor = it->second;
 
             auto& workspaces = ::Wayland::GetWorkspaces();
             auto workspaceIt = std::find_if(workspaces.begin(), workspaces.end(),
@@ -44,7 +38,7 @@ namespace Workspaces
                 return System::WorkspaceStatus::Dead;
             }
 
-            const WaylandWorkspaceGroup& group = ::Wayland::GetWorkspaceGroups().at(monitor.workspaceGroup);
+            const WaylandWorkspaceGroup& group = ::Wayland::GetWorkspaceGroups().at(monitor->workspaceGroup);
             if (group.lastActiveWorkspace)
             {
                 const WaylandWorkspace& activeWorkspace = workspaces.at(group.lastActiveWorkspace);
