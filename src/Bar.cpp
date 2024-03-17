@@ -22,7 +22,7 @@ namespace Bar
         {
         case Left: return Alignment::Left;
         case Right: return Alignment::Right;
-        case Center: return Alignment::Fill;
+        case Center: return Alignment::Center;
         }
         return Alignment::Right;
     }
@@ -1076,7 +1076,7 @@ namespace Bar
     void WidgetTime(Widget& parent, Side side)
     {
         auto time = Widget::Create<Text>();
-        Utils::SetTransform(*time, {-1, false, SideToAlignment(side)});
+        Utils::SetTransform(*time, {-1, side == Side::Center, SideToAlignment(side)});
         time->SetAngle(Utils::GetAngle());
         time->SetClass("widget");
         time->AddClass("time-text");
