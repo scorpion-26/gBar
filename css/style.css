@@ -202,6 +202,10 @@ highlight {
   color: #ffb86c;
 }
 
+.battery-warning {
+  color: #ff5555;
+}
+
 .network-data-text {
   color: #50fa7b;
   font-size: 16px;
