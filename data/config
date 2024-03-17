@@ -119,6 +119,10 @@ DateTimeStyle: %a %D - %H:%M:%S %Z
 # Set datetime locale (defaults to system locale if not set or set to empty string)
 #DateTimeLocale: de_DE.utf8
 
+# How many characters of the title can be displayed. Note that higher values *will* cause styling issues, especially when it is in the center.
+# If you have the title in the center, consider also increasing "CenterSpace"
+MaxTitleLength: 30
+
 # Adds a audio input(aka. microphone) widget
 AudioInput: false
 

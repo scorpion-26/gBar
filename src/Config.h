@@ -75,6 +75,7 @@ public:
     uint32_t audioScrollSpeed = 5;         // 5% each scroll
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
     uint32_t centerSpace = 300;            // How much space should be reserved for the center widgets.
+    uint32_t maxTitleLength = 30;          // Maximum chars of the title widget. Longer titles will be shortened
     uint32_t numWorkspaces = 9;            // How many workspaces to display
     uint32_t sensorSize = 24;              // The size of the circular sensors
     uint32_t networkIconSize = 24;         // The size of the two network arrows

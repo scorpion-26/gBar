@@ -302,6 +302,7 @@ void Config::Load(const std::string& overrideConfigLocation)
 
         AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
         AddConfigVar("CenterSpace", config.centerSpace, lineView, foundProperty);
+        AddConfigVar("MaxTitleLength", config.maxTitleLength, lineView, foundProperty);
         AddConfigVar("NumWorkspaces", config.numWorkspaces, lineView, foundProperty);
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
         AddConfigVar("SensorSize", config.sensorSize, lineView, foundProperty);

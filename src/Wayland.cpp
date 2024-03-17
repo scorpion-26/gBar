@@ -2,8 +2,10 @@
 
 #include "Common.h"
 #include "Config.h"
+#include <wayland-client-protocol.h>
 #include <wayland-client.h>
 #include <ext-workspace-unstable-v1.h>
+#include <wlr-foreign-toplevel-management-unstable-v1.h>
 
 namespace Wayland
 {
@@ -11,10 +13,12 @@ namespace Wayland
     static std::unordered_map<wl_output*, Monitor> monitors;
     static std::unordered_map<zext_workspace_group_handle_v1*, WorkspaceGroup> workspaceGroups;
     static std::unordered_map<zext_workspace_handle_v1*, Workspace> workspaces;
+    static std::unordered_map<zwlr_foreign_toplevel_handle_v1*, Window> windows;
 
     static wl_display* display;
     static wl_registry* registry;
     static zext_workspace_manager_v1* workspaceManager;
+    static zwlr_foreign_toplevel_manager_v1* toplevelManager;
 
     static bool registeredMonitor = false;
     static bool registeredGroup = false;
@@ -127,6 +131,52 @@ namespace Wayland
     }
     zext_workspace_manager_v1_listener workspaceManagerListener = {OnWSManagerNewGroup, OnWSManagerDone, OnWSManagerFinished};
 
+    // zwlr_foreign_toplevel_handle_v1
+    static void OnTLTitle(void*, zwlr_foreign_toplevel_handle_v1* toplevel, const char* title)
+    {
+        auto window = windows.find(toplevel);
+        ASSERT(window != windows.end(), "Wayland: OnTLTile called on unknwon toplevel!");
+        window->second.title = title;
+    }
+    static void OnTLOutputEnter(void*, UNUSED zwlr_foreign_toplevel_handle_v1* toplevel, UNUSED wl_output* output) {}
+    static void OnTLOutputLeave(void*, UNUSED zwlr_foreign_toplevel_handle_v1* toplevel, UNUSED wl_output* output) {}
+    static void OnTLState(void*, zwlr_foreign_toplevel_handle_v1* toplevel, wl_array* state)
+    {
+        auto window = windows.find(toplevel);
+        ASSERT(window != windows.end(), "Wayland: OnTLState called on unknwon toplevel!");
+        // Unrolled from wl_array_for_each, but with types defined to compile under C++
+        // There doesn't seem to be any documentation on the element size of the state, so use wlr's internally used uint32_t
+        bool activated = false;
+        for (uint32_t* curPtr = (uint32_t*)state->data; (uint8_t*)curPtr < (uint8_t*)state->data + state->size; curPtr++)
+        {
+            switch (*curPtr)
+            {
+            case ZWLR_FOREIGN_TOPLEVEL_HANDLE_V1_STATE_ACTIVATED: activated = true; break;
+            default: break;
+            }
+        }
+        window->second.activated = activated;
+    }
+    static void OnTLAppID(void*, zwlr_foreign_toplevel_handle_v1* toplevel, const char* appId) {}
+    static void OnTLDone(void*, zwlr_foreign_toplevel_handle_v1*) {}
+    static void OnTLClosed(void*, zwlr_foreign_toplevel_handle_v1* toplevel)
+    {
+        windows.erase(toplevel);
+        zwlr_foreign_toplevel_handle_v1_destroy(toplevel);
+    }
+    static void OnTLParent(void*, zwlr_foreign_toplevel_handle_v1*, zwlr_foreign_toplevel_handle_v1*) {}
+    zwlr_foreign_toplevel_handle_v1_listener toplevelListener = {OnTLTitle, OnTLAppID, OnTLOutputEnter, OnTLOutputLeave,
+                                                                 OnTLState, OnTLDone,  OnTLClosed,      OnTLParent};
+
+    // zwlr_foreign_toplevel_manager_v1
+    static void OnToplevel(void*, zwlr_foreign_toplevel_manager_v1*, zwlr_foreign_toplevel_handle_v1* toplevel)
+    {
+        windows.emplace(toplevel, Window{});
+        zwlr_foreign_toplevel_handle_v1_add_listener(toplevel, &toplevelListener, nullptr);
+    }
+    static void OnTLManagerFinished(void*, zwlr_foreign_toplevel_manager_v1*) {}
+    zwlr_foreign_toplevel_manager_v1_listener toplevelManagerListener = {OnToplevel, OnTLManagerFinished};
+
     // Output Callbacks
     // Very bloated, indeed
     static void OnOutputGeometry(void*, wl_output*, int32_t, int32_t, int32_t, int32_t, int32_t, const char*, const char*, int32_t) {}
@@ -162,10 +212,16 @@ namespace Wayland
             LOG("Wayland: Register <pending> at ID " << mon.ID);
             wl_output_add_listener(output, &outputListener, nullptr);
         }
-        if (strcmp(interface, "zext_workspace_manager_v1") == 0 && !Config::Get().useHyprlandIPC)
+        else if (strcmp(interface, "zext_workspace_manager_v1") == 0 && !Config::Get().useHyprlandIPC)
         {
             workspaceManager = (zext_workspace_manager_v1*)wl_registry_bind(registry, name, &zext_workspace_manager_v1_interface, version);
             zext_workspace_manager_v1_add_listener(workspaceManager, &workspaceManagerListener, nullptr);
+        }
+        else if (strcmp(interface, "zwlr_foreign_toplevel_manager_v1") == 0)
+        {
+            toplevelManager = (zwlr_foreign_toplevel_manager_v1*)wl_registry_bind(registry, name, &zwlr_foreign_toplevel_manager_v1_interface,
+                                                                                  version);
+            zwlr_foreign_toplevel_manager_v1_add_listener(toplevelManager, &toplevelManagerListener, nullptr);
         }
     }
     static void OnRegistryRemove(void*, wl_registry*, uint32_t name)
@@ -303,6 +359,18 @@ namespace Wayland
         if (it == monitors.end())
             return -1;
         return it->second.ID;
+    }
+
+    const Window* GetActiveWindow()
+    {
+        auto it = std::find_if(windows.begin(), windows.end(),
+                               [&](const std::pair<zwlr_foreign_toplevel_handle_v1*, Window>& el)
+                               {
+                                   return el.second.activated == true;
+                               });
+        if (it == windows.end())
+            return nullptr;
+        return &it->second;
     }
 
     const std::unordered_map<wl_output*, Monitor>& GetMonitors()

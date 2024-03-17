@@ -4,8 +4,8 @@
 #include "Common.h"
 #include "Config.h"
 #include "SNI.h"
-#include <cmath>
 #include <mutex>
+#include <cstdlib>
 
 namespace Bar
 {
@@ -386,6 +386,20 @@ namespace Bar
         TimerResult UpdateTime(Text& text)
         {
             text.SetText(System::GetTime());
+            return TimerResult::Ok;
+        }
+
+        TimerResult UpdateTitle(Text& text)
+        {
+            std::string title = System::GetActiveWindowTitle();
+            if (title.size() > Config::Get().maxTitleLength)
+            {
+                constexpr std::string_view ellipsis = "...";
+                uint32_t newLength = std::max(Config::Get().maxTitleLength - ellipsis.size(), (size_t)0);
+                title.resize(newLength);
+                title += ellipsis;
+            }
+            text.SetText(title);
             return TimerResult::Ok;
         }
 
@@ -1085,6 +1099,18 @@ namespace Bar
         parent.AddChild(std::move(time));
     }
 
+    void WidgetTitle(Widget& parent, Side side)
+    {
+        auto title = Widget::Create<Text>();
+        Utils::SetTransform(*title, {-1, side == Side::Center, SideToAlignment(side)});
+        title->SetAngle(Utils::GetAngle());
+        title->SetClass("widget");
+        title->AddClass("title-text");
+        title->SetText("Uninitialized");
+        title->AddTimer<Text>(DynCtx::UpdateTitle, DynCtx::updateTimeFast);
+        parent.AddChild(std::move(title));
+    }
+
     void ChooseWidgetToDraw(const std::string& widgetName, Widget& parent, Side side)
     {
         if (widgetName == "Workspaces")
@@ -1100,6 +1126,11 @@ namespace Bar
         if (widgetName == "Time")
         {
             WidgetTime(parent, side);
+            return;
+        }
+        if (widgetName == "Title")
+        {
+            WidgetTitle(parent, side);
             return;
         }
         if (widgetName == "Tray")
@@ -1184,7 +1215,7 @@ namespace Bar
         }
         LOG("Warning: Unkwown widget name " << widgetName << "!"
                                             << "\n\tKnown names are: Workspaces, Time, Tray, Packages, Audio, Bluetooth, Network, Sensors, Disk, "
-                                               "VRAM, GPU, RAM, CPU, Battery, Power");
+                                               "VRAM, GPU, RAM, CPU, Battery, Power, Title");
     }
 
     void Create(Window& window, const std::string& monitorName)

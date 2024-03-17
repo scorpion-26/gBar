@@ -23,6 +23,15 @@ ext_workspace_header = custom_target('generate-ext-workspace-header',
                                   output: ['ext-workspace-unstable-v1.h'],
                                   command: [wayland_scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
 
+wlr_foreign_toplevel_src = custom_target('generate-wlr-foreign-toplevel-src',
+                                  input: ['protocols/wlr-foreign-toplevel-management-unstable-v1.xml'],
+                                  output: ['wlr-foreign-toplevel-management-unstable-v1.c'],
+                                  command: [wayland_scanner, 'private-code', '@INPUT@', '@OUTPUT@'])
+
+wlr_foreign_toplevel_header = custom_target('generate-wlr-foreign-toplevel-header',
+                                  input: ['protocols/wlr-foreign-toplevel-management-unstable-v1.xml'],
+                                  output: ['wlr-foreign-toplevel-management-unstable-v1.h'],
+                                  command: [wayland_scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
 gtk = dependency('gtk+-3.0')
 gtk_layer_shell = dependency('gtk-layer-shell-0')
 
@@ -46,6 +55,8 @@ headers = [
 sources = [
     ext_workspace_src,
     ext_workspace_header,
+    wlr_foreign_toplevel_src,
+    wlr_foreign_toplevel_header,
    'src/Window.cpp',
    'src/Widget.cpp',
    'src/Wayland.cpp',

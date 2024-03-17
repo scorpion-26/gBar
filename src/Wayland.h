@@ -29,6 +29,12 @@ namespace Wayland
         zext_workspace_handle_v1* lastActiveWorkspace;
     };
 
+    struct Window
+    {
+        std::string title;
+        bool activated;
+    };
+
     void Init();
     void PollEvents();
 
@@ -60,6 +66,8 @@ namespace Wayland
                 return mon.name == name;
             });
     }
+
+    const Window* GetActiveWindow();
 
     void Shutdown();
 }

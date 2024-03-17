@@ -647,6 +647,16 @@ namespace System
         return str.str();
     }
 
+    std::string GetActiveWindowTitle()
+    {
+        Wayland::PollEvents();
+        const Wayland::Window* activeWindow = Wayland::GetActiveWindow();
+        if (!activeWindow)
+            return "No Active Window"; // TODO Customize!!
+
+        return activeWindow->title;
+    }
+
     void Shutdown()
     {
         system("shutdown 0");

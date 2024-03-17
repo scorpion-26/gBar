@@ -113,6 +113,8 @@ namespace System
 
     std::string GetTime();
 
+    std::string GetActiveWindowTitle();
+
     void Shutdown();
     void Reboot();
     void ExitWM();
