@@ -1202,9 +1202,9 @@ namespace Bar
             // This ensures that the center widget is centered.
             bool topToBottom = Config::Get().location == 'L' || Config::Get().location == 'R';
             int windowCenter = (topToBottom ? window.GetHeight() : window.GetWidth()) / 2;
-            int endLeftWidgets = windowCenter - Config::Get().timeSpace / 2;
+            int endLeftWidgets = windowCenter - Config::Get().centerSpace / 2;
 
-            if (!Config::Get().centerTime)
+            if (!Config::Get().centerWidgets)
             {
                 // Don't care if time is centered or not.
                 endLeftWidgets = -1;
@@ -1216,7 +1216,7 @@ namespace Bar
             left->SetOrientation(Utils::GetOrientation());
             // For centerTime the width of the left widget handles the centering.
             // For not centerTime we want to set it as much right as possible. So let this expand as much as possible.
-            Utils::SetTransform(*left, {endLeftWidgets, !Config::Get().centerTime, Alignment::Left, 12, 0});
+            Utils::SetTransform(*left, {endLeftWidgets, !Config::Get().centerWidgets, Alignment::Left, 12, 0});
 
             for (auto& widget : Config::Get().widgetsLeft)
             {
@@ -1226,7 +1226,7 @@ namespace Bar
             auto center = Widget::Create<Box>();
             center->SetClass("center");
             center->SetOrientation(Utils::GetOrientation());
-            Utils::SetTransform(*center, {(int)Config::Get().timeSpace, false, Alignment::Left});
+            Utils::SetTransform(*center, {(int)Config::Get().centerSpace, false, Alignment::Left});
             center->SetSpacing({6, false});
 
             for (auto& widget : Config::Get().widgetsCenter)

@@ -10,6 +10,18 @@ const Config& Config::Get()
     return config;
 }
 
+void PrintLegacyVariable(const std::string_view& oldName, const std::string_view& newName)
+{
+    LOG("Warning: Legacy variable \"" << oldName << "\" used.");
+    LOG("         Please consider switching to its new alias \"" << newName << "\" instead!");
+}
+
+void PrintLegacyNotation(const std::string_view& variableName, const std::string_view& newNotation)
+{
+    LOG("Warning: Legacy notation for \"" << variableName << "\" used.");
+    LOG("         Please consider switching to its new alias \"" << newNotation << "\" instead!");
+}
+
 template<typename T>
 void ApplyProperty(T& propertyToSet, const std::string_view& value);
 
@@ -271,7 +283,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("MicHighIcon", config.micHighIcon, lineView, foundProperty);
         AddConfigVar("PackageOutOfDateIcon", config.packageOutOfDateIcon, lineView, foundProperty);
 
-        AddConfigVar("CenterTime", config.centerTime, lineView, foundProperty);
+        AddConfigVar("CenterWidgets", config.centerWidgets, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
         AddConfigVar("AudioNumbers", config.audioNumbers, lineView, foundProperty);
@@ -289,7 +301,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("MaxDownloadBytes", config.maxDownloadBytes, lineView, foundProperty);
 
         AddConfigVar("CheckUpdateInterval", config.checkUpdateInterval, lineView, foundProperty);
-        AddConfigVar("TimeSpace", config.timeSpace, lineView, foundProperty);
+        AddConfigVar("CenterSpace", config.centerSpace, lineView, foundProperty);
         AddConfigVar("NumWorkspaces", config.numWorkspaces, lineView, foundProperty);
         AddConfigVar("AudioScrollSpeed", config.audioScrollSpeed, lineView, foundProperty);
         AddConfigVar("SensorSize", config.sensorSize, lineView, foundProperty);
@@ -307,19 +319,34 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("SNIDisabled", config.sniDisabled, lineView, foundProperty);
         // Modern map syntax
         AddConfigVar("WorkspaceSymbol", config.workspaceSymbols, lineView, foundProperty);
-        // Legacy syntax
+
+        // Legacy WorkspaceSymbol
+        bool hasFoundProperty = false;
         for (int i = 1; i < 10; i++)
         {
             // Subtract 1 to index from 1 to 9 rather than 0 to 8
             std::string symbol;
-            bool hasFoundProperty = foundProperty;
+            hasFoundProperty = foundProperty;
             AddConfigVar("WorkspaceSymbol-" + std::to_string(i), symbol, lineView, foundProperty);
             if (foundProperty && !hasFoundProperty)
             {
                 config.workspaceSymbols[i] = symbol;
-                LOG("Warning: Legacy notation for WorkspaceSymbol used.");
-                LOG("         Please consider switching to \"WorkspaceSymbol: [number], [symbol]!\"");
+                PrintLegacyNotation("WorkspaceSymbol", "WorkspaceSymbol: [number], [symbol]");
             }
+        }
+
+        // Legacy center configuration (CenterTime, TimeSpace)
+        hasFoundProperty = foundProperty;
+        AddConfigVar("CenterTime", config.centerWidgets, lineView, foundProperty);
+        if (foundProperty && !hasFoundProperty)
+        {
+            PrintLegacyVariable("CenterTime", "CenterWidgets");
+        }
+        hasFoundProperty = foundProperty;
+        AddConfigVar("TimeSpace", config.centerSpace, lineView, foundProperty);
+        if (foundProperty && !hasFoundProperty)
+        {
+            PrintLegacyVariable("TimeSpace", "CenterSpace");
         }
 
         if (foundProperty == false)

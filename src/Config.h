@@ -54,7 +54,7 @@ public:
     std::string checkPackagesCommand =
         "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
 
-    bool centerTime = true;
+    bool centerWidgets = true; // Force the center widgets to be in the center.
     bool audioRevealer = false;
     bool audioInput = false;
     bool audioNumbers = false; // Affects both audio sliders
@@ -74,7 +74,7 @@ public:
 
     uint32_t audioScrollSpeed = 5;         // 5% each scroll
     uint32_t checkUpdateInterval = 5 * 60; // Interval to run the "checkPackagesCommand". In seconds
-    uint32_t timeSpace = 300;              // How much time should be reserved for the time widget.
+    uint32_t centerSpace = 300;            // How much space should be reserved for the center widgets.
     uint32_t numWorkspaces = 9;            // How many workspaces to display
     uint32_t sensorSize = 24;              // The size of the circular sensors
     uint32_t networkIconSize = 24;         // The size of the two network arrows
