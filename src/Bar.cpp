@@ -1241,18 +1241,24 @@ namespace Bar
                 endLeftWidgets = -1;
             }
 
-            auto left = Widget::Create<Box>();
-            left->SetSpacing({6, false});
-            left->SetClass("left");
-            left->SetOrientation(Utils::GetOrientation());
+            auto leftWithPadding = Widget::Create<Box>();
+            leftWithPadding->SetSpacing({6, false});
+            leftWithPadding->SetClass("left-with-padding");
+            leftWithPadding->SetOrientation(Utils::GetOrientation());
             // For centerTime the width of the left widget handles the centering.
             // For not centerTime we want to set it as much right as possible. So let this expand as much as possible.
-            Utils::SetTransform(*left, {endLeftWidgets, !Config::Get().centerWidgets, Alignment::Left, 12, 0});
+            Utils::SetTransform(*leftWithPadding, {endLeftWidgets, !Config::Get().centerWidgets, Alignment::Left, 12, 0});
+
+            auto left = Widget::Create<Box>();
+            left->SetClass("left");
+            left->SetOrientation(Utils::GetOrientation());
+            Utils::SetTransform(*left, {-1, false, Alignment::Left});
 
             for (auto& widget : Config::Get().widgetsLeft)
             {
                 ChooseWidgetToDraw(widget, *left, Side::Left);
             }
+            leftWithPadding->AddChild(std::move(left));
 
             auto center = Widget::Create<Box>();
             center->SetClass("center");
@@ -1276,7 +1282,7 @@ namespace Bar
                 ChooseWidgetToDraw(widget, *right, Side::Right);
             }
 
-            mainWidget->AddChild(std::move(left));
+            mainWidget->AddChild(std::move(leftWithPadding));
             mainWidget->AddChild(std::move(center));
             mainWidget->AddChild(std::move(right));
         }
