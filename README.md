@@ -67,7 +67,7 @@ home-manager.users.user = {
 ```
 
 ## Running gBar
-*Open bar on monitor "DP-1"
+*Open bar on monitor "DP-1"*
 ```
 gBar bar DP-1
 ```
@@ -105,6 +105,7 @@ gBar bluetooth [monitor]
 Bar: 
 - Workspaces (Hyprland only. Technically works on all compositors implementing ext_workspace when ```UseHyprlandIPC``` is false, though workspace control relies on Hyprland)
 - Time
+- Title of the focused Window
 - Bluetooth (BlueZ only)
 - Audio control
 - Microphone control
@@ -214,4 +215,5 @@ If it still doesn't show, please open an issue with your application.
 The tray icons are confirmed to work with Discord, Telegram, OBS, Steam and KeePassXC
 
 ### Clicking on the tray opens a glitchy transparent menu
-This is semi-intentional and a known bug (See https://github.com/scorpion-26/gBar/pull/12#issuecomment-1529143790 for an explanation). You can make it opaque by setting the background-color property of .popup in style.css/style.scss
+~This is semi-intentional and a known bug (See https://github.com/scorpion-26/gBar/pull/12#issuecomment-1529143790 for an explanation). You can make it opaque by setting the background-color property of .popup in style.css/style.scss~\
+As of [bc0281c](https://github.com/scorpion-26/gBar/commit/bc0281ca5321cb6e72ab6d295c790ae10d7eec7e) this is now fixed! For things to look properly you may want to update your css (Specifically the selectors ```.popup``` and ```menu```)
