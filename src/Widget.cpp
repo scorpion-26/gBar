@@ -542,11 +542,19 @@ void Texture::SetBuf(GdkPixbuf* pixbuf, size_t width, size_t height)
 {
     m_Width = width;
     m_Height = height;
+    if (m_Pixbuf)
+        g_free(m_Pixbuf);
+
     m_Pixbuf = gdk_pixbuf_copy(pixbuf);
+
+    if (m_Widget)
+        gtk_widget_queue_draw(m_Widget);
 }
 
 void Texture::Draw(cairo_t* cr)
 {
+    if (!m_Pixbuf)
+        return;
     Quad q = GetQuad();
 
     // TODO: Non-quad sizes

@@ -4,7 +4,13 @@
 }
 
 .popup {
+  background-color: #282a36;
   color: #50fa7b;
+  border-radius: 16px;
+}
+
+menu {
+  padding: 8px 8px 8px 8px;
 }
 
 .bar, tooltip {
@@ -388,3 +394,5 @@ highlight {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
+
+/*# sourceMappingURL=style.css.map */

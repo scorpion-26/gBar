@@ -22,15 +22,20 @@ $textsize: 16px;
     font-family: "CaskaydiaCove NF";
 }
 
+.popup {
+    background-color: $bg;
+    color: #50fa7b;
+    border-radius: 16px;
+}
+
+menu {
+    padding: 8px 8px 8px 8px;
+}
+
 // debug
 .cpu-box{
     //background-color: #00cc00
 }
-
-.popup {
-    color: #50fa7b;
-}
-
 
 .bar,tooltip{
     background-color: $bg;
