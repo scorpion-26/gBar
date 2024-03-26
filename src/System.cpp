@@ -484,6 +484,15 @@ namespace System
         PulseAudio::SetVolumeSource(volume);
     }
 
+    void SetMutedSink(bool muted)
+    {
+        PulseAudio::SetMutedSink(muted);
+    }
+    void SetMutedSource(bool muted)
+    {
+        PulseAudio::SetMutedSource(muted);
+    }
+
 #ifdef WITH_WORKSPACES
     void PollWorkspaces(const std::string& monitor, uint32_t numWorkspaces)
     {

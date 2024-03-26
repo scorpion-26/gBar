@@ -85,6 +85,8 @@ namespace System
     AudioInfo GetAudioInfo();
     void SetVolumeSink(double volume);
     void SetVolumeSource(double volume);
+    void SetMutedSink(bool muted);
+    void SetMutedSource(bool muted);
 
 #ifdef WITH_WORKSPACES
     enum class WorkspaceStatus

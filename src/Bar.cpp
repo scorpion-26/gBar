@@ -286,8 +286,8 @@ namespace Bar
 
         Widget* audioSlider;
         Widget* micSlider;
-        Text* audioIcon;
-        Text* micIcon;
+        Button* audioIcon;
+        Button* micIcon;
         void OnChangeVolumeSink(Slider&, double value)
         {
             System::SetVolumeSink(value);
@@ -313,6 +313,18 @@ namespace Bar
             micVolume += delta;
             micVolume = std::clamp(micVolume, 0.0, 1.0);
             System::SetVolumeSource(micVolume);
+        }
+
+        void OnToggleSink(Button& button)
+        {
+            System::AudioInfo info = System::GetAudioInfo();
+            System::SetMutedSink(!info.sinkMuted);
+        }
+
+        void OnToggleSource(Button& button)
+        {
+            System::AudioInfo info = System::GetAudioInfo();
+            System::SetMutedSource(!info.sourceMuted);
         }
 
         TimerResult UpdateAudio(Widget&)
@@ -344,7 +356,7 @@ namespace Bar
                 }
                 else
                 {
-                    ((Slider*)micSlider)->SetValue(info.sinkVolume);
+                    ((Slider*)micSlider)->SetValue(info.sourceVolume);
                 }
                 if (info.sourceMuted)
                 {
@@ -605,18 +617,20 @@ namespace Bar
             Utils::SetTransform(*box, {-1, false, SideToAlignment(side)});
             box->SetOrientation(Utils::GetOrientation());
             {
-                auto icon = Widget::Create<Text>();
+                auto icon = Widget::Create<Button>();
                 icon->SetAngle(Utils::GetAngle());
                 switch (type)
                 {
                 case AudioType::Input:
                     icon->SetClass("mic-icon");
                     icon->SetText(Config::Get().speakerHighIcon);
+                    icon->OnClick(DynCtx::OnToggleSource);
                     DynCtx::micIcon = icon.get();
                     break;
                 case AudioType::Output:
                     icon->SetClass("audio-icon");
                     icon->SetText(Config::Get().micHighIcon);
+                    icon->OnClick(DynCtx::OnToggleSink);
                     if (!RotatedIcons())
                         Utils::SetTransform(*icon, {-1, true, Alignment::Fill, 0, 6});
                     DynCtx::audioIcon = icon.get();

@@ -234,6 +234,34 @@ namespace PulseAudio
         system(cmd.c_str());
     }
 
+    inline void SetMutedSink(bool muted)
+    {
+        if (muted)
+        {
+            LOG("Audio: Mute sink");
+            system("pamixer --mute");
+        }
+        else
+        {
+            LOG("Audio: Unmute sink");
+            system("pamixer --unmute");
+        }
+    }
+
+    inline void SetMutedSource(bool muted)
+    {
+        if (muted)
+        {
+            LOG("Audio: Mute source");
+            system("pamixer --default-source --mute");
+        }
+        else
+        {
+            LOG("Audio: Unmute source");
+            system("pamixer --default-source --unmute");
+        }
+    }
+
     inline void Shutdown()
     {
         pa_mainloop_free(mainLoop);
