@@ -199,7 +199,7 @@ namespace PulseAudio
 
         auto subscribeCallback = [](pa_context*, pa_subscription_event_type_t type, uint32_t, void*)
         {
-            if (type == PA_SUBSCRIPTION_EVENT_CHANGE)
+            if (type & PA_SUBSCRIPTION_EVENT_CHANGE)
                 queueUpdate = true;
         };
         pa_context_set_subscribe_callback(context, +subscribeCallback, nullptr);
