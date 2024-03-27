@@ -196,8 +196,10 @@ First, find where the data is located for gBar. Possible locations:
 
 ### The margins of the bar are inconsistent/messed up / Custom CSS broke.
 If you have a custom style.[s]css, make sure that the margins/names/... are the same as the ones found in ```style/style.[s]css```.\
-*As of commit f78758c margins are no longer used in the default css. If you didn't play around with margins, you can safely remove them from your css*\
-If you've checked the css against upstream gBar and the issue persists, please [open an issue](https://github.com/scorpion-26/gBar/issues/new/choose).
+If you've checked the css against upstream gBar and the issue persists, please [open an issue](https://github.com/scorpion-26/gBar/issues/new/choose).\
+Major (breaking) changes to the css:
+ - [f78758c](https://github.com/scorpion-26/gBar/commit/f78758c4eedb022ae49fbecf2f2505f9672d0b9d): Margins are no longer used in the default css. If you didn't play around with margins, you can safely remove them from your css.\
+ - [56c53c4](https://github.com/scorpion-26/gBar/commit/56c53c49cdbd7fac11726a5b7ab12f1e6490a211): The lock icon now has its own selector, causing wrong styling when using an outdated css. This can be fixed by including the default ```.lock-button``` section into your css.
 
 ### The Audio/Bluetooth widget doesn't open
 Delete ```/tmp/gBar__audio```/```/tmp/gBar__bluetooth```.
