@@ -246,7 +246,7 @@ int Window::GetWidth() const
 
     const Wayland::Monitor* mon = Wayland::FindMonitorByName(m_MonitorName);
     ASSERT(mon, "Window: Couldn't find monitor");
-    return mon->width;
+    return mon->width / mon->scale;
 }
 
 int Window::GetHeight() const
@@ -257,7 +257,7 @@ int Window::GetHeight() const
 
     const Wayland::Monitor* mon = Wayland::FindMonitorByName(m_MonitorName);
     ASSERT(mon, "Window: Couldn't find monitor");
-    return mon->width;
+    return mon->height / mon->scale;
 }
 
 void Window::MonitorAdded(GdkDisplay*, GdkMonitor*)

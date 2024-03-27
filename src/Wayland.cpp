@@ -188,7 +188,12 @@ namespace Wayland
         it->second.height = height;
     }
     static void OnOutputDone(void*, wl_output* output) {}
-    static void OnOutputScale(void*, wl_output*, int32_t) {}
+    static void OnOutputScale(void*, wl_output* output, int32_t scale)
+    {
+        auto it = monitors.find(output);
+        ASSERT(it != monitors.end(), "Error: OnOutputScale called on unknown monitor");
+        it->second.scale = scale;
+    }
     static void OnOutputName(void*, wl_output* output, const char* name)
     {
         auto it = monitors.find(output);
@@ -206,7 +211,7 @@ namespace Wayland
         if (strcmp(interface, "wl_output") == 0)
         {
             wl_output* output = (wl_output*)wl_registry_bind(registry, name, &wl_output_interface, 4);
-            Monitor mon = Monitor{"", name, 0, 0, nullptr, (uint32_t)monitors.size()};
+            Monitor mon = Monitor{"", name, 0, 0, 0, nullptr, (uint32_t)monitors.size()};
             monitors.emplace(output, mon);
 
             LOG("Wayland: Register <pending> at ID " << mon.ID);

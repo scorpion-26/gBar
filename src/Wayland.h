@@ -12,6 +12,7 @@ namespace Wayland
         uint32_t wlName;
         int32_t width;
         int32_t height;
+        int32_t scale; // TODO: Handle fractional scaling
         zext_workspace_group_handle_v1* workspaceGroup;
         // The Gdk monitor index. This is only a hacky approximation, since there is no way to get the wl_output from a GdkMonitor
         uint32_t ID;
