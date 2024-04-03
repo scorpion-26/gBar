@@ -1,11 +1,15 @@
 #pragma once
+#include <atomic>
 #include <iostream>
+#include <optional>
+#include <thread>
 #include <unistd.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <filesystem>
 #include <map>
+#include <mutex>
 
 #include "Log.h"
 
@@ -183,6 +187,53 @@ inline Process OpenProcess(const std::string& command)
     else
     {
         return {child};
+    }
+}
+
+template<typename Data>
+struct AsyncAtomicContext
+{
+    std::atomic<bool> running = false;
+    std::mutex queueLock;
+    std::optional<Data> queue;
+};
+
+// Executes the callback function asynchronously, but only one at a time.
+// Multiple requests at once are stored in a FIFO of size 1.
+// The context should point to a static reference.
+template<typename Data, typename Callback>
+inline void ExecuteAsyncAtomically(AsyncAtomicContext<Data>& context, const Callback& callback, const Data& data)
+{
+    // Update the queue
+    context.queueLock.lock();
+    context.queue = data;
+    context.queueLock.unlock();
+
+    if (!context.running)
+    {
+        // Launch the thread
+        context.running = true;
+        std::thread(
+            [&, callback]()
+            {
+                while (true)
+                {
+                    context.queueLock.lock();
+                    if (!context.queue.has_value())
+                    {
+                        context.queueLock.unlock();
+                        break;
+                    }
+                    Data data = std::move(*context.queue);
+                    context.queue = {};
+                    context.queueLock.unlock();
+
+                    // Execute
+                    callback(std::move(data));
+                }
+                context.running = false;
+            })
+            .detach();
     }
 }
 

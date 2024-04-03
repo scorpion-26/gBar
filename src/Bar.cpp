@@ -288,14 +288,30 @@ namespace Bar
         Widget* micSlider;
         Button* audioIcon;
         Button* micIcon;
+
+        static AsyncAtomicContext<double> sinkAsyncContext;
         void OnChangeVolumeSink(Slider&, double value)
         {
-            System::SetVolumeSink(value);
+            // Process async and atomically, so the event handler isn't filled up
+            ExecuteAsyncAtomically(
+                sinkAsyncContext,
+                [](double volume)
+                {
+                    System::SetVolumeSink(volume);
+                },
+                value);
         }
 
+        static AsyncAtomicContext<double> sourceAsyncContext;
         void OnChangeVolumeSource(Slider&, double value)
         {
-            System::SetVolumeSource(value);
+            ExecuteAsyncAtomically(
+                sourceAsyncContext,
+                [](double volume)
+                {
+                    System::SetVolumeSource(volume);
+                },
+                value);
         }
 
         // For text
@@ -304,7 +320,14 @@ namespace Bar
         {
             audioVolume += delta;
             audioVolume = std::clamp(audioVolume, 0.0, 1.0);
-            System::SetVolumeSink(audioVolume);
+            // Process async and atomically, so the event handler isn't filled up
+            ExecuteAsyncAtomically(
+                sinkAsyncContext,
+                [](double volume)
+                {
+                    System::SetVolumeSink(volume);
+                },
+                audioVolume);
         }
 
         double micVolume = 0;
@@ -312,7 +335,14 @@ namespace Bar
         {
             micVolume += delta;
             micVolume = std::clamp(micVolume, 0.0, 1.0);
-            System::SetVolumeSource(micVolume);
+            // Process async and atomically, so the event handler isn't filled up
+            ExecuteAsyncAtomically(
+                sourceAsyncContext,
+                [](double volume)
+                {
+                    System::SetVolumeSource(volume);
+                },
+                micVolume);
         }
 
         void OnToggleSink(Button& button)
