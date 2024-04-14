@@ -5,12 +5,15 @@
 #include <array>
 #include <fstream>
 
+#ifdef WITH_LIBSASS
 #include <sass.h>
+#endif
 
 namespace CSS
 {
     static GtkCssProvider* sProvider;
 
+#ifdef WITH_LIBSASS
     bool CompileAndLoadSCSS(const std::string& scssFile)
     {
         if (!std::ifstream(scssFile).is_open())
@@ -43,6 +46,7 @@ namespace CSS
         sass_delete_file_context(ctx);
         return true;
     }
+#endif
 
     bool LoadCSS(const std::string& cssFile)
     {
@@ -112,6 +116,7 @@ namespace CSS
 
         for (auto& dir : locations)
         {
+#ifdef WITH_LIBSASS
             if (!Config::Get().forceCSS)
             {
                 if (CompileAndLoadSCSS(dir + "/style.scss"))
@@ -124,6 +129,7 @@ namespace CSS
                     LOG("Warning: Failed loading SCSS, falling back to CSS!");
                 }
             }
+#endif
 
             if (LoadCSS(dir + "/style.css"))
             {

@@ -4,6 +4,9 @@ option('WithHyprland', type: 'boolean', value : true)
 # Workspaces general, enables Wayland protocol
 option('WithWorkspaces', type: 'boolean', value : true)
 
+# Support for loading SCSS directly
+option('WithLibSass', type: 'boolean', value : true)
+
 # Tray icons
 option('WithSNI', type: 'boolean', value : true)
 
