@@ -11,6 +11,59 @@ namespace CSS
 {
     static GtkCssProvider* sProvider;
 
+    bool CompileAndLoadSCSS(const std::string& scssFile)
+    {
+        if (!std::ifstream(scssFile).is_open())
+        {
+            LOG("Warning: Couldn't open " << scssFile);
+            return false;
+        }
+
+        LOG("Info: Compiling " << scssFile);
+        Sass_File_Context* ctx = sass_make_file_context(scssFile.c_str());
+        Sass_Context* ctxout = sass_file_context_get_context(ctx);
+        sass_compile_file_context(ctx);
+        if (sass_context_get_error_status(ctxout))
+        {
+            LOG("Error compiling SCSS: " << sass_context_get_error_message(ctxout));
+            return false;
+        }
+
+        std::string data = sass_context_get_output_string(ctxout);
+        GError* err = nullptr;
+        gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
+        if (err != nullptr)
+        {
+            LOG("Error loading compiled SCSS: " << err->message);
+            g_error_free(err);
+            err = nullptr;
+            return false;
+        }
+
+        sass_delete_file_context(ctx);
+        return true;
+    }
+
+    bool LoadCSS(const std::string& cssFile)
+    {
+        if (!std::ifstream(cssFile).is_open())
+        {
+            LOG("Warning: Couldn't open " << cssFile);
+            return false;
+        }
+
+        LOG("Info: Loading " << cssFile);
+        GError* err = nullptr;
+        gtk_css_provider_load_from_path(sProvider, cssFile.c_str(), &err);
+        if (err != nullptr)
+        {
+            LOG("Error loading CSS: " << err->message);
+            g_error_free(err);
+            return false;
+        }
+        return true;
+    }
+
     void Load(const std::string& overrideConfigLocation)
     {
         sProvider = gtk_css_provider_new();
@@ -57,56 +110,23 @@ namespace CSS
             locations.push_back("/usr/share/gBar");
         }
 
-        GError* err = nullptr;
         for (auto& dir : locations)
         {
-            std::string file = dir + "/style.scss";
-            bool scss_suceeded = false;
-
-            if (std::ifstream(file).is_open())
+            if (CompileAndLoadSCSS(dir + "/style.scss"))
             {
-                Sass_File_Context* ctx =  sass_make_file_context(file.c_str());
-                Sass_Context* ctxout = sass_file_context_get_context(ctx);
-                sass_compile_file_context(ctx);
-                if(sass_context_get_error_status(ctxout))
-                {
-                    LOG("Error Compiling SCSS: " << sass_context_get_error_message(ctxout));
-                }
-                else
-                {
-                    std::string data = sass_context_get_output_string(ctxout);
-                    gtk_css_provider_load_from_data(sProvider, data.c_str(), data.length(), &err);
-                    scss_suceeded = true;
-                }
-                sass_delete_file_context(ctx);
+                LOG("SCSS found and loaded successfully!");
+                return;
+            }
+            else
+            {
+                LOG("Warning: Failed loading SCSS, falling back to CSS!");
             }
 
-            if (!scss_suceeded)
-            {
-                LOG("Info: couldn't load SCSS from " << dir);
-                file = dir + "/style.css";
-
-                if (!std::ifstream(file).is_open())
-                {
-                    LOG("Info: No CSS found in " << dir);
-                    continue;
-                }
-               
-                gtk_css_provider_load_from_path(sProvider, file.c_str(), &err);
-
-            }
-            
-
-            if (!err)
+            if (LoadCSS(dir + "/style.css"))
             {
                 LOG("CSS found and loaded successfully!");
                 return;
             }
-
-            LOG("Warning: Failed loading config for " << dir << ", trying next one!");
-            // Log any errors
-            LOG(err->message);
-            g_error_free(err);
         }
         ASSERT(false, "No CSS file found!");
     }
