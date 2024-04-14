@@ -41,7 +41,7 @@ menu {
 }
 
 .lock-button {
-  font-size: 28px;
+  font-size: 22px;
   color: #6272a4;
 }
 
@@ -51,7 +51,7 @@ menu {
 }
 
 .power-button {
-  font-size: 28px;
+  font-size: 25px;
   color: #ff5555;
 }
 
@@ -267,27 +267,27 @@ highlight {
 
 .ws-dead {
   color: #44475a;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .ws-inactive {
   color: #6272a4;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .ws-visible {
   color: #8be9fd;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .ws-current {
   color: #f1fa8c;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .ws-active {
   color: #50fa7b;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 @keyframes connectanim {

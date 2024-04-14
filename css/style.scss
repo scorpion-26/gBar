@@ -65,7 +65,7 @@ menu {
     color: $darkblue;
 }
 .lock-button {
-    font-size: 28px;
+    font-size: 22px;
 
     color: $darkblue;
 }
@@ -76,7 +76,7 @@ menu {
 }
 
 .power-button {
-    font-size: 28px;
+    font-size: 25px;
 
     color: $red;
 }
@@ -304,23 +304,23 @@ highlight {
 
 .ws-dead {
     color: $inactive;
-    font-size: $textsize;
+    font-size: 14px;
 }
 .ws-inactive {
     color: $darkblue;
-    font-size: $textsize;
+    font-size: 14px;
 }
 .ws-visible {
     color: $cyan;
-    font-size: $textsize;
+    font-size: 14px;
 }
 .ws-current {
     color: $yellow;
-    font-size: $textsize;
+    font-size: 14px;
 }
 .ws-active {
     color: $green;
-    font-size: $textsize;
+    font-size: 14px;
 }
 
 // Bluetooth Widget
