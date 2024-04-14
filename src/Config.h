@@ -54,6 +54,7 @@ public:
     std::string checkPackagesCommand =
         "p=\"$(checkupdates)\"; e=$?; if [ $e -eq 127 ] ; then exit 127; fi; if [ $e -eq 2 ] ; then echo \"0\" && exit 0; fi; echo \"$p\" | wc -l";
 
+    bool forceCSS = false;     // Whether to disable loading SCSS directly.
     bool centerWidgets = true; // Force the center widgets to be in the center.
     bool audioRevealer = false;
     bool audioInput = false;

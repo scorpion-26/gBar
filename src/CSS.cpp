@@ -112,14 +112,17 @@ namespace CSS
 
         for (auto& dir : locations)
         {
-            if (CompileAndLoadSCSS(dir + "/style.scss"))
+            if (!Config::Get().forceCSS)
             {
-                LOG("SCSS found and loaded successfully!");
-                return;
-            }
-            else
-            {
-                LOG("Warning: Failed loading SCSS, falling back to CSS!");
+                if (CompileAndLoadSCSS(dir + "/style.scss"))
+                {
+                    LOG("SCSS found and loaded successfully!");
+                    return;
+                }
+                else
+                {
+                    LOG("Warning: Failed loading SCSS, falling back to CSS!");
+                }
             }
 
             if (LoadCSS(dir + "/style.css"))

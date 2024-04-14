@@ -12,6 +12,11 @@
 # - foo\nbar -> "foo<newline>bar"
 # - foo\sbar -> "foo bar"
 
+# If true, gBar ignores *.scss files and only tries to load *.css files.
+# This is useful, if you don't want to SCSS, or if you want to use newer SCSS features,
+# that libsass (the backend gBar uses) doesn't support.
+ForceCSS: false
+
 # The following three options control the ordering of the widgets.
 # Reordering can cause slight margin inconsistencies,
 # so it is recommend to only make minor adjustments to the default layout.

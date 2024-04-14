@@ -283,6 +283,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("MicHighIcon", config.micHighIcon, lineView, foundProperty);
         AddConfigVar("PackageOutOfDateIcon", config.packageOutOfDateIcon, lineView, foundProperty);
 
+        AddConfigVar("ForceCSS", config.forceCSS, lineView, foundProperty);
         AddConfigVar("CenterWidgets", config.centerWidgets, lineView, foundProperty);
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
