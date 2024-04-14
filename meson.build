@@ -93,9 +93,6 @@ endif
 if get_option('WithBlueZ')
   add_global_arguments('-DWITH_BLUEZ', language: 'cpp')
 endif
-if get_option('WithSys')
-  add_global_arguments('-DWITH_SYS', language: 'cpp')
-endif
 if get_option('WithSNI')
   add_global_arguments('-DWITH_SNI', language: 'cpp')
 

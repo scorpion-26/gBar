@@ -10,6 +10,3 @@ option('WithSNI', type: 'boolean', value : true)
 option('WithNvidia', type: 'boolean', value : true)
 option('WithAMD', type: 'boolean', value : true)
 option('WithBlueZ', type: 'boolean', value : true)
-
-# You shouldn't enable this, unless you know what you are doing!
-option('WithSys', type: 'boolean', value : false)
