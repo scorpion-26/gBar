@@ -179,7 +179,25 @@ namespace Wayland
 
     // Output Callbacks
     // Very bloated, indeed
-    static void OnOutputGeometry(void*, wl_output*, int32_t, int32_t, int32_t, int32_t, int32_t, const char*, const char*, int32_t) {}
+    static void OnOutputGeometry(void*, wl_output* output, int32_t, int32_t, int32_t, int32_t, int32_t, const char*, const char*, int32_t transform)
+    {
+        auto it = monitors.find(output);
+        ASSERT(it != monitors.end(), "Error: OnOutputGeometry called on unknown monitor");
+        switch (transform)
+        {
+        case WL_OUTPUT_TRANSFORM_NORMAL:
+        case WL_OUTPUT_TRANSFORM_FLIPPED: it->second.rotation = 0; break;
+
+        case WL_OUTPUT_TRANSFORM_90:
+        case WL_OUTPUT_TRANSFORM_FLIPPED_90: it->second.rotation = 90; break;
+
+        case WL_OUTPUT_TRANSFORM_180:
+        case WL_OUTPUT_TRANSFORM_FLIPPED_180: it->second.rotation = 180; break;
+
+        case WL_OUTPUT_TRANSFORM_270:
+        case WL_OUTPUT_TRANSFORM_FLIPPED_270: it->second.rotation = 270; break;
+        }
+    }
     static void OnOutputMode(void*, wl_output* output, uint32_t, int32_t width, int32_t height, int32_t)
     {
         auto it = monitors.find(output);
@@ -211,7 +229,7 @@ namespace Wayland
         if (strcmp(interface, "wl_output") == 0)
         {
             wl_output* output = (wl_output*)wl_registry_bind(registry, name, &wl_output_interface, 4);
-            Monitor mon = Monitor{"", name, 0, 0, 0, nullptr, (uint32_t)monitors.size()};
+            Monitor mon = Monitor{"", name, 0, 0, 0, 0, nullptr, (uint32_t)monitors.size()};
             monitors.emplace(output, mon);
 
             LOG("Wayland: Register <pending> at ID " << mon.ID);
