@@ -246,7 +246,16 @@ int Window::GetWidth() const
 
     const Wayland::Monitor* mon = Wayland::FindMonitorByName(m_MonitorName);
     ASSERT(mon, "Window: Couldn't find monitor");
-    return mon->width / mon->scale;
+
+    int viewedWidth = mon->width;
+
+    // A 90/270 rotation should use the height for the viewed width
+    switch (mon->rotation)
+    {
+    case 90:
+    case 270: viewedWidth = mon->height; break;
+    }
+    return viewedWidth / mon->scale;
 }
 
 int Window::GetHeight() const
@@ -257,7 +266,16 @@ int Window::GetHeight() const
 
     const Wayland::Monitor* mon = Wayland::FindMonitorByName(m_MonitorName);
     ASSERT(mon, "Window: Couldn't find monitor");
-    return mon->height / mon->scale;
+
+    int viewedHeight = mon->height;
+
+    // A 90/270 rotation should use the width for the viewed height
+    switch (mon->rotation)
+    {
+    case 90:
+    case 270: viewedHeight = mon->width; break;
+    }
+    return viewedHeight / mon->scale;
 }
 
 void Window::MonitorAdded(GdkDisplay*, GdkMonitor*)
