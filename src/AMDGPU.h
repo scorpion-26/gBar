@@ -11,7 +11,7 @@ namespace AMDGPU
     static const char* vramTotalFile = "/device/mem_info_vram_total";
     static const char* vramUsedFile = "/device/mem_info_vram_used";
     // TODO: Make this configurable
-    static const char* tempFile = "/sys/class/drm/card0/device/hwmon/hwmon1/temp1_input";
+    static const char* tempFile = "/device/hwmon/hwmon0/temp1_input";
 
     inline void Init()
     {
