@@ -38,6 +38,11 @@ in {
                     default = "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input";
                     description = "path to the cpu thermal sensor, probably something in /sys/device";
                 };
+                GPUThermalZone = mkOption {
+                    type = types.nullOr types.str;
+                    default = "/sys/class/drm/card0/device/hwmon/hwmon0/temp1_input";
+                    description = "path to the gpu thermal sensor, probably something in /sys/device";
+                };
                 SuspendCommand = mkOption {
                     type = types.str;
                     default = "systemctl suspend";
