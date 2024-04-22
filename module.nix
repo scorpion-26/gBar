@@ -40,7 +40,7 @@ in {
                 };
                 GPUThermalZone = mkOption {
                     type = types.nullOr types.str;
-                    default = "/sys/class/drm/card0/device/hwmon/hwmon0/temp1_input";
+                    default = "";
                     description = "path to the gpu thermal sensor, probably something in /sys/device";
                 };
                 SuspendCommand = mkOption {
