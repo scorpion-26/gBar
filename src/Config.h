@@ -14,7 +14,7 @@ public:
                                              "VRAM", "GPU",      "RAM",   "CPU",       "Battery", "Power"};
 
     std::string cpuThermalZone = "";     // idk, no standard way of doing this.
-    std::string gpuThermalZone = "";
+    std::string amdGpuThermalZone = "/device/hwmon/hwmon0/temp1_input";
     std::string networkAdapter = "eno1"; // Is this standard?
     std::string drmAmdCard = "card0";    // The card to poll in AMDGPU.
     std::string suspendCommand = "systemctl suspend";

@@ -10,7 +10,6 @@ namespace AMDGPU
     static const char* utilizationFile = "/device/gpu_busy_percent";
     static const char* vramTotalFile = "/device/mem_info_vram_total";
     static const char* vramUsedFile = "/device/mem_info_vram_used";
-    static const char* tempFile = "/device/hwmon/hwmon0/temp1_input";
 
     inline void Init()
     {
@@ -39,19 +38,13 @@ namespace AMDGPU
 
     inline uint32_t GetTemperature()
     {
-        if (!RuntimeConfig::Get().hasAMD && Config::Get().gpuThermalZone.empty())
+        if (!RuntimeConfig::Get().hasAMD)
         {
             LOG("Error: Called AMD GetTemperature, but AMD GPU wasn't found!");
             return {};
         }
-        std::ifstream file;
 
-        if (Config::Get().gpuThermalZone.empty()) 
-        {
-          file.open(Config::Get().gpuThermalZone);
-        } else {
-          file.open(drmCardPrefix + Config::Get().drmAmdCard + tempFile);
-        }
+        std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + Config::Get().amdGpuThermalZone);
 
         std::string line;
         std::getline(file, line);
