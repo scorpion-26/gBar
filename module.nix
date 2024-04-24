@@ -45,7 +45,7 @@ in {
                 };
                 AmdGPUThermalZone = mkOption {
                     type = types.nullOr types.str;
-                    default = "/device/hwmon/hwmon0/temp1_input";
+                    default = "/device/hwmon/hwmon1/temp1_input";
                     description = "Relative path to AMD gpu thermal sensor, appended after /sys/class/drm/<DrmAmdCard>";
                 };
                 SuspendCommand = mkOption {
