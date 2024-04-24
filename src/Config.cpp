@@ -252,6 +252,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("WidgetsRight", config.widgetsRight, lineView, foundProperty);
 
         AddConfigVar("CPUThermalZone", config.cpuThermalZone, lineView, foundProperty);
+        AddConfigVar("AmdGPUThermalZone", config.amdGpuThermalZone, lineView, foundProperty);
         AddConfigVar("NetworkAdapter", config.networkAdapter, lineView, foundProperty);
         AddConfigVar("DrmAmdCard", config.drmAmdCard, lineView, foundProperty);
         AddConfigVar("SuspendCommand", config.suspendCommand, lineView, foundProperty);

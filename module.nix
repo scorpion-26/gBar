@@ -38,6 +38,16 @@ in {
                     default = "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input";
                     description = "path to the cpu thermal sensor, probably something in /sys/device";
                 };
+                DrmAmdCard = mkOption {
+                    type = types.nullOr types.str;
+                    default = "card0";
+                    description = "AMD card to be queried for various system usage and temperature metrics. This can be found in /sys/class/drm";
+                };
+                AmdGPUThermalZone = mkOption {
+                    type = types.nullOr types.str;
+                    default = "/device/hwmon/hwmon1/temp1_input";
+                    description = "Relative path to AMD gpu thermal sensor, appended after /sys/class/drm/<DrmAmdCard>";
+                };
                 SuspendCommand = mkOption {
                     type = types.str;
                     default = "systemctl suspend";

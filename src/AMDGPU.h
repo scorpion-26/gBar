@@ -10,8 +10,6 @@ namespace AMDGPU
     static const char* utilizationFile = "/device/gpu_busy_percent";
     static const char* vramTotalFile = "/device/mem_info_vram_total";
     static const char* vramUsedFile = "/device/mem_info_vram_used";
-    // TODO: Make this configurable
-    static const char* tempFile = "/sys/class/drm/card0/device/hwmon/hwmon1/temp1_input";
 
     inline void Init()
     {
@@ -46,7 +44,8 @@ namespace AMDGPU
             return {};
         }
 
-        std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + tempFile);
+        std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + Config::Get().amdGpuThermalZone);
+
         std::string line;
         std::getline(file, line);
         return atoi(line.c_str()) / 1000;
