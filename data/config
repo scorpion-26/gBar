@@ -32,6 +32,13 @@ WidgetsRight: [Tray, Packages, Audio, Bluetooth, Network, Disk, VRAM, GPU, RAM, 
 # The CPU sensor to use
 CPUThermalZone: /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input
 
+# The card to poll when using AMDGPU. If you don't have an AMD card, you can skip this config.
+# Possible values can be found by querying /sys/class/drm
+DrmAmdCard: card0
+
+# Relative path to AMD gpu thermal sensor, appended after /sys/class/drm/<DrmAmdCard>
+AmdGPUThermalZone: /device/hwmon/hwmon1/temp1_input
+
 # The command to execute on suspend
 SuspendCommand: ~/.config/scripts/sys.sh suspend
 
@@ -159,10 +166,6 @@ NetworkAdapter: eno1
 
 # Disables the network widget when set to false
 NetworkWidget: true
-
-# The card to poll when using AMDGPU. If you don't have an AMD card, you can skip this config.
-# Possible values can be found by querying /sys/class/drm
-DrmAmdCard: card0
 
 # Use tooltips instead of sliders for the sensors
 SensorTooltips: false
