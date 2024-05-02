@@ -226,6 +226,7 @@ namespace SNI
                     g_variant_unref(iconNameVar);
                 }
             }
+            bool gotPixbuf = false;
             if (iconName != "")
             {
                 GdkPixbuf* pixbuf = nullptr;
@@ -258,11 +259,13 @@ namespace SNI
                     data->item.pixbuf = pixbuf;
                     data->item.w = gdk_pixbuf_get_width(pixbuf);
                     data->item.h = gdk_pixbuf_get_height(pixbuf);
+                    gotPixbuf = true;
                 }
             }
 
-            if (data->item.pixbuf == nullptr)
+            if (!gotPixbuf)
             {
+                // IconName failed to load, try IconPixmap as a fallback
                 GVariant* iconPixmap = getProperty("IconPixmap");
                 if (iconPixmap == nullptr)
                 {
