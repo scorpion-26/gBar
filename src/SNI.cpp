@@ -11,6 +11,7 @@
 #include <libdbusmenu-gtk/menu.h>
 
 #include <cstdio>
+#include <filesystem>
 #include <unordered_set>
 
 namespace SNI
@@ -152,8 +153,29 @@ namespace SNI
                 {
                     LOG("SNI: Error querying tooltip");
                 }
-                LOG("SNI: Title: " << data->item.tooltip);
+                LOG("SNI: Tooltip: " << data->item.tooltip);
                 g_variant_unref(tooltip);
+            }
+
+            if (data->item.tooltip.empty())
+            {
+                LOG("SNI: No tooltip found, using title as tooltip");
+                // No tooltip, use title as tooltip
+                GVariant* title = getProperty("Title");
+                if (title)
+                {
+                    const gchar* titleStr = g_variant_get_string(title, nullptr);
+                    if (titleStr != nullptr)
+                    {
+                        data->item.tooltip = titleStr;
+                    }
+                    else
+                    {
+                        LOG("SNI: Error querying title");
+                    }
+                    LOG("SNI: Fallback tooltip: " << data->item.tooltip);
+                    g_variant_unref(title);
+                }
             }
 
             // Query menu
