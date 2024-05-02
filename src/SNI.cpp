@@ -228,15 +228,31 @@ namespace SNI
             }
             if (iconName != "")
             {
-                GError* err = nullptr;
-                GtkIconTheme* defaultTheme = gtk_icon_theme_get_default();
-                GdkPixbuf* pixbuf = gtk_icon_theme_load_icon(defaultTheme, iconName.c_str(), 64, GTK_ICON_LOOKUP_FORCE_SVG, &err);
-                if (err)
+                GdkPixbuf* pixbuf = nullptr;
+                if (std::filesystem::path(iconName).is_absolute())
                 {
-                    LOG("SNI: gtk_icon_theme_load_icon failed: " << err->message);
-                    g_error_free(err);
+                    // The icon name is an absolute path. This is not according to spec, but some apps (e.g. Spotube) still do it this way.
+                    LOG("SNI: Warning: IconName shouldn't be a full path!");
+                    GError* err = nullptr;
+                    pixbuf = gdk_pixbuf_new_from_file(iconName.c_str(), &err);
+                    if (err)
+                    {
+                        LOG("SNI: gdk_pixbuf_new_from_file failed: " << err->message);
+                    }
                 }
-                else if (pixbuf)
+                else
+                {
+                    GError* err = nullptr;
+                    GtkIconTheme* defaultTheme = gtk_icon_theme_get_default();
+                    pixbuf = gtk_icon_theme_load_icon(defaultTheme, iconName.c_str(), 64, GTK_ICON_LOOKUP_FORCE_SVG, &err);
+                    if (err)
+                    {
+                        LOG("SNI: gtk_icon_theme_load_icon failed: " << err->message);
+                        g_error_free(err);
+                    }
+                }
+
+                if (pixbuf)
                 {
                     LOG("SNI: Creating icon from \"" << iconName << "\"");
                     data->item.pixbuf = pixbuf;
