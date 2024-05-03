@@ -80,11 +80,40 @@ namespace Workspaces
             }
         }
 
+        std::string GetSocketPath()
+        {
+            const char* instanceSignature = getenv("HYPRLAND_INSTANCE_SIGNATURE");
+            const char* xdgRuntimeDir = getenv("XDG_RUNTIME_DIR");
+            if (!instanceSignature || !xdgRuntimeDir)
+            {
+                return "";
+            }
+
+            // First try $XDG_RUNTIME_DIR/hypr/.../. This is the new dir.
+            std::string socketPath = std::string(xdgRuntimeDir) + "/hypr/" + instanceSignature + "/.socket.sock";
+            if (std::filesystem::exists(socketPath))
+            {
+                return socketPath;
+            }
+
+            // Next try /tmp/hypr/.../. This is removed as of https://github.com/hyprwm/Hyprland/pull/5788
+            socketPath = "/tmp/hypr/" + std::string(instanceSignature) + "/.socket.sock";
+            if (std::filesystem::exists(socketPath))
+            {
+                return socketPath;
+            }
+            return "";
+        }
+
         std::string DispatchIPC(const std::string& arg)
         {
             int hyprSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-            const char* instanceSignature = getenv("HYPRLAND_INSTANCE_SIGNATURE");
-            std::string socketPath = "/tmp/hypr/" + std::string(instanceSignature) + "/.socket.sock";
+            std::string socketPath = GetSocketPath();
+            if (socketPath == "")
+            {
+                LOG("Error: Couldn't find the Hyprland socket!");
+                return "";
+            }
 
             sockaddr_un addr = {};
             addr.sun_family = AF_UNIX;
@@ -98,7 +127,7 @@ namespace Workspaces
                 5, "connect");
             if (ret < 0)
             {
-                LOG("Couldn't connect to Hyprland socket.");
+                LOG("Error: Couldn't connect to Hyprland socket.");
                 return "";
             }
 
@@ -110,7 +139,7 @@ namespace Workspaces
                 5, "write");
             if (written < 0)
             {
-                LOG("Couldn't write to Hyprland socket.");
+                LOG("Error: Couldn't write to Hyprland socket.");
                 return "";
             }
             char buf[2056];
@@ -130,7 +159,7 @@ namespace Workspaces
                 }
                 if (bytesRead < 0)
                 {
-                    LOG("Couldn't read from Hyprland socket.");
+                    LOG("Error: Couldn't read from Hyprland socket.");
                     return "";
                 }
                 res += std::string(buf, bytesRead);
