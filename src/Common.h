@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <map>
 #include <mutex>
+#include <algorithm>
 
 #include "Log.h"
 

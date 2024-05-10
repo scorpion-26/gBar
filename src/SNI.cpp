@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <unordered_set>
+#include <algorithm>
 
 namespace SNI
 {
