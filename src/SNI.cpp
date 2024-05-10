@@ -10,6 +10,7 @@
 #include <gio/gio.h>
 #include <libdbusmenu-gtk/menu.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <filesystem>
 #include <unordered_set>
