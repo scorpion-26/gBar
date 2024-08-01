@@ -450,8 +450,15 @@ namespace Bar
         TimerResult UpdateWorkspaces(Box&)
         {
             System::PollWorkspaces(monitor, workspaces.size());
+            uint32_t maxWorkspace = Config::Get().workspaceHideUnused ? System::GetMaxUsedWorkspace() : 0;
             for (size_t i = 0; i < workspaces.size(); i++)
             {
+                if (Config::Get().workspaceHideUnused)
+                {
+                    // Only show ws's, who are before the max used ws
+                    workspaces[i]->SetVisible(i < maxWorkspace);
+                }
+
                 switch (System::GetWorkspaceStatus(i + 1))
                 {
                 case System::WorkspaceStatus::Dead: workspaces[i]->SetClass("ws-dead"); break;

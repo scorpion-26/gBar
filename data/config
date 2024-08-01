@@ -94,6 +94,9 @@ WorkspaceScrollInvert: false
 # Number of workspaces to display. Displayed workspace IDs are 1-n (Default: 1-9)
 NumWorkspaces: 9
 
+# Hide trailing unused workspaces (by ID). A workspace is considered unused, if it has no window on it
+WorkspaceHideUnused: true
+
 # Use Hyprland IPC instead of the ext_workspace protocol for workspace polling.
 # Hyprland IPC is *slightly* less performant (+0.1% one core), but way less bug prone,
 # since the protocol is not as feature complete as Hyprland IPC.

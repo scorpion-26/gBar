@@ -502,6 +502,10 @@ namespace System
     {
         return Workspaces::GetStatus(workspace);
     }
+    uint32_t GetMaxUsedWorkspace()
+    {
+        return Workspaces::GetMaxUsedWorkspace();
+    }
     void GotoWorkspace(uint32_t workspace)
     {
         return Workspaces::Goto(workspace);

@@ -13,7 +13,7 @@ public:
     std::vector<std::string> widgetsRight = {"Tray", "Packages", "Audio", "Bluetooth", "Network", "Disk",
                                              "VRAM", "GPU",      "RAM",   "CPU",       "Battery", "Power"};
 
-    std::string cpuThermalZone = "";     // idk, no standard way of doing this.
+    std::string cpuThermalZone = ""; // idk, no standard way of doing this.
     std::string amdGpuThermalZone = "/device/hwmon/hwmon1/temp1_input";
     std::string networkAdapter = "eno1"; // Is this standard?
     std::string drmAmdCard = "card0";    // The card to poll in AMDGPU.
@@ -63,6 +63,7 @@ public:
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1
+    bool workspaceHideUnused = false;     // Only display necessary workspaces (i.e. trailing empty workspaces)
     bool useHyprlandIPC = true;           // Use Hyprland IPC instead of ext_workspaces protocol (Less buggy, but also less performant)
     bool enableSNI = true;                // Enable tray icon
     bool sensorTooltips = false;          // Use tooltips instead of sliders for the sensors

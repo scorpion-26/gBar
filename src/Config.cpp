@@ -292,6 +292,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("NetworkWidget", config.networkWidget, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollOnMonitor", config.workspaceScrollOnMonitor, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollInvert", config.workspaceScrollInvert, lineView, foundProperty);
+        AddConfigVar("WorkspaceHideUnused", config.workspaceHideUnused, lineView, foundProperty);
         AddConfigVar("UseHyprlandIPC", config.useHyprlandIPC, lineView, foundProperty);
         AddConfigVar("EnableSNI", config.enableSNI, lineView, foundProperty);
         AddConfigVar("SensorTooltips", config.sensorTooltips, lineView, foundProperty);

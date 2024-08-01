@@ -20,6 +20,8 @@ namespace Workspaces
 
     System::WorkspaceStatus GetStatus(uint32_t workspaceId);
 
+    uint32_t GetMaxUsedWorkspace();
+
     void Shutdown();
 
     // TODO: Use ext_workspaces for this, if applicable

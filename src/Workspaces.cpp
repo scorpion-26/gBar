@@ -65,6 +65,18 @@ namespace Workspaces
 
             return System::WorkspaceStatus::Dead;
         }
+        uint32_t GetMaxUsedWorkspace()
+        {
+            uint32_t maxUsedWorkspace = 0;
+            for (auto& workspace : ::Wayland::GetWorkspaces())
+            {
+                if (workspace.second.id > maxUsedWorkspace)
+                {
+                    maxUsedWorkspace = workspace.second.id;
+                }
+            }
+            return maxUsedWorkspace;
+        }
     }
 
 #ifdef WITH_HYPRLAND
@@ -169,6 +181,7 @@ namespace Workspaces
         }
 
         static std::vector<System::WorkspaceStatus> workspaceStati;
+        static uint32_t maxUsedWorkspace = 0;
 
         void PollStatus(const std::string& monitor, uint32_t numWorkspaces)
         {
@@ -179,6 +192,7 @@ namespace Workspaces
             }
             workspaceStati.clear();
             workspaceStati.resize(numWorkspaces, System::WorkspaceStatus::Dead);
+            maxUsedWorkspace = 0;
 
             size_t parseIdx = 0;
             // First parse workspaces
@@ -197,6 +211,9 @@ namespace Workspaces
                     // WS is at least inactive
                     workspaceStati[wsId - 1] = System::WorkspaceStatus::Inactive;
                 }
+                // Update maxUsedWorkspace
+                if (wsId > 0 && (uint32_t)wsId > maxUsedWorkspace)
+                    maxUsedWorkspace = wsId;
                 parseIdx = endWSNum;
             }
 
@@ -244,6 +261,9 @@ namespace Workspaces
                         workspaceStati[wsId - 1] = System::WorkspaceStatus::Visible;
                     }
                 }
+                // Update maxUsedWorkspace
+                if (wsId > 0 && (uint32_t)wsId > maxUsedWorkspace)
+                    maxUsedWorkspace = wsId;
             }
         }
 
@@ -256,6 +276,11 @@ namespace Workspaces
             }
             ASSERT(workspaceId > 0 && workspaceId <= workspaceStati.size(), "Invalid workspaceId, you need to poll the workspace first!");
             return workspaceStati[workspaceId - 1];
+        }
+
+        uint32_t GetMaxUsedWorkspace()
+        {
+            return maxUsedWorkspace;
         }
     }
 #endif
@@ -292,6 +317,17 @@ namespace Workspaces
         }
 #endif
         return Wayland::GetStatus(workspaceId);
+    }
+
+    uint32_t GetMaxUsedWorkspace()
+    {
+#ifdef WITH_HYPRLAND
+        if (Config::Get().useHyprlandIPC)
+        {
+            return Hyprland::GetMaxUsedWorkspace();
+        }
+#endif
+        return Wayland::GetMaxUsedWorkspace();
     }
 
     void Shutdown() {}

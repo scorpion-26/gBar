@@ -99,6 +99,7 @@ namespace System
     };
     void PollWorkspaces(const std::string& monitor, uint32_t numWorkspaces);
     WorkspaceStatus GetWorkspaceStatus(uint32_t workspace);
+    uint32_t GetMaxUsedWorkspace();
     void GotoWorkspace(uint32_t workspace);
     // direction: + or -
     void GotoNextWorkspace(char direction);
