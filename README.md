@@ -9,6 +9,7 @@ My personal blazingly fast and efficient status bar + widgets, in case anyone fi
 - Hyprland(Optional -> For workspaces widget)
 - nvidia-utils(Optional -> For Nvidia GPU status)
 - bluez(Optional -> For Bluetooth status)
+- checkupdates-with-aur (Optional -> For checking updates in Arch Linux)
 - GTK 3.0
 - gtk-layer-shell
 - PulseAudio server (PipeWire works too!)
