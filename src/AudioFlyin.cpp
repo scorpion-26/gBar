@@ -78,14 +78,19 @@ namespace AudioFlyin
             }
 
             msOpen++;
-            auto marginFunction = [](int32_t x) -> int32_t
+
+            if (Config::Get().manualFlyinAnimation)
             {
-                // A inverted, cutoff 'V' shape
-                // Fly in -> hover -> fly out
-                double steepness = (double)height / (double)transitionTime;
-                return (int32_t)std::min(-std::abs((double)x - (double)curCloseTime / 2) * steepness + (double)curCloseTime / 2, (double)height);
-            };
-            win->SetMargin(Anchor::Bottom, marginFunction(msOpen));
+                auto marginFunction = [](int32_t x) -> int32_t
+                {
+                    // A inverted, cutoff 'V' shape
+                    // Fly in -> hover -> fly out
+                    double steepness = (double)height / (double)transitionTime;
+                    return (int32_t)std::min(-std::abs((double)x - (double)curCloseTime / 2) * steepness + (double)curCloseTime / 2, (double)height);
+                };
+                win->SetMargin(Anchor::Bottom, marginFunction(msOpen));
+            }
+
             if (msOpen >= curCloseTime)
             {
                 win->Close();
@@ -151,9 +156,16 @@ namespace AudioFlyin
         mainWidget->AddChild(std::move(padding));
 
         // We want the audio flyin on top of fullscreen windows
+        window.SetLayerNamespace("gbar-audio");
         window.SetLayer(Layer::Overlay);
         window.SetExclusive(false);
         window.SetAnchor(Anchor::Bottom);
         window.SetMainWidget(std::move(mainWidget));
+
+        if (!Config::Get().manualFlyinAnimation)
+        {
+            // Do the margin here, so we don't need to update it every frame
+            window.SetMargin(Anchor::Bottom, DynCtx::height);
+        }
     }
 }

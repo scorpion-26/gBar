@@ -289,6 +289,7 @@ void Config::Load(const std::string& overrideConfigLocation)
         AddConfigVar("AudioInput", config.audioInput, lineView, foundProperty);
         AddConfigVar("AudioRevealer", config.audioRevealer, lineView, foundProperty);
         AddConfigVar("AudioNumbers", config.audioNumbers, lineView, foundProperty);
+        AddConfigVar("ManualFlyinAnimation", config.manualFlyinAnimation, lineView, foundProperty);
         AddConfigVar("NetworkWidget", config.networkWidget, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollOnMonitor", config.workspaceScrollOnMonitor, lineView, foundProperty);
         AddConfigVar("WorkspaceScrollInvert", config.workspaceScrollInvert, lineView, foundProperty);

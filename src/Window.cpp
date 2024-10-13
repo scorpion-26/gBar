@@ -140,6 +140,8 @@ void Window::Create()
     case Layer::Overlay: gtk_layer_set_layer(m_Window, GTK_LAYER_SHELL_LAYER_OVERLAY); break;
     }
 
+    gtk_layer_set_namespace(m_Window, m_LayerNamespace.c_str());
+
     if (m_Exclusive)
         gtk_layer_auto_exclusive_zone_enable(m_Window);
 

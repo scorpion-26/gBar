@@ -59,7 +59,8 @@ public:
     bool centerWidgets = true; // Force the center widgets to be in the center.
     bool audioRevealer = false;
     bool audioInput = false;
-    bool audioNumbers = false; // Affects both audio sliders
+    bool audioNumbers = false;         // Affects both audio sliders
+    bool manualFlyinAnimation = false; // Do the flyin animation via margin updating
     bool networkWidget = true;
     bool workspaceScrollOnMonitor = true; // Scroll through workspaces on monitor instead of all
     bool workspaceScrollInvert = false;   // Up = +1, instead of Up = -1

@@ -37,6 +37,7 @@ public:
     void SetMargin(Anchor anchor, int32_t margin);
     void SetExclusive(bool exclusive) { m_Exclusive = exclusive; }
     void SetLayer(Layer layer) { m_Layer = layer; }
+    void SetLayerNamespace(const std::string& layerNamespace) { m_LayerNamespace = layerNamespace; }
 
     void SetMainWidget(std::unique_ptr<Widget>&& mainWidget);
 
@@ -69,6 +70,7 @@ private:
     std::array<std::pair<Anchor, int32_t>, 4> m_Margin;
     bool m_Exclusive = true;
     Layer m_Layer = Layer::Top;
+    std::string m_LayerNamespace = "gbar";
 
     // The monitor we are currently on.
     std::string m_MonitorName;
