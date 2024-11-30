@@ -282,6 +282,5 @@ in {
       text = cfg.extraCSS;
     xdg.configFile."gBar/style.scss" = mkIf (cfg.extraSCSS != null) {
       text = cfg.extraSCSS;
-    };
   };
 }
