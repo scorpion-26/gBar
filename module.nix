@@ -250,6 +250,7 @@ in {
         Configuration to write to ~/.config/gBar/style.css, if none nothing happens
       '';
     };
+
     extraSCSS = mkOption {
       type = types.nullOr types.lines;
       default = null;
