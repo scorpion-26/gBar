@@ -280,7 +280,9 @@ in {
     };
     xdg.configFile."gBar/style.css" = mkIf (cfg.extraCSS != null) {
       text = cfg.extraCSS;
+    };
     xdg.configFile."gBar/style.scss" = mkIf (cfg.extraSCSS != null) {
       text = cfg.extraSCSS;
+    };
   };
 }
