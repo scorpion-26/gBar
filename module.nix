@@ -250,6 +250,14 @@ in {
         Configuration to write to ~/.config/gBar/style.css, if none nothing happens
       '';
     };
+
+    extraSCSS = mkOption {
+      type = types.nullOr types.lines;
+      default = null;
+      description = ''
+        Configuration to write to ~/.config/gBar/style.scss, if none nothing happens
+      '';
+    };
   };
 
   config = let
@@ -273,6 +281,9 @@ in {
     };
     xdg.configFile."gBar/style.css" = mkIf (cfg.extraCSS != null) {
       text = cfg.extraCSS;
+    };
+    xdg.configFile."gBar/style.scss" = mkIf (cfg.extraSCSS != null) {
+      text = cfg.extraSCSS;
     };
   };
 }
