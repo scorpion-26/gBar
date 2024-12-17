@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include <algorithm>
+#include <cstdlib>
 #include <iostream>
 #include <optional>
 #include <thread>

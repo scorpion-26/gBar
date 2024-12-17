@@ -53,8 +53,8 @@ namespace AMDGPU
 
     struct VRAM
     {
-        uint32_t totalB;
-        uint32_t usedB;
+        uint64_t totalB;
+        uint64_t usedB;
     };
 
     inline VRAM GetVRAM()
@@ -69,11 +69,11 @@ namespace AMDGPU
         std::ifstream file(drmCardPrefix + Config::Get().drmAmdCard + vramTotalFile);
         std::string line;
         std::getline(file, line);
-        mem.totalB = atoi(line.c_str());
+        mem.totalB = strtoul(line.c_str(), nullptr, 10);
 
         file = std::ifstream(drmCardPrefix + Config::Get().drmAmdCard + vramUsedFile);
         std::getline(file, line);
-        mem.usedB = atoi(line.c_str());
+        mem.usedB = strtoul(line.c_str(), nullptr, 10);
 
         return mem;
     }
